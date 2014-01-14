@@ -1,0 +1,22 @@
+{
+    "name": "panadas/core",
+    "description": "PHP5 web application framework.",
+    "license": "MIT",
+    "type": "library",
+    "require": {
+        "php": ">=5.5.0",
+        "panadas/util": "1.0.*",
+        "panadas/module-httpclient": "1.0.*"
+    },
+    "autoload": {
+        "psr-0" : {
+            "Panadas\\": "src/lib/",
+            "Controller\\": "src/lib/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    }
+}
