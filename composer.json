@@ -5,9 +5,11 @@
     "type": "library",
     "require": {
         "php": ">=5.5.0",
-        "panadas/module-httpclient": "1.0.*",
-        "panadas/module-logger": "1.0.*",
         "panadas/util": "1.0.*"
+    },
+    "suggest" {
+        "panadas/module-monolog": "Adds support for monolog to your application."
+        "panadas/module-router": "Map requests to controllers in your application."
     },
     "autoload": {
         "psr-0" : {
