@@ -8,7 +8,7 @@
         "panadas/util": "1.0.*"
     },
     "suggest" {
-        "panadas/module-monolog": "Adds support for monolog to your application."
+        "panadas/module-monolog": "Adds support for monolog to your application.",
         "panadas/module-router": "Map requests to controllers in your application."
     },
     "autoload": {
