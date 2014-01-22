@@ -107,11 +107,4 @@ class ServiceContainer extends \Panadas\AppHostAbstract
         return $this->removeAll()->addMany($services);
     }
 
-    public function factory($id, array $vars = [])
-    {
-        $vars["service_container"] = $this;
-
-        return $this->add($id, $this->getApp()->factory("service/{$id}", $vars));
-    }
-
 }

@@ -115,12 +115,4 @@ class Loader extends \Panadas\BaseAbstract
         return $import($path, $once, $vars, $contents);
     }
 
-    public function factory($filename, array $vars = [])
-    {
-        $path = $this->getAbsolutePath("etc/factory/{$filename}.php");
-        $vars["loader"] = $this;
-
-        return $this->import($path, false, $vars);
-    }
-
 }

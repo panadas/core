@@ -17,7 +17,7 @@ class App extends \Panadas\BaseAbstract
     const ACTION_HTTP_ERROR = "HttpError";
     const ACTION_REDIRECT = "Redirect";
 
-    public function __construct($name, \Panadas\Loader $loader, array $server_vars, array $env_vars)
+    public function __construct($name, \Panadas\Loader $loader, callable $service_container_callback, array $server_vars, array $env_vars)
     {
         parent::__construct();
 
@@ -26,7 +26,7 @@ class App extends \Panadas\BaseAbstract
             ->replaceServerVars($server_vars)
             ->replaceEnvVars($env_vars)
             ->setLoader($loader)
-            ->setServiceContainer($this->factory("service_container"));
+            ->setServiceContainer($service_container_callback($this));
 
         if ($this->isDebugMode()) {
             ini_set("display_errors", true);
@@ -453,7 +453,7 @@ class App extends \Panadas\BaseAbstract
         return $this->hasMasterRequest();
     }
 
-    public function run()
+    public function run(\Panadas\Request $request)
     {
         try {
 
@@ -461,7 +461,6 @@ class App extends \Panadas\BaseAbstract
                 throw new \RuntimeException("Application is already running");
             }
 
-            $request = $this->factory("request");
             $this
                 ->setMasterRequest($request)
                 ->setActiveRequest($request);
