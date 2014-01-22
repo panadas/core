@@ -13,8 +13,8 @@
     },
     "autoload": {
         "psr-0" : {
-            "Panadas\\": "src/lib/",
-            "Controller\\": "src/lib/"
+            "Panadas\\": "src/",
+            "Controller\\": "src/"
         }
     },
     "extra": {
