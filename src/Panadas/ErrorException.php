@@ -4,11 +4,18 @@ namespace Panadas;
 class ErrorException extends \ErrorException implements \JsonSerializable
 {
 
+    /**
+     * @see JsonSerializable::jsonSerialize()
+     * @return array
+     */
     public function jsonSerialize()
     {
         return $this->__toArray();
     }
 
+    /**
+     * @return array
+     */
     public function __toArray()
     {
         return [
@@ -22,37 +29,36 @@ class ErrorException extends \ErrorException implements \JsonSerializable
         ];
     }
 
+    /**
+     * @return string
+     */
     public function getCodeAsString()
     {
-        $constants = [
-            "E_ERROR",
-            "E_WARNING",
-            "E_PARSE",
-            "E_NOTICE",
-            "E_CORE_ERROR",
-            "E_CORE_WARNING",
-            "E_COMPILE_ERROR",
-            "E_COMPILE_WARNING",
-            "E_USER_ERROR",
-            "E_USER_WARNING",
-            "E_USER_NOTICE",
-            "E_STRICT",
-            "E_RECOVERABLE_ERROR",
-            "E_DEPRECATED",
-            "E_USER_DEPRECATED"
+        $map = [
+            E_ERROR => "E_ERROR",
+            E_WARNING => "E_WARNING",
+            E_PARSE => "E_PARSE",
+            E_NOTICE => "E_NOTICE",
+            E_CORE_ERROR => "E_CORE_ERROR",
+            E_CORE_WARNING => "E_CORE_WARNING",
+            E_COMPILE_ERROR => "E_COMPILE_ERROR",
+            E_COMPILE_WARNING => "E_COMPILE_WARNING",
+            E_USER_ERROR => "E_USER_ERROR",
+            E_USER_WARNING => "E_USER_WARNING",
+            E_USER_NOTICE => "E_USER_NOTICE",
+            E_STRICT => "E_STRICT",
+            E_RECOVERABLE_ERROR => "E_RECOVERABLE_ERROR",
+            E_DEPRECATED => "E_DEPRECATED",
+            E_USER_DEPRECATED => "E_USER_DEPRECATED",
         ];
 
-        $code = parent::getCode();
+        $code = $this->getCode();
 
-        if ($code > 0) {
-            foreach ($constants as $constant) {
-                if ($code == constant($constant)) {
-                    return $constant;
-                }
-            }
+        if ( ! array_key_exists($code, $map)) {
+            return null;
         }
 
-        return "UNKNOWN";
+        return $map[$code];
     }
 
 }

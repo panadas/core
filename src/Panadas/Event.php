@@ -1,7 +1,7 @@
 <?php
 namespace Panadas;
 
-class Event extends \Panadas\AppHostAbstract
+class Event extends \Panadas\AppContainer
 {
 
     private $name;

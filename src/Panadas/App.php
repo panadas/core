@@ -1,7 +1,7 @@
 <?php
 namespace Panadas;
 
-class App extends \Panadas\BaseAbstract
+class App extends \Panadas\AbstractBase
 {
 
     private $name;

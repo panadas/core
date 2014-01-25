@@ -7,6 +7,9 @@
         "php": ">=5.5.0",
         "panadas/util": "~1.0"
     },
+    "require-dev": {
+        "phpunit/phpunit": "~3.7.0"
+    },
     "suggest": {
         "panadas/module-logger": "Adds support for monolog to your application.",
         "panadas/module-router": "Map requests to controllers in your application."

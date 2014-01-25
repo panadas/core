@@ -1,12 +1,17 @@
 <?php
 namespace Panadas;
 
-abstract class ControllerAbstract extends \Panadas\AppHostAbstract implements \Panadas\ControllerInterface
+abstract class AbstractController extends \Panadas\AppContainer implements \Panadas\ControllerInterface
 {
 
     private $name;
     private $args = [];
 
+    /**
+     * @param \Panadas\App $app
+     * @param string $name
+     * @param array $args
+     */
     public function __construct(\Panadas\App $app, $name, array $args = [])
     {
         parent::__construct($app);
@@ -16,11 +21,18 @@ abstract class ControllerAbstract extends \Panadas\AppHostAbstract implements \P
             ->replaceArgs($args);
     }
 
+    /**
+     * @return string
+     */
     public function getName()
     {
         return $this->name;
     }
 
+    /**
+     * @param  string $name
+     * @return \Panadas\AbstractController
+     */
     protected function setName($name)
     {
         $this->name = $name;
@@ -28,31 +40,53 @@ abstract class ControllerAbstract extends \Panadas\AppHostAbstract implements \P
         return $this;
     }
 
+    /**
+     * @param  string $name
+     * @param  string $default
+     * @return mixed
+     */
     public function getArg($name, $default = null)
     {
         return $this->hasArg($name) ? $this->args[$name] : $default;
     }
 
+    /**
+     * @return array
+     */
     public function getAllArgs()
     {
         return $this->args;
     }
 
+    /**
+     * @return array
+     */
     public function getArgNames()
     {
         return array_keys($this->getAllArgs());
     }
 
+    /**
+     * @param  string $name
+     * @return boolean
+     */
     public function hasArg($name)
     {
         return array_key_exists($name, $this->getAllArgs());
     }
 
+    /**
+     * @return boolean
+     */
     public function hasAnyArgs()
     {
         return (count($this->getAllArgs()) > 0);
     }
 
+    /**
+     * @param  string $name
+     * @return \Panadas\AbstractController
+     */
     public function removeArg($name)
     {
         if ($this->hasArg($name)) {
@@ -62,6 +96,10 @@ abstract class ControllerAbstract extends \Panadas\AppHostAbstract implements \P
         return $this;
     }
 
+    /**
+     * @param  array $names
+     * @return \Panadas\AbstractController
+     */
     public function removeManyArgs(array $names)
     {
         foreach ($names as $name) {
@@ -71,16 +109,28 @@ abstract class ControllerAbstract extends \Panadas\AppHostAbstract implements \P
         return $this;
     }
 
+    /**
+     * @return \Panadas\AbstractController
+     */
     public function removeAllArgs()
     {
         return $this->removeManyArgs($this->getArgNames());
     }
 
+    /**
+     * @param  array $args
+     * @return \Panadas\AbstractController
+     */
     public function replaceArgs(array $args)
     {
         return $this->removeAllArgs()->setManyArgs($args);
     }
 
+    /**
+     * @param  string $name
+     * @param  mixed  $value
+     * @return \Panadas\AbstractController
+     */
     public function setArg($name, $value)
     {
         $this->args[$name] = $value;
@@ -88,6 +138,10 @@ abstract class ControllerAbstract extends \Panadas\AppHostAbstract implements \P
         return $this;
     }
 
+    /**
+     * @param  array $args
+     * @return \Panadas\AbstractController
+     */
     public function setManyArgs(array $args)
     {
         foreach ($args as $name => $value) {
