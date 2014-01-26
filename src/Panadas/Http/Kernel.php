@@ -1,7 +1,7 @@
 <?php
-namespace Panadas;
+namespace Panadas\Http;
 
-class App extends \Panadas\AbstractBase
+class Kernel extends \Panadas\Event\Publisher
 {
 
     private $name;
@@ -17,7 +17,7 @@ class App extends \Panadas\AbstractBase
     const ACTION_HTTP_ERROR = "HttpError";
     const ACTION_REDIRECT = "Redirect";
 
-    public function __construct($name, \Panadas\Loader $loader, callable $service_container_callback, array $server_vars, array $env_vars)
+    public function __construct($name, \Panadas\Loader $loader, \Panadas\Event\Publisher $event_publisher, callable $service_container_callback, array $server_vars = [], array $env_vars = [])
     {
         parent::__construct();
 
@@ -36,12 +36,13 @@ class App extends \Panadas\AbstractBase
             error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
         }
 
-        if (ini_get("date.timezone") == "") {
+        if ( ! ini_get("date.timezone")) {
             date_default_timezone_set("UTC");
         }
 
         set_error_handler([$this, "errorHandler"]);
         set_exception_handler([$this, "exceptionHandler"]);
+        register_shutdown_function([$this, "shutdownHandler"]);
     }
 
     public function __toArray()
@@ -88,10 +89,10 @@ class App extends \Panadas\AbstractBase
 
     protected function hasMasterRequest()
     {
-        return !is_null($this->getMasterRequest());
+        return (null !== $this->getMasterRequest());
     }
 
-    protected function setMasterRequest(\Panadas\Request $master_request = null)
+    protected function setMasterRequest(\Panadas\Http\Request $master_request = null)
     {
         $this->master_request = $master_request;
 
@@ -110,10 +111,10 @@ class App extends \Panadas\AbstractBase
 
     protected function hasActiveRequest()
     {
-        return !is_null($this->getActiveRequest());
+        return (null !== $this->getActiveRequest());
     }
 
-    protected function setActiveRequest(\Panadas\Request $active_request = null)
+    protected function setActiveRequest(\Panadas\Http\Request $active_request = null)
     {
         $this->active_request = $active_request;
 
@@ -130,7 +131,7 @@ class App extends \Panadas\AbstractBase
         return $this->service_container;
     }
 
-    protected function setServiceContainer(\Panadas\ServiceContainer $service_container)
+    protected function setServiceContainer(\Panadas\Service\Container $service_container)
     {
         $this->service_container = $service_container;
 
@@ -276,156 +277,10 @@ class App extends \Panadas\AbstractBase
         return $this;
     }
 
-    public function addListener($name, callable $listener, $priority = 0)
-    {
-        $this->events[$name][$priority][] = $listener;
-
-        ksort($this->events[$name], SORT_NUMERIC);
-
-        return $this;
-    }
-
-    public function addManyListeners($name, array $listeners)
-    {
-        foreach ($listeners as $config) {
-
-            static::normalizeListenerConfig($config, $listener, $priority);
-
-            $this->addListener($name, $listener, $priority);
-
-        }
-
-        return $this;
-    }
-
-    public function hasListener($name, callable $listener)
-    {
-        foreach ($this->getAllListeners($name) as $priority => $listeners) {
-            if (in_array($listeners, $listener)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public function hasAnyListeners($name)
-    {
-        return (count($this->getAllListeners($name)) > 0);
-    }
-
-    public function getAllListeners($name)
-    {
-        return array_key_exists($name, $this->events) ? $this->events[$name] : [];
-    }
-
-    public function removeListener($name, callable $listener)
-    {
-        foreach ($this->getAllListeners($name) as $priority => $listeners) {
-
-            foreach ($listeners as $listener) {
-
-                $index = array_search($this->events[$name][$priority], $listener);
-
-                if ($index !== false) {
-                    unset($this->events[$name][$priority][$index]);
-                }
-
-            }
-
-        }
-
-        return $this;
-    }
-
-    public function removeManyListeners($name, array $listeners)
-    {
-        foreach ($listeners as $config) {
-
-            static::normalizeListenerConfig($config, $listener, $priority);
-
-            $this->removeListener($name, $listener);
-
-        }
-
-        return $this;
-    }
-
-    public function removeAllListeners($name)
-    {
-        foreach ($this->getAllListeners($name) as $priority => $listeners) {
-            $this->removeListener($name, $listener);
-        }
-
-        return $this;
-    }
-
-    public function replaceListeners($name, array $listeners)
-    {
-        $this->removeAllListeners($name)->addManyListeners($name, $listeners);
-    }
-
-    public function addSubscriber(\Panadas\EventSubscriberAbstract $subscriber)
-    {
-        foreach ($subscriber->__subscribe() as $name => $listeners) {
-
-            if (is_callable($listeners)) {
-                $this->addListener($name, $listeners);
-            } else {
-                $this->addManyListeners($name, $listeners);
-            }
-
-        }
-
-        return $this;
-    }
-
-    public function removeSubscriber(\Panadas\EventSubscriberAbstract $subscriber)
-    {
-        foreach ($subscriber->__subscribe() as $name => $listeners) {
-
-            if (is_callable($listeners)) {
-                $this->removeListener($name, $listeners);
-            } else {
-                $this->removeManyListeners($name, $listeners);
-            }
-
-        }
-
-        return $this;
-    }
-
-    public function publish($name, array $params = [])
-    {
-        $event = new \Panadas\Event($this, $name, $params);
-
-        foreach ($this->getAllListeners($name) as $priority => $listeners) {
-
-            foreach ($listeners as $listener) {
-
-                $listener($event);
-
-                if ($event->isStopped()) {
-                    break 2;
-                }
-
-            }
-
-        }
-
-        return $event;
-    }
-
     public function errorHandler($errno, $errstr, $errfile, $errline)
     {
         if ($errno &~ error_reporting()) {
             return;
-        }
-
-        // E_STRICT errors will not call autoloaders
-        // https://bugs.php.net/bug.php?id=54054
-        if (!class_exists("Panadas\ErrorException")) {
-            require_once __DIR__ . DIRECTORY_SEPARATOR . "ErrorException.php";
         }
 
         throw new \Panadas\ErrorException($errstr, $errno, 0, $errfile, $errline);
@@ -443,104 +298,100 @@ class App extends \Panadas\AbstractBase
         exit($exit_code);
     }
 
+    public function shutdownHandler()
+    {
+        $error = error_get_last();
+
+        if ((null === $error) || (E_ERROR !== $error["type"])) {
+            return;
+        }
+
+        $this->errorHandler($error["type"], $error["message"], $error["file"], $error["line"]);
+    }
+
     public function isDebugMode()
     {
         return $this->hasEnvVar("debug");
     }
 
-    public function isRunning()
+    public function isHandling()
     {
         return $this->hasMasterRequest();
     }
 
-    public function run(\Panadas\Request $request)
+    public function handle(\Panadas\Http\Request $request)
     {
+        if ($this->isHandling()) {
+            throw new \RuntimeException("Application is already running");
+        }
+
+        $this
+            ->setMasterRequest($request)
+            ->setActiveRequest($request);
+
         try {
 
-            if ($this->isRunning()) {
-                throw new \RuntimeException("Application is already running");
-            }
+            $params = [
+                "request" => $request,
+                "response" => null,
+                "action_name" => null,
+                "action_args" => []
+            ];
 
-            $this
-                ->setMasterRequest($request)
-                ->setActiveRequest($request);
+            $event = $this->publish("run", $params);
 
-            try {
+            $response = $event->get("response");
 
-                $params = [
-                    "request" => $request,
-                    "response" => null,
-                    "action_name" => null,
-                    "action_args" => []
-                ];
+            if (null === $response) {
 
-                $event = $this->publish("run", $params);
+                $action_name = $event->get("action_name");
+                $action_args = $event->get("action_args");
 
-                $response = $event->get("response");
-
-                if (is_null($response)) {
-
-                    $action_name = $event->get("action_name");
-                    $action_args = $event->get("action_args");
-
-                    if (is_null($action_name)) {
-
-                        if ($this->isDebugMode()) {
-                            throw new \RuntimeException("An action name was not provided");
-                        }
-
-                        $response = $this->error404();
-
-                    }
+                if (null !== $action_name) {
 
                     $response = $this->forward($action_name, $action_args);
 
+                } elseif ( ! $this->isDebugMode()) {
+
+                    $response = $this->error404();
+
+                } else {
+
+                    throw new \RuntimeException("An action name was not provided");
+
                 }
 
-            } catch (\Exception $exception) {
-
-                $response = $this->exception($exception);
-
             }
 
-            $send_response = function(\Panadas\ResponseAbstract $response) {
-
-                $params = [
-                    "request" => $this->getActiveRequest(),
-                    "response" => $response,
-                ];
-
-                $event = $this->publish("send", $params);
-
-                $request = $event->get("request");
-                $response = $event->get("response");
-
-                return $response->send($request);
-
-            };
-
-            try {
-
-                $send_response($response);
-
-            } catch (\Exception $exception) {
-
-                $send_response($this->exception($exception));
-
-            }
+            $response = $this->send($response);
 
         } catch (\Exception $exception) {
 
-            $this->exceptionHandler($exception);
+            $response = $this->send($this->exception($exception));
 
         }
 
         return $response;
     }
 
+    protected function send(\Panadas\Http\Response $response)
+    {
+        $params = [
+            "request" => $this->getActiveRequest(),
+            "response" => $response,
+        ];
+
+        $event = $this->publish("send", $params);
+
+        $request = $event->get("request");
+        $response = $event->get("response");
+
+        return $response->send($request);
+    }
+
     public function forward($action_name, array $action_args = [])
     {
-        if (!$this->isRunning()) {
+        if ( ! $this->isHandling()) {
             throw new \RuntimeException("Application is not running");
         }
 
@@ -559,11 +410,11 @@ class App extends \Panadas\AbstractBase
         $request = $event->get("request");
         $response = $event->get("response");
 
-        if (is_null($response)) {
+        if (null === $response) {
 
             $action_name = $event->get("action_name");
-            $action_args = (array) $event->get("action_args");
-            $action_class= \Panadas\Controller\ActionAbstract::getClassName($action_name);
+            $action_args = $event->get("action_args");
+            $action_class= \Panadas\Controller\AbstractAction::getClassName($action_name);
 
             $action = new $action_class($this, $action_name, $action_args);
 
@@ -572,7 +423,7 @@ class App extends \Panadas\AbstractBase
                 "request" => $request
             ];
 
-            $response = $action->run($request, $this->factory("response", $vars));
+            $response = $action->handle($request);
 
         }
 
@@ -629,36 +480,23 @@ class App extends \Panadas\AbstractBase
         return $this->forward(static::ACTION_REDIRECT, $action_args);
     }
 
-    public function factory($filename, array $vars = [])
+    public static function autocreate($name, \Panadas\Loader $loader = null, \Panadas\Event\Publisher $event_publisher = null, callable $service_container_callback = null)
     {
-        $vars["app"] = $this;
-
-        return $this->getLoader()->factory($filename, $vars);
-    }
-
-    protected static function normalizeListenerConfig($config, &$listener, &$priority)
-    {
-        $priority = 0;
-
-        if (is_array($config) && (array_key_exists("priority", $config) || array_key_exists("listener", $config))) {
-
-            if (!array_key_exists("listener", $config)) {
-                throw new \Exception("A listener to must be provided for event: {$name}");
-            }
-
-            $listener = $config["listener"];
-
-            if (array_key_exists("priority", $config)) {
-                $priority = $config["priority"];
-            }
-
-        } else {
-
-            $listener = $config;
-
+        if (null === $loader) {
+            $loader = new \Panadas\Loader(__DIR__ . "/../../../../../");
         }
 
-        return true;
+        if (null === $event_publisher) {
+            $event_publisher = new \Panadas\Event\Publisher();
+        }
+
+        if (null === $service_container_callback) {
+            $service_container_callback = function(\Panadas\Http\Kernel $kernel) {
+                return new \Panadas\Service\Container($kernel);
+            };
+        }
+
+        return new static($name, $loader, $event_publisher, $service_container_callback, $_SERVER, $_ENV);
     }
 
 }

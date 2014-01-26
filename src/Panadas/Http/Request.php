@@ -1,23 +1,23 @@
 <?php
-namespace Panadas;
+namespace Panadas\Http;
 
-class Request extends \Panadas\AppHostAbstract
+class Request extends \Panadas\Http\AbstractKernelAware
 {
 
     private $uri;
     private $params = [];
 
-    const METHOD_HEAD   = "HEAD";
-    const METHOD_GET    = "GET";
-    const METHOD_POST   = "POST";
-    const METHOD_PUT    = "PUT";
+    const METHOD_HEAD = "HEAD";
+    const METHOD_GET = "GET";
+    const METHOD_POST = "POST";
+    const METHOD_PUT = "PUT";
     const METHOD_DELETE = "DELETE";
 
-    const METHOD_PARAM = "_method";
+    const PARAM_METHOD = "_method";
 
-    public function __construct(\Panadas\App $app, array $params = [])
+    public function __construct(\Panadas\Http\Kernel $kernel, array $params = [])
     {
-        parent::__construct($app);
+        parent::__construct($kernel);
 
         $this
             ->setUri($this->detectUri())
@@ -141,29 +141,29 @@ class Request extends \Panadas\AppHostAbstract
 
     public function getHeader($name, $default = null)
     {
-        return $this->getApp()->getServerVar(\Panadas\Util\Http::getPhpHeaderName($name), $default);
+        return $this->getKernel()->getServerVar(\Panadas\Util\Http::getPhpHeaderName($name), $default);
     }
 
     public function hasHeader($name)
     {
-        return $this->getApp()->hasServerVar(\Panadas\Util\Http::getPhpHeaderName($name));
+        return $this->getKernel()->hasServerVar(\Panadas\Util\Http::getPhpHeaderName($name));
     }
 
     protected function detectUri()
     {
-        $app = $this->getApp();
+        $kernel = $this->getKernel();
         $is_secure = $this->isSecure();
         $protocol = $is_secure ? "https" : "http";
 
-        $port = $app->getServerVar("SERVER_PORT");
+        $port = $kernel->getServerVar("SERVER_PORT");
 
         if (!is_null($port)) {
             $port = ($port != ($is_secure ? 443 : 80)) ? ":{$port}" : null;
         }
 
-        $host = $app->getServerVar("HTTP_HOST");
-        $path = $app->getServerVar("PATH_INFO", $app->getServerVar("REQUEST_URI"));
-        $query = $app->getServerVar("QUERY_STRING");
+        $host = $kernel->getServerVar("HTTP_HOST");
+        $path = $kernel->getServerVar("PATH_INFO", $kernel->getServerVar("REQUEST_URI"));
+        $query = $kernel->getServerVar("QUERY_STRING");
 
         if (mb_strlen($query) > 0) {
             $query = "?{$query}";
@@ -175,7 +175,7 @@ class Request extends \Panadas\AppHostAbstract
     public function getMethod()
     {
         return mb_strtoupper(
-            $this->get(static::METHOD_PARAM, $this->getApp()->getServerVar("REQUEST_METHOD", static::METHOD_GET))
+            $this->get(static::PARAM_METHOD, $this->getKernel()->getServerVar("REQUEST_METHOD", static::METHOD_GET))
         );
     }
 
@@ -206,7 +206,7 @@ class Request extends \Panadas\AppHostAbstract
 
     public function isSecure()
     {
-        $app = $this->getApp();
+        $kernel = $this->getKernel();
 
         $header_map = [
             "HTTPS" => "ON",
@@ -215,7 +215,7 @@ class Request extends \Panadas\AppHostAbstract
 
         foreach ($header_map as $name => $value) {
 
-            if (mb_strtoupper($app->getServerVar($name)) === $value) {
+            if (mb_strtoupper($kernel->getServerVar($name)) === $value) {
                 return true;
             }
 
@@ -226,12 +226,12 @@ class Request extends \Panadas\AppHostAbstract
 
     public function isAjax()
     {
-        return (mb_strtoupper($this->getApp()->getServerVar("HTTP_X_REQUESTED_WITH")) === "XMLHTTPREQUEST");
+        return (mb_strtoupper($this->getKernel()->getServerVar("HTTP_X_REQUESTED_WITH")) === "XMLHTTPREQUEST");
     }
 
     public function getIp()
     {
-        $app = $this->getApp();
+        $kernel = $this->getKernel();
 
         $header_map = [
             "HTTP_CLIENT_IP",
@@ -241,7 +241,7 @@ class Request extends \Panadas\AppHostAbstract
 
         foreach ($header_map as $name) {
 
-            $value = $app->getServerVar($name);
+            $value = $kernel->getServerVar($name);
 
             if (is_null($value)) {
                 continue;
@@ -256,6 +256,30 @@ class Request extends \Panadas\AppHostAbstract
         }
 
         return null;
+    }
+
+    public static function autocreate(\Panadas\Http\Kernel $kernel)
+    {
+        $instance = new static($kernel, $_REQUEST);
+
+        if ($instance->isPut()) {
+
+            $body = null;
+            $params = [];
+
+            $file = fopen("php://input", "r");
+            while ( ! feof($file)) {
+                $body .= fread($file, 1024);
+            }
+            fclose($file);
+
+            parse_str($body, $params);
+
+            $instance->setMany($params);
+
+        }
+
+        return $instance;
     }
 
 }

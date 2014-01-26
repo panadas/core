@@ -1,5 +1,5 @@
 <?php
-namespace Panadas;
+namespace Panadas\Controller;
 
 interface ControllerInterface
 {

@@ -4,9 +4,9 @@ namespace Controller\Action;
 class Exception extends \Controller\Action\HttpError
 {
 
-    protected function get(\Panadas\Request $request, \Panadas\ResponseAbstract $response)
+    protected function get(\Panadas\Http\Request $request)
     {
-        $app = $this->getApp();
+        $kernel = $this->getKernel();
 
         $exception = $this->getArg("exception");
 
@@ -16,34 +16,20 @@ class Exception extends \Controller\Action\HttpError
 
         $type = get_class($exception);
 
-        $logger = $app->getServiceContainer()->get("logger", false);
-        if (!is_null($logger)) {
+        $logger = $kernel->getServiceContainer()->get("logger", false);
+        if (null !== $logger) {
             $logger->error("[{$type}] {$exception->getMessage()} in {$exception->getFile()}:{$exception->getLine()}");
         }
 
-        if (!$app->isDebugMode()) {
-            return $app->error500();
+        if ( ! $kernel->isDebugMode()) {
+            return $kernel->error500();
         }
 
         $status_code = $this->getArg("status_code", 500);
 
-        $response
+        return (new \Panadas\Http\Response($kernel))
             ->setStatusCode($status_code)
-            ->set(
-                "exception",
-                [
-                    "type" => $type,
-                    "code" => $exception->getCode(),
-                    "message" => $exception->getMessage(),
-                    "file" => $exception->getFile(),
-                    "line" => $exception->getLine(),
-                    "stacktrace" => $exception->getTraceAsString(),
-                ]
-            );
-
-        if ($response instanceof \Panadas\Response\HtmlAbstract) {
-            $response->setTitle("Exception");
-        }
+            ->setBody("EXCEPTION: {$exception->getMessage()} in {$exception->getFile()}:{$exception->getLine()}");
     }
 
 }

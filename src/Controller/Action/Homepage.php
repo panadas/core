@@ -1,14 +1,13 @@
 <?php
 namespace Controller\Action;
 
-class Homepage extends \Panadas\Controller\ActionAbstract
+class Homepage extends \Panadas\Controller\AbstractAction
 {
 
-    protected function get(\Panadas\Request $request, \Panadas\ResponseAbstract $response)
+    protected function get(\Panadas\Http\Request $request)
     {
-        if ($response instanceof \Panadas\Response\HtmlAbstract) {
-            $response->setTitle("Welcome to {$this->getApp()->getName()}");
-        }
+        return (new \Panadas\Http\Response($this->getKernel()))
+            ->setBody("Homepage");
     }
 
 }

@@ -1,10 +1,10 @@
 <?php
 namespace Panadas\Controller;
 
-abstract class FragmentAbstract extends \Panadas\ControllerAbstract
+abstract class AbstractFragment extends \Panadas\Controller\AbstractController
 {
 
-    public abstract function embed(\Panadas\Request $request, \Panadas\ResponseAbstract $response);
+    public abstract function embed(\Panadas\Http\Request $request);
 
     public static function getClassName($name)
     {

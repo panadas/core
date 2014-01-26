@@ -1,11 +1,11 @@
 <?php
 namespace Panadas;
 
-abstract class AbstractBase implements \JsonSerializable
+abstract class AbstractBase implements \JsonSerializable, \Serializable
 {
 
     /**
-     * Empty constructor allows descendants to call a parent constructor without error.
+     * An empty constructor allows descendants to always call parent::__construct().
      */
     public function __construct()
     {
@@ -28,12 +28,35 @@ abstract class AbstractBase implements \JsonSerializable
     }
 
     /**
-     * @see JsonSerializable::jsonSerialize()
+     * @see \JsonSerializable::jsonSerialize()
      * @return array
      */
     public function jsonSerialize()
     {
         return $this->__toArray();
+    }
+
+    /**
+     * @see \Serializable::serialize()
+     * @return string
+     */
+    public function serialize()
+    {
+        return serialize($this->__toArray());
+    }
+
+    /**
+     * @see \Serializable::unserialize()
+     * @param  string $serialized
+     * @return \Panadas\AbstractBase
+     */
+    public function unserialize($serialized)
+    {
+        foreach (unserialize($serialized) as $key => $value) {
+            $this->$key = $value;
+        }
+
+        return $this;
     }
 
 }

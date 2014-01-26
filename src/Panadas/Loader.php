@@ -1,8 +1,7 @@
 <?php
 namespace Panadas;
 
-use Doctrine\Common\Proxy\Exception\InvalidArgumentException;
-class Loader extends \Panadas\BaseAbstract
+class Loader extends \Panadas\AbstractBase
 {
 
     private $root_dir;

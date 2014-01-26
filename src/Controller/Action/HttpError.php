@@ -1,10 +1,10 @@
 <?php
 namespace Controller\Action;
 
-class HttpError extends \Panadas\Controller\ActionAbstract
+class HttpError extends \Panadas\Controller\AbstractAction
 {
 
-    protected function get(\Panadas\Request $request, \Panadas\ResponseAbstract $response)
+    protected function get(\Panadas\Http\Request $request)
     {
         $status_code = $this->getArg("status_code");
 
@@ -12,25 +12,25 @@ class HttpError extends \Panadas\Controller\ActionAbstract
             ->setStatusCode($status_code)
             ->set("message", $this->getArg("message"));
 
-        if ($response instanceof \Panadas\Response\HtmlAbstract) {
+        if ($response instanceof \Panadas\Http\Response\AbstractHtml) {
             $status_message = \Panadas\Util\Http::getStatusMessageFromCode($status_code);
             $response->setTitle("HTTP Error {$status_code} ({$status_message})");
         }
     }
 
-    protected function post(\Panadas\Request $request, \Panadas\ResponseAbstract $response)
+    protected function post(\Panadas\Http\Request $request)
     {
-        return $this->get($request, $response);
+        return $this->get($request);
     }
 
-    protected function put(\Panadas\Request $request, \Panadas\ResponseAbstract $response)
+    protected function put(\Panadas\Http\Request $request)
     {
-        return $this->get($request, $response);
+        return $this->get($request);
     }
 
-    protected function delete(\Panadas\Request $request, \Panadas\ResponseAbstract $response)
+    protected function delete(\Panadas\Http\Request $request)
     {
-        return $this->get($request, $response);
+        return $this->get($request);
     }
 
 }

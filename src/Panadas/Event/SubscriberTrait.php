@@ -1,7 +1,7 @@
 <?php
-namespace Panadas;
+namespace Panadas\Event;
 
-abstract class AbstractEventSubscriber extends \Panadas\AppContainer
+trait SubscriberTrait
 {
 
     /**

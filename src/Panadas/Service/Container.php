@@ -1,7 +1,7 @@
 <?php
-namespace Panadas;
+namespace Panadas\Service;
 
-class ServiceContainer extends \Panadas\AppHostAbstract
+class Container extends \Panadas\Http\AbstractKernelAware
 {
 
     private $services = [];
@@ -22,11 +22,11 @@ class ServiceContainer extends \Panadas\AppHostAbstract
         );
     }
 
-    public function add($id, \Panadas\ServiceAbstract $service)
+    public function add($id, \Panadas\Service\ServiceInterface $service)
     {
         $this->services[$id] = $service;
 
-        $this->getApp()->addSubscriber($service);
+        $this->getKernel()->addSubscriber($service);
 
         return $this;
     }
@@ -79,7 +79,7 @@ class ServiceContainer extends \Panadas\AppHostAbstract
     {
         if ($this->has($id)) {
 
-            $this->getApp()->removeSubscriber($this->services[$id]);
+            $this->getKernel()->removeSubscriber($this->services[$id]);
 
             unset($this->services[$id]);
 

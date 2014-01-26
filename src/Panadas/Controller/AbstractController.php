@@ -1,20 +1,20 @@
 <?php
-namespace Panadas;
+namespace Panadas\Controller;
 
-abstract class AbstractController extends \Panadas\AppContainer implements \Panadas\ControllerInterface
+abstract class AbstractController extends \Panadas\Http\AbstractKernelAware implements \Panadas\Controller\ControllerInterface
 {
 
     private $name;
     private $args = [];
 
     /**
-     * @param \Panadas\App $app
-     * @param string $name
-     * @param array $args
+     * @param \Panadas\Http\Kernel $kernel
+     * @param string               $name
+     * @param array                $args
      */
-    public function __construct(\Panadas\App $app, $name, array $args = [])
+    public function __construct(\Panadas\Http\Kernel $kernel, $name, array $args = [])
     {
-        parent::__construct($app);
+        parent::__construct($kernel);
 
         $this
             ->setName($name)

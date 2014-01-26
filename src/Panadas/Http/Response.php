@@ -1,27 +1,22 @@
 <?php
-namespace Panadas;
+namespace Panadas\Http;
 
-abstract class AbstractResponse extends \Panadas\AppContainer
+class Response extends \Panadas\Http\AbstractKernelAware
 {
 
     private $encoding;
     private $content_type;
     private $status_code;
     private $headers = [];
-    private $view_params = [];
+    private $body;
 
     /**
-     * @return string
+     * @param \Panadas\Http\Kernel $kernel
+     * @param string               $encoding
      */
-    protected abstract function render();
-
-    /**
-     * @param \Panadas\App $app
-     * @param string       $encoding
-     */
-    public function __construct(\Panadas\App $app, $encoding = "UTF-8")
+    public function __construct(\Panadas\Http\Kernel $kernel, $encoding = "UTF-8")
     {
-        parent::__construct($app);
+        parent::__construct($kernel);
 
         $this
             ->setEncoding($encoding)
@@ -60,7 +55,7 @@ abstract class AbstractResponse extends \Panadas\AppContainer
     /**
      * @param  string $encoding
      * @throws \InvalidArgumentException
-     * @return \Panadas\AbstractResponse
+     * @return \Panadas\Http\Response
      */
     public function setEncoding($encoding)
     {
@@ -83,7 +78,7 @@ abstract class AbstractResponse extends \Panadas\AppContainer
 
     /**
      * @param  string $content_type
-     * @return \Panadas\AbstractResponse
+     * @return \Panadas\Http\Response
      */
     public function setContentType($content_type)
     {
@@ -103,7 +98,7 @@ abstract class AbstractResponse extends \Panadas\AppContainer
     /**
      * @param  integer $status_code
      * @throws \InvalidArgumentException
-     * @return \Panadas\AbstractResponse
+     * @return \Panadas\Http\Response
      */
     public function setStatusCode($status_code)
     {
@@ -161,7 +156,7 @@ abstract class AbstractResponse extends \Panadas\AppContainer
 
     /**
      * @param  string $name
-     * @return \Panadas\AbstractResponse
+     * @return \Panadas\Http\Response
      */
     public function removeHeader($name)
     {
@@ -174,7 +169,7 @@ abstract class AbstractResponse extends \Panadas\AppContainer
 
     /**
      * @param  array $names
-     * @return \Panadas\AbstractResponse
+     * @return \Panadas\Http\Response
      */
     public function removeManyHeaders(array $names)
     {
@@ -186,7 +181,7 @@ abstract class AbstractResponse extends \Panadas\AppContainer
     }
 
     /**
-     * @return \Panadas\AbstractResponse
+     * @return \Panadas\Http\Response
      */
     public function removeAllHeaders()
     {
@@ -195,7 +190,7 @@ abstract class AbstractResponse extends \Panadas\AppContainer
 
     /**
      * @param  array $headers
-     * @return \Panadas\AbstractResponse
+     * @return \Panadas\Http\Response
      */
     public function replaceHeaders(array $headers)
     {
@@ -205,7 +200,7 @@ abstract class AbstractResponse extends \Panadas\AppContainer
     /**
      * @param  string $name
      * @param  string $value
-     * @return \Panadas\AbstractResponse
+     * @return \Panadas\Http\Response
      */
     public function setHeader($name, $value)
     {
@@ -216,7 +211,7 @@ abstract class AbstractResponse extends \Panadas\AppContainer
 
     /**
      * @param  array $data
-     * @return \Panadas\AbstractResponse
+     * @return \Panadas\Http\Response
      */
     public function setManyHeaders(array $data)
     {
@@ -228,114 +223,38 @@ abstract class AbstractResponse extends \Panadas\AppContainer
     }
 
     /**
-     * @param  string $name
-     * @param  mixed  $default
-     * @return mixed
+     * @return string
      */
-    public function get($name, $default = null)
+    public function getBody()
     {
-        return $this->has($name) ? $this->view_params[$name] : $default;
-    }
-
-    /**
-     * @return array
-     */
-    public function getAll()
-    {
-        return $this->view_params;
-    }
-
-    /**
-     * @return array
-     */
-    public function getNames()
-    {
-        return array_keys($this->getAll());
-    }
-
-    /**
-     * @param  string $name
-     * @return boolean
-     */
-    public function has($name)
-    {
-        return array_key_exists($name, $this->getAll());
+        return $this->body;
     }
 
     /**
      * @return boolean
      */
-    public function hasAny()
+    public function hasBody()
     {
-        return (count($this->getAll()) > 0);
+        return (null !== $this->getBody());
     }
 
     /**
-     * @param  string $name
-     * @return \Panadas\AbstractResponse
+     * @param  string $body
+     * @return \Panadas\Http\Response
      */
-    public function remove($name)
+    public function setBody($body)
     {
-        if ($this->has($name)) {
-            unset($this->view_params[$name]);
-        }
+        $this->body = $body;
 
         return $this;
     }
 
     /**
-     * @param  array $names
-     * @return \Panadas\AbstractResponse
+     * @return \Panadas\Http\Response
      */
-    public function removeMany(array $names)
+    public function removeBody()
     {
-        foreach ($names as $name) {
-            $this->remove($name);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return \Panadas\AbstractResponse
-     */
-    public function removeAll()
-    {
-        return $this->removeMany($this->getNames());
-    }
-
-    /**
-     * @param  array $view_params
-     * @return \Panadas\AbstractResponse
-     */
-    public function replace(array $view_params)
-    {
-        return $this->removeAll()->setMany($view_params);
-    }
-
-    /**
-     * @param  string $name
-     * @param  mixed  $value
-     * @return \Panadas\AbstractResponse
-     */
-    public function set($name, $value)
-    {
-        $this->view_params[$name] = $value;
-
-        return $this;
-    }
-
-    /**
-     * @param  array $view_params
-     * @return \Panadas\AbstractResponse
-     */
-    public function setMany(array $view_params)
-    {
-        foreach ($view_params as $name => $value) {
-            $this->set($name, $value);
-        }
-
-        return $this;
+        return $this->setBody(null);
     }
 
     /**
@@ -347,10 +266,10 @@ abstract class AbstractResponse extends \Panadas\AppContainer
     }
 
     /**
-     * @param  \Panadas\Request $request
-     * @return \Panadas\AbstractResponse
+     * @param  \Panadas\Http\Request $request
+     * @return \Panadas\Http\Response
      */
-    public function send(\Panadas\Request $request)
+    public function send(\Panadas\Http\Request $request)
     {
         if ( ! headers_sent()) {
 
@@ -358,7 +277,7 @@ abstract class AbstractResponse extends \Panadas\AppContainer
 
         } else {
 
-            $logger = $this->getApp()->getServiceContainer()->get("logger", false);
+            $logger = $this->getKernel()->getServiceContainer()->get("logger", false);
             if (null !== $logger) {
                 $logger->warn("Cannot send headers as some headers have already been sent");
             }
@@ -366,28 +285,14 @@ abstract class AbstractResponse extends \Panadas\AppContainer
         }
 
         if (($this->getStatusCode() !== 204) && ! $request->isHead()) {
-
-            $app = $this->getApp();
-
-            $this
-
-                ->setMany(
-                    [
-                        "_app" => $app->__toArray(),
-                        "_request" => $request->__toArray(),
-                        "_response" => $this->__toArray()
-                    ]
-                )
-
-                ->sendBody();
-
+            $this->sendBody();
         }
 
         return $this;
     }
 
     /**
-     * @return \Panadas\AbstractResponse
+     * @return \Panadas\Http\Response
      */
     protected function sendHeaders()
     {
@@ -402,11 +307,11 @@ abstract class AbstractResponse extends \Panadas\AppContainer
     }
 
     /**
-     * @return \Panadas\AbstractResponse
+     * @return \Panadas\Http\Response
      */
     protected function sendBody()
     {
-        echo $this->render();
+        echo $this->getBody();
 
         return $this;
     }

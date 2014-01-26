@@ -1,16 +1,16 @@
 <?php
-namespace Panadas;
+namespace Panadas\Event;
 
-class Event extends \Panadas\AppContainer
+class Event extends \Panadas\Http\AbstractKernelAware
 {
 
     private $name;
     private $params = [];
     private $stopped;
 
-    public function __construct(\Panadas\App $app, $name, array $params = [])
+    public function __construct(\Panadas\Http\Kernel $kernel, $name, array $params = [])
     {
-        parent::__construct($app);
+        parent::__construct($kernel);
 
         $this
             ->setStopped(false)
