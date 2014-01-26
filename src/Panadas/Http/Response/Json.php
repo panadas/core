@@ -15,23 +15,23 @@ class Json extends \Panadas\Http\Response
     }
 
     /**
-     * @see \Panadas\Http\Response::getBody()
+     * @see \Panadas\Http\Response::getContent()
      * @param  boolean $as_array
-     * @return mixed   $body
+     * @return mixed
      */
-    public function getBody($as_array = true)
+    public function getContent($as_array = true)
     {
-        return json_decode(parent::getBody(), $as_array);
+        return json_decode(parent::getContent(), $as_array);
     }
 
     /**
-     * @see \Panadas\Http\Response::setBody()
-     * @param  mixed $body
+     * @see \Panadas\Http\Response::setContent()
+     * @param  mixed $content
      * @return \Panadas\Http\Response\Json
      */
-    public function setBody($body)
+    public function setContent($content)
     {
-        parent::setBody(json_encode($body));
+        parent::setContent(json_encode($content));
 
         return $this;
     }

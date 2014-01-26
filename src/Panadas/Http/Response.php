@@ -7,7 +7,7 @@ class Response extends \Panadas\Http\AbstractKernelAware
     private $content_type;
     private $status_code;
     private $headers = [];
-    private $body;
+    private $content;
 
     /**
      * @param \Panadas\Http\Kernel $kernel
@@ -19,25 +19,6 @@ class Response extends \Panadas\Http\AbstractKernelAware
         $this
             ->setContentType("text/plain")
             ->setStatusCode(200);
-    }
-
-    /**
-     * @see \Panadas\AbstractBase::__toArray()
-     * @return array
-     */
-    public function __toArray()
-    {
-        return (
-            parent::__toArray()
-            + [
-    	        "content-type" => $this->getContentType(),
-    	        "status" => [
-    	            "code" => $this->getStatusCode(),
-    	            "message" => $this->getStatusMessage()
-                ],
-    	        "headers" => $this->getAllHeaders()
-            ]
-        );
     }
 
     /**
@@ -197,26 +178,26 @@ class Response extends \Panadas\Http\AbstractKernelAware
     /**
      * @return string
      */
-    public function getBody()
+    public function getContent()
     {
-        return $this->body;
+        return $this->content;
     }
 
     /**
      * @return boolean
      */
-    public function hasBody()
+    public function hasContent()
     {
-        return (null !== $this->getBody());
+        return (null !== $this->getContent());
     }
 
     /**
-     * @param  string $body
+     * @param  string $content
      * @return \Panadas\Http\Response
      */
-    public function setBody($body)
+    public function setContent($content)
     {
-        $this->body = $body;
+        $this->content = $content;
 
         return $this;
     }
@@ -224,9 +205,9 @@ class Response extends \Panadas\Http\AbstractKernelAware
     /**
      * @return \Panadas\Http\Response
      */
-    public function removeBody()
+    public function removeContent()
     {
-        return $this->setBody(null);
+        return $this->setContent(null);
     }
 
     /**
@@ -238,10 +219,57 @@ class Response extends \Panadas\Http\AbstractKernelAware
     }
 
     /**
-     * @param  \Panadas\Http\Request $request
+     * @return boolean
+     */
+    public function isSuccess()
+    {
+        $status_code = $this->getStatusCode();
+
+        return (($status_code >= 200) && ($status_code < 300));
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isRedirect()
+    {
+        $status_code = $this->getStatusCode();
+
+        return (($status_code >= 300) && ($status_code < 400));
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isClientError()
+    {
+        $status_code = $this->getStatusCode();
+
+        return (($status_code >= 400) && ($status_code < 500));
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isServerError()
+    {
+        $status_code = $this->getStatusCode();
+
+        return (($status_code >= 500) && ($status_code < 600));
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isError()
+    {
+        return ($this->isClientError() || $this->isServerError());
+    }
+
+    /**
      * @return \Panadas\Http\Response
      */
-    public function send(\Panadas\Http\Request $request)
+    public function send()
     {
         if ( ! headers_sent()) {
 
@@ -256,8 +284,8 @@ class Response extends \Panadas\Http\AbstractKernelAware
 
         }
 
-        if (($this->getStatusCode() !== 204) && ! $request->isHead()) {
-            $this->sendBody();
+        if ($this->getStatusCode() !== 204) {
+            $this->sendContent();
         }
 
         return $this;
@@ -281,9 +309,9 @@ class Response extends \Panadas\Http\AbstractKernelAware
     /**
      * @return \Panadas\Http\Response
      */
-    protected function sendBody()
+    protected function sendContent()
     {
-        echo $this->getBody();
+        echo $this->getContent();
 
         return $this;
     }

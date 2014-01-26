@@ -7,11 +7,10 @@ class Kernel extends \Panadas\Event\Publisher
     private $name;
     private $loader;
     private $service_container;
-    private $master_request;
-    private $active_request;
+    private $original_request;
+    private $current_request;
     private $server_vars = [];
     private $env_vars = [];
-    private $events = [];
 
     const ACTION_EXCEPTION = "Exception";
     const ACTION_HTTP_ERROR = "HttpError";
@@ -28,34 +27,12 @@ class Kernel extends \Panadas\Event\Publisher
             ->setLoader($loader)
             ->setServiceContainer($service_container_callback($this));
 
-        if ($this->isDebugMode()) {
-            ini_set("display_errors", true);
-            error_reporting(-1);
-        } else {
-            ini_set("display_errors", false);
-            error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
-        }
-
         if ( ! ini_get("date.timezone")) {
             date_default_timezone_set("UTC");
         }
 
-        set_error_handler([$this, "errorHandler"]);
-        set_exception_handler([$this, "exceptionHandler"]);
-        register_shutdown_function([$this, "shutdownHandler"]);
-    }
-
-    public function __toArray()
-    {
-        return (
-            parent::__toArray()
-            + [
-                "debug_mode" => $this->isDebugMode(),
-                "name" => $this->getName(),
-                "server_vars" => $this->getAllServerVars(),
-                "env_vars" => $this->getAllEnvVars()
-            ]
-        );
+        (new \Panadas\Error\ExceptionHandler($this))->register();
+        (new \Panadas\Error\ErrorHandler($this))->register();
     }
 
     public function getName()
@@ -82,48 +59,48 @@ class Kernel extends \Panadas\Event\Publisher
         return $this;
     }
 
-    protected function getMasterRequest()
+    protected function getOriginalRequest()
     {
-        return $this->master_request;
+        return $this->original_request;
     }
 
-    protected function hasMasterRequest()
+    protected function hasOriginalRequest()
     {
-        return (null !== $this->getMasterRequest());
+        return (null !== $this->getOriginalRequest());
     }
 
-    protected function setMasterRequest(\Panadas\Http\Request $master_request = null)
+    protected function setOriginalRequest(\Panadas\Http\Request $original_request = null)
     {
-        $this->master_request = $master_request;
+        $this->original_request = $original_request;
 
         return $this;
     }
 
-    protected function removeMasterRequest()
+    protected function removeOriginalRequest()
     {
-        return $this->setMasterRequest(null);
+        return $this->setOriginalRequest(null);
     }
 
-    protected function getActiveRequest()
+    protected function getCurrentRequest()
     {
-        return $this->active_request;
+        return $this->current_request;
     }
 
-    protected function hasActiveRequest()
+    protected function hasCurrentRequest()
     {
-        return (null !== $this->getActiveRequest());
+        return (null !== $this->getCurrentRequest());
     }
 
-    protected function setActiveRequest(\Panadas\Http\Request $active_request = null)
+    protected function setCurrentRequest(\Panadas\Http\Request $current_request = null)
     {
-        $this->active_request = $active_request;
+        $this->current_request = $current_request;
 
         return $this;
     }
 
-    protected function removeActiveRequest()
+    protected function removeCurrentRequest()
     {
-        return $this->setMasterRequest(null);
+        return $this->setCurrentRequest(null);
     }
 
     public function getServiceContainer()
@@ -277,38 +254,6 @@ class Kernel extends \Panadas\Event\Publisher
         return $this;
     }
 
-    public function errorHandler($errno, $errstr, $errfile, $errline)
-    {
-        if ($errno &~ error_reporting()) {
-            return;
-        }
-
-        throw new \Panadas\ErrorException($errstr, $errno, 0, $errfile, $errline);
-    }
-
-    public function exceptionHandler(\Exception $exception)
-    {
-        echo "FATAL: {$exception}";
-
-        $exit_code = $exception->getCode();
-        if ($exit_code < 1) {
-            $exit_code = 1;
-        }
-
-        exit($exit_code);
-    }
-
-    public function shutdownHandler()
-    {
-        $error = error_get_last();
-
-        if ((null === $error) || (E_ERROR !== $error["type"])) {
-            return;
-        }
-
-        $this->errorHandler($error["type"], $error["message"], $error["file"], $error["line"]);
-    }
-
     public function isDebugMode()
     {
         return $this->hasEnvVar("debug");
@@ -316,7 +261,7 @@ class Kernel extends \Panadas\Event\Publisher
 
     public function isHandling()
     {
-        return $this->hasMasterRequest();
+        return $this->hasOriginalRequest();
     }
 
     public function handle(\Panadas\Http\Request $request)
@@ -325,9 +270,7 @@ class Kernel extends \Panadas\Event\Publisher
             throw new \RuntimeException("Application is already running");
         }
 
-        $this
-            ->setMasterRequest($request)
-            ->setActiveRequest($request);
+        $this->setOriginalRequest($request);
 
         try {
 
@@ -338,7 +281,7 @@ class Kernel extends \Panadas\Event\Publisher
                 "action_args" => []
             ];
 
-            $event = $this->publish("run", $params);
+            $event = $this->publish("handle", $params);
 
             $response = $event->get("response");
 
@@ -374,29 +317,14 @@ class Kernel extends \Panadas\Event\Publisher
         return $response;
     }
 
-    protected function send(\Panadas\Http\Response $response)
-    {
-        $params = [
-            "request" => $this->getActiveRequest(),
-            "response" => $response,
-        ];
-
-        $event = $this->publish("send", $params);
-
-        $request = $event->get("request");
-        $response = $event->get("response");
-
-        return $response->send($request);
-    }
-
     public function forward($action_name, array $action_args = [])
     {
         if ( ! $this->isHandling()) {
             throw new \RuntimeException("Application is not running");
         }
 
-        $request = clone $this->getMasterRequest();
-        $this->setActiveRequest($request);
+        $request = clone $this->getOriginalRequest();
+        $this->setCurrentRequest($request);
 
         $params = [
             "request" => $request,
@@ -428,6 +356,18 @@ class Kernel extends \Panadas\Event\Publisher
         }
 
         return $response;
+    }
+
+    public function send(\Panadas\Http\Response $response)
+    {
+        $params = [
+            "request" => $this->getCurrentRequest(),
+            "response" => $response,
+        ];
+
+        $event = $this->publish("send", $params);
+
+        return $event->get("response")->send();
     }
 
     public function httpError($status_code, $message = null, array $action_args = [])

@@ -6,22 +6,6 @@ class Container extends \Panadas\Http\AbstractKernelAware
 
     private $services = [];
 
-    public function __toArray()
-    {
-        $services = [];
-
-        foreach ($this->getAll() as $id => $service) {
-            $services[$id] = $service->__toArray();
-        }
-
-        return (
-            parent::__toArray()
-            + [
-                "services" => $services
-            ]
-        );
-    }
-
     public function add($id, \Panadas\Service\ServiceInterface $service)
     {
         $this->services[$id] = $service;

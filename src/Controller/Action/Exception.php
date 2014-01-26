@@ -14,22 +14,20 @@ class Exception extends \Controller\Action\HttpError
             throw new \RuntimeException("An instance of \Exception is required");
         }
 
-        $type = get_class($exception);
+        $detail = "[" . get_class($exception) . "] {$exception->getMessage()} in {$exception->getFile()}:{$exception->getLine()}";
 
         $logger = $kernel->getServiceContainer()->get("logger", false);
         if (null !== $logger) {
-            $logger->error("[{$type}] {$exception->getMessage()} in {$exception->getFile()}:{$exception->getLine()}");
+            $logger->error($detail);
         }
 
         if ( ! $kernel->isDebugMode()) {
             return $kernel->error500();
         }
 
-        $status_code = $this->getArg("status_code", 500);
-
-        return (new \Panadas\Http\Response($kernel))
-            ->setStatusCode($status_code)
-            ->setBody("EXCEPTION: {$exception->getMessage()} in {$exception->getFile()}:{$exception->getLine()}");
+        return (new \Panadas\Http\Response\Html($kernel))
+            ->setStatusCode($this->getArg("status_code", 500))
+            ->setContent("<pre>" . htmlspecialchars($detail) . "</pre>");
     }
 
 }

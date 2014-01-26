@@ -24,16 +24,6 @@ class Request extends \Panadas\Http\AbstractKernelAware
             ->replace($params);
     }
 
-    public function __toArray()
-    {
-        return (
-    	    parent::__toArray()
-            + [
-    	        "params" => $this->getAll()
-            ]
-        );
-    }
-
     public function getUri($absolute = true, $query = true)
     {
         $uri = $this->uri;
