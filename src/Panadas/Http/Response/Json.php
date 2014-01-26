@@ -15,7 +15,6 @@ class Json extends \Panadas\Http\Response
     }
 
     /**
-     * @see \Panadas\Http\Response::getContent()
      * @param  boolean $as_array
      * @return mixed
      */
@@ -25,7 +24,6 @@ class Json extends \Panadas\Http\Response
     }
 
     /**
-     * @see \Panadas\Http\Response::setContent()
      * @param  mixed $content
      * @return \Panadas\Http\Response\Json
      */

@@ -28,7 +28,6 @@ abstract class AbstractBase implements \JsonSerializable, \Serializable
     }
 
     /**
-     * @see \JsonSerializable::jsonSerialize()
      * @return array
      */
     public function jsonSerialize()
@@ -37,7 +36,6 @@ abstract class AbstractBase implements \JsonSerializable, \Serializable
     }
 
     /**
-     * @see \Serializable::serialize()
      * @return string
      */
     public function serialize()
@@ -46,7 +44,6 @@ abstract class AbstractBase implements \JsonSerializable, \Serializable
     }
 
     /**
-     * @see \Serializable::unserialize()
      * @param  string $serialized
      * @return \Panadas\AbstractBase
      */

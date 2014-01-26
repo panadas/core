@@ -7,6 +7,8 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
     private $name;
     private $args = [];
 
+    abstract public function handle(\Panadas\Http\Request $request);
+
     /**
      * @param \Panadas\Http\Kernel $kernel
      * @param string               $name

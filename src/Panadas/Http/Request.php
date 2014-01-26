@@ -147,7 +147,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
 
         $port = $kernel->getServerVar("SERVER_PORT");
 
-        if (!is_null($port)) {
+        if (null !== $port) {
             $port = ($port != ($is_secure ? 443 : 80)) ? ":{$port}" : null;
         }
 
@@ -233,7 +233,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
 
             $value = $kernel->getServerVar($name);
 
-            if (is_null($value)) {
+            if (null === $value) {
                 continue;
             }
 
