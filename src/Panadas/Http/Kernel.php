@@ -480,10 +480,10 @@ class Kernel extends \Panadas\Event\Publisher
         return $this->forward(static::ACTION_REDIRECT, $action_args);
     }
 
-    public static function autocreate($name, \Panadas\Loader $loader = null, \Panadas\Event\Publisher $event_publisher = null, callable $service_container_callback = null)
+    public static function create($name, \Panadas\Loader $loader = null, \Panadas\Event\Publisher $event_publisher = null, callable $service_container_callback = null)
     {
         if (null === $loader) {
-            $loader = new \Panadas\Loader(__DIR__ . "/../../../../../");
+            $loader = new \Panadas\Loader(__DIR__ . "/../../../../../../");
         }
 
         if (null === $event_publisher) {

@@ -4,7 +4,6 @@ namespace Panadas\Http;
 class Response extends \Panadas\Http\AbstractKernelAware
 {
 
-    private $encoding;
     private $content_type;
     private $status_code;
     private $headers = [];
@@ -12,14 +11,12 @@ class Response extends \Panadas\Http\AbstractKernelAware
 
     /**
      * @param \Panadas\Http\Kernel $kernel
-     * @param string               $encoding
      */
-    public function __construct(\Panadas\Http\Kernel $kernel, $encoding = "UTF-8")
+    public function __construct(\Panadas\Http\Kernel $kernel)
     {
         parent::__construct($kernel);
 
         $this
-            ->setEncoding($encoding)
             ->setContentType("text/plain")
             ->setStatusCode(200);
     }
@@ -33,7 +30,6 @@ class Response extends \Panadas\Http\AbstractKernelAware
         return (
             parent::__toArray()
             + [
-    	        "encoding" => $this->getEncoding(),
     	        "content-type" => $this->getContentType(),
     	        "status" => [
     	            "code" => $this->getStatusCode(),
@@ -42,30 +38,6 @@ class Response extends \Panadas\Http\AbstractKernelAware
     	        "headers" => $this->getAllHeaders()
             ]
         );
-    }
-
-    /**
-     * @return string
-     */
-    public function getEncoding()
-    {
-        return $this->encoding;
-    }
-
-    /**
-     * @param  string $encoding
-     * @throws \InvalidArgumentException
-     * @return \Panadas\Http\Response
-     */
-    public function setEncoding($encoding)
-    {
-        if ( ! mb_internal_encoding($encoding)) {
-            throw new \InvalidArgumentException("Encoding not supported: {$encoding}");
-        }
-
-        $this->encoding = $encoding;
-
-        return $this;
     }
 
     /**
@@ -297,7 +269,7 @@ class Response extends \Panadas\Http\AbstractKernelAware
     protected function sendHeaders()
     {
         header("HTTP/1.1 {$this->getStatusCode()} {$this->getStatusMessage()}", true);
-        header("Content-Type: {$this->getContentType()}; charset={$this->getEncoding()}", true);
+        header(("Content-Type: {$this->getContentType()}; charset=" . mb_internal_encoding()), true);
 
         foreach ($this->getAllHeaders() as $name => $value) {
             header("{$name}: {$value}", true);

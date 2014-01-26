@@ -258,7 +258,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
         return null;
     }
 
-    public static function autocreate(\Panadas\Http\Kernel $kernel)
+    public static function create(\Panadas\Http\Kernel $kernel)
     {
         $instance = new static($kernel, $_REQUEST);
 
