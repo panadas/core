@@ -12,6 +12,7 @@ class Kernel extends \Panadas\Event\Publisher
     private $server_vars = [];
     private $env_vars = [];
 
+    const ENV_DEBUG = "PANADAS_DEBUG";
     const ACTION_EXCEPTION = "Exception";
     const ACTION_HTTP_ERROR = "HttpError";
     const ACTION_REDIRECT = "Redirect";
@@ -256,7 +257,7 @@ class Kernel extends \Panadas\Event\Publisher
 
     public function isDebugMode()
     {
-        return $this->hasEnvVar("debug");
+        return $this->hasEnvVar(static::ENV_DEBUG);
     }
 
     public function isHandling()
