@@ -8,8 +8,22 @@ class Homepage extends \Panadas\Controller\AbstractAction
     {
         $kernel = $this->getKernel();
 
-        return (new \Panadas\Http\Response\Html($kernel))
-            ->setContent("Welcome to " . htmlspecialchars($kernel->getName()));
+        if ($request->isAjax()) {
+
+            $response = new \Panadas\Http\Response\Json($kernel);
+
+        } elseif ($kernel->getServiceContainer()->has("twig")) {
+
+            $response = new \Panadas\TwigModule\Response($kernel, "Homepage.twig.html");
+
+        } else {
+
+            $response = (new \Panadas\Http\Response\Html($kernel))
+                ->setContent("Welcome to " . htmlspecialchars($kernel->getName()));
+
+        }
+
+        return $response;
     }
 
 }

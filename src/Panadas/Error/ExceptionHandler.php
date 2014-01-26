@@ -19,9 +19,19 @@ class ExceptionHandler extends \Panadas\Http\AbstractKernelAware
      */
     public function handle(\Exception $exception)
     {
-        if ($this->getKernel()->isHandling()) {
-            $response = $this->exception($exception);
+        $kernel = $this->getKernel();
+        $sc = $kernel->getServiceContainer();
+
+        if ($kernel->isHandling()) {
+
+            $response = $kernel->exception($exception);
+
         } else {
+
+            if ($sc->has("logger")) {
+                $sc->get("logger")->critical($exception->getMessage(), ["exception" => $exception]);
+            }
+
             $response = $this->createResponse($exception);
         }
 

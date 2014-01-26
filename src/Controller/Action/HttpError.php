@@ -6,16 +6,30 @@ class HttpError extends \Panadas\Controller\AbstractAction
 
     protected function get(\Panadas\Http\Request $request)
     {
-        $status_code = $this->getArg("status_code");
+        $kernel = $this->getKernel();
 
-        $response
-            ->setStatusCode($status_code)
-            ->set("message", $this->getArg("message"));
+        $message = $this->getArg("message");
 
-        if ($response instanceof \Panadas\Http\Response\AbstractHtml) {
-            $status_message = \Panadas\Util\Http::getStatusMessageFromCode($status_code);
-            $response->setTitle("HTTP Error {$status_code} ({$status_message})");
+        if ($request->isAjax()) {
+
+            $response = (new \Panadas\Http\Response\Json($kernel))
+                ->setContent("message", $message);
+
+        } elseif ($kernel->getServiceContainer()->has("twig")) {
+
+            $response = (new \Panadas\TwigModule\Response($kernel, "HttpError.twig.html"))
+                ->set("message", $message);
+
+        } else {
+
+            $response = (new \Panadas\Http\Response\Html($kernel))
+                ->setContent("message", htmlspecialchars($message));
+
         }
+
+        $response->setStatusCode($this->getArg("status_code"));
+
+        return $response;
     }
 
     protected function post(\Panadas\Http\Request $request)
