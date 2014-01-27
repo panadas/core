@@ -1,18 +1,14 @@
 <?php
 namespace Controller\Action;
 
-class Redirect extends \Panadas\Controller\AbstractAction
+class Redirect extends \Panadas\Controller\AbstractActionController
 {
 
     protected function get(\Panadas\Http\Request $request)
     {
-        $response = new \Panadas\Http\Response($this->getKernel());
-
-        $response
+        return (new \Panadas\Http\Response($this->getKernel()))
             ->setStatusCode($this->getArg("status_code", 302))
             ->setHeader("Location", $this->getArg("uri"));
-
-        return $response;
     }
 
     protected function post(\Panadas\Http\Request $request)

@@ -1,7 +1,7 @@
 <?php
 namespace Controller\Action;
 
-class Homepage extends \Panadas\Controller\AbstractAction
+class Homepage extends \Panadas\Controller\AbstractActionController
 {
 
     protected function get(\Panadas\Http\Request $request)
@@ -10,15 +10,15 @@ class Homepage extends \Panadas\Controller\AbstractAction
 
         if ($request->isAjax()) {
 
-            $response = new \Panadas\Http\Response\Json($kernel);
+            $response = new \Panadas\Http\JsonResponse($kernel);
 
         } elseif ($kernel->getServiceContainer()->has("twig")) {
 
-            $response = new \Panadas\TwigModule\Response($kernel, "Homepage.twig.html");
+            $response = new \Panadas\TwigModule\Http\TwigResponse($kernel, "Homepage.twig.html");
 
         } else {
 
-            $response = (new \Panadas\Http\Response\Html($kernel))
+            $response = (new \Panadas\Http\HtmlResponse($kernel))
                 ->setContent("Welcome to " . htmlspecialchars($kernel->getName()));
 
         }

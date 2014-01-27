@@ -1,7 +1,7 @@
 <?php
-namespace Panadas\Http\Response;
+namespace Panadas\Http;
 
-class Html extends \Panadas\Http\Response
+class HtmlResponse extends \Panadas\Http\Response
 {
 
     /**

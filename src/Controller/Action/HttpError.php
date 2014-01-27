@@ -1,7 +1,7 @@
 <?php
 namespace Controller\Action;
 
-class HttpError extends \Panadas\Controller\AbstractAction
+class HttpError extends \Panadas\Controller\AbstractActionController
 {
 
     protected function get(\Panadas\Http\Request $request)
@@ -12,24 +12,23 @@ class HttpError extends \Panadas\Controller\AbstractAction
 
         if ($request->isAjax()) {
 
-            $response = (new \Panadas\Http\Response\Json($kernel))
+            $response = (new \Panadas\Http\JsonResponse($kernel))
                 ->setContent("message", $message);
 
         } elseif ($kernel->getServiceContainer()->has("twig")) {
 
-            $response = (new \Panadas\TwigModule\Response($kernel, "HttpError.twig.html"))
+            $response = (new \Panadas\TwigModule\Http\TwigResponse($kernel, "HttpError.twig.html"))
                 ->set("message", $message);
 
         } else {
 
-            $response = (new \Panadas\Http\Response\Html($kernel))
+            $response = (new \Panadas\Http\HtmlResponse($kernel))
                 ->setContent("message", htmlspecialchars($message));
 
         }
 
-        $response->setStatusCode($this->getArg("status_code"));
-
-        return $response;
+        return $response
+            ->setStatusCode($this->getArg("status_code"));
     }
 
     protected function post(\Panadas\Http\Request $request)

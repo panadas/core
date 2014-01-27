@@ -66,7 +66,7 @@ class ExceptionHandler extends \Panadas\Http\AbstractKernelAware
             $body .= "<p>Sorry, we are unable to process your request right now. Please try again later.</p>";
         }
 
-        return (new \Panadas\Http\Response\Html($kernel))
+        return (new \Panadas\Http\HtmlResponse($kernel))
             ->setStatusCode(500)
             ->setContent("<!DOCTYPE html><html><head><title>{$title}</title></head><body>{$body}</body></html>");
     }

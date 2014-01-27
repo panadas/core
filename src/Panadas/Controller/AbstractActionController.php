@@ -1,7 +1,7 @@
 <?php
 namespace Panadas\Controller;
 
-abstract class AbstractAction extends \Panadas\Controller\AbstractController
+abstract class AbstractActionController extends \Panadas\Controller\AbstractController
 {
 
     public function handle(\Panadas\Http\Request $request)

@@ -33,24 +33,23 @@ class Exception extends \Controller\Action\HttpError
 
         if ($request->isAjax()) {
 
-            $response = (new \Panadas\Http\Response\Json($kernel))
+            $response = (new \Panadas\Http\JsonResponse($kernel))
                 ->setContent($exception_data);
 
         } elseif ($kernel->getServiceContainer()->has("twig")) {
 
-            $response = (new \Panadas\TwigModule\Response($kernel, "Exception.twig.html"))
+            $response = (new \Panadas\TwigModule\Http\TwigResponse($kernel, "Exception.twig.html"))
                 ->set("exception", $exception_data);
 
         } else {
 
-            $response = (new \Panadas\Http\Response\Html($kernel))
+            $response = (new \Panadas\Http\HtmlResponse($kernel))
                 ->setContent("<pre>[{$exception_data["type"]}] {$exception_data["message"]} in {$exception_data["file"]}:{$exception_data["line"]}</pre>");
 
         }
 
-        $response->setStatusCode($this->getArg("status_code", 500));
-
-        return $response;
+        return $response
+            ->setStatusCode($this->getArg("status_code", 500));
     }
 
 }

@@ -1,7 +1,7 @@
 <?php
-namespace Panadas\Http\Response;
+namespace Panadas\Http;
 
-class Json extends \Panadas\Http\Response
+class JsonResponse extends \Panadas\Http\Response
 {
 
     /**
@@ -25,7 +25,7 @@ class Json extends \Panadas\Http\Response
 
     /**
      * @param  mixed $content
-     * @return \Panadas\Http\Response\Json
+     * @return \Panadas\Http\JsonResponse
      */
     public function setContent($content)
     {
