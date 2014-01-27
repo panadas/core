@@ -343,7 +343,7 @@ class Kernel extends \Panadas\Event\Publisher
 
             $action_name = $event->get("action_name");
             $action_args = $event->get("action_args");
-            $action_class= \Panadas\Controller\AbstractAction::getClassName($action_name);
+            $action_class= \Panadas\Controller\AbstractActionController::getClassName($action_name);
 
             $action = new $action_class($this, $action_name, $action_args);
 
