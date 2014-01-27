@@ -267,9 +267,11 @@ class Response extends \Panadas\Http\AbstractKernelAware
     }
 
     /**
+     * @param  string $before_content
+     * @param  string $after_content
      * @return \Panadas\Http\Response
      */
-    public function send()
+    public function send($before_content = null, $after_content = null)
     {
         if ( ! headers_sent()) {
 
@@ -284,11 +286,7 @@ class Response extends \Panadas\Http\AbstractKernelAware
 
         }
 
-        if ($this->getStatusCode() !== 204) {
-            $this->sendContent();
-        }
-
-        return $this;
+        return $this->sendContent($before_content, $after_content);
     }
 
     /**
@@ -307,12 +305,22 @@ class Response extends \Panadas\Http\AbstractKernelAware
     }
 
     /**
+     * @param  string $before_content
+     * @param  string $after_content
      * @return \Panadas\Http\Response
      */
-    protected function sendContent()
+    protected function sendContent($before_content = null, $after_content = null)
     {
+        if (null !== $before_content) {
+            echo $before_content;
+        }
+
         if ($this->hasContent()) {
             echo $this->getContent();
+        }
+
+        if (null !== $after_content) {
+            echo $after_content;
         }
 
         return $this;
