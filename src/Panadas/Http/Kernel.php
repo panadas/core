@@ -368,7 +368,8 @@ class Kernel extends \Panadas\Event\Publisher
 
         $event = $this->publish("send", $params);
 
-        return $event->get("response")->send();
+        return $event->get("response")
+            ->send();
     }
 
     public function httpError($status_code, $message = null, array $action_args = [])

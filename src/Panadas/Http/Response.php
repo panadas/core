@@ -311,7 +311,9 @@ class Response extends \Panadas\Http\AbstractKernelAware
      */
     protected function sendContent()
     {
-        echo $this->getContent();
+        if ($this->hasContent()) {
+            echo $this->getContent();
+        }
 
         return $this;
     }

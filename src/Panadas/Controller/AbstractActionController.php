@@ -65,7 +65,8 @@ abstract class AbstractActionController extends \Panadas\Controller\AbstractCont
 
     protected function head(\Panadas\Http\Request $request)
     {
-        return $this->get($request);
+        return $this->get($request)
+            ->removeContent();
     }
 
     protected function get(\Panadas\Http\Request $request)
