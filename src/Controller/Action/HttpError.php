@@ -17,7 +17,7 @@ class HttpError extends \Panadas\Controller\AbstractActionController
 
         } elseif ($kernel->getServiceContainer()->has("twig")) {
 
-            $response = (new \Panadas\TwigModule\Http\TwigResponse($kernel, "HttpError.twig.html"))
+            $response = (new \Panadas\TwigModule\Http\TwigResponse($kernel, "HttpError.twig"))
                 ->set("message", $message);
 
         } else {

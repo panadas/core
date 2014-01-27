@@ -24,11 +24,12 @@ class Exception extends \Controller\Action\HttpError
         }
 
         $exception_data = [
-	        "type" => get_class($exception),
-	        "message" => $exception->getMessage(),
-	        "file" => $exception->getFile(),
-	        "line" => $exception->getLine(),
-	        "trace" => $exception->getTraceAsString()
+            "type" => get_class($exception),
+            "code" => $exception->getCode(),
+            "message" => $exception->getMessage(),
+            "file" => $exception->getFile(),
+            "line" => $exception->getLine(),
+            "trace" => $exception->getTraceAsString()
         ];
 
         if ($request->isAjax()) {
@@ -38,7 +39,7 @@ class Exception extends \Controller\Action\HttpError
 
         } elseif ($kernel->getServiceContainer()->has("twig")) {
 
-            $response = (new \Panadas\TwigModule\Http\TwigResponse($kernel, "Exception.twig.html"))
+            $response = (new \Panadas\TwigModule\Http\TwigResponse($kernel, "Exception.twig"))
                 ->set("exception", $exception_data);
 
         } else {
