@@ -27,7 +27,7 @@ class HttpError extends \Panadas\Controller\AbstractActionController
 
         }
 
-        $response->setStatusCode($this->getArg("status_code"));
+        $response->setStatusCode($this->getArg("statusCode"));
 
         if ($response instanceof \Panadas\TwigModule\Http\TwigResponse) {
             $response->render("HttpError.twig");

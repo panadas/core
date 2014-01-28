@@ -49,7 +49,7 @@ class Exception extends \Controller\Action\HttpError
 
         }
 
-        $response->setStatusCode($this->getArg("status_code", 500));
+        $response->setStatusCode($this->getArg("statusCode", 500));
 
         if ($response instanceof \Panadas\TwigModule\Http\TwigResponse) {
             $response->render("Exception.twig");

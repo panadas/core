@@ -7,7 +7,7 @@ class Redirect extends \Panadas\Controller\AbstractActionController
     protected function get(\Panadas\Http\Request $request)
     {
         return (new \Panadas\Http\Response($this->getKernel()))
-            ->setStatusCode($this->getArg("status_code", 302))
+            ->setStatusCode($this->getArg("statusCode", 302))
             ->setHeader("Location", $this->getArg("uri"));
     }
 

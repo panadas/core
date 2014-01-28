@@ -416,7 +416,7 @@ class Response extends \Panadas\Http\AbstractKernelAware
      */
     public static function getStatusCodes()
     {
-        return array_keys(static::$statusCodes);
+        return static::$statusCodes;
     }
 
     /**
@@ -425,7 +425,7 @@ class Response extends \Panadas\Http\AbstractKernelAware
      */
     public static function hasStatusCode($statusCode)
     {
-        return !array_key_exists($statusCode, static::getStatusCodes());
+        return array_key_exists($statusCode, static::getStatusCodes());
     }
 
     /**
