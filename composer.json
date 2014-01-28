@@ -14,7 +14,7 @@
     },
     "require-dev": {
         "phpunit/phpunit": "~3.7.0",
-        "squizlabs/php_codesniffer": "~1.5.0"
+        "panadas/phpcs-standard": "~1.0"
     },
     "suggest": {
         "panadas/module-logger": "Adds support for monolog to your application.",
@@ -26,6 +26,7 @@
             "Controller\\": "src/"
         }
     },
+    "minimum-stability": "dev",
     "extra": {
         "branch-alias": {
             "dev-master": "1.0.x-dev"
