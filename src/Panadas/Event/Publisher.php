@@ -97,7 +97,7 @@ class Publisher extends \Panadas\AbstractBase
 
     public function addSubscriber(\Panadas\Event\SubscriberInterface $subscriber)
     {
-        foreach ($subscriber->__subscribe() as $name => $listeners) {
+        foreach ($subscriber->subscribe() as $name => $listeners) {
 
             if (is_callable($listeners)) {
                 $this->addListener($name, $listeners);
@@ -112,7 +112,7 @@ class Publisher extends \Panadas\AbstractBase
 
     public function removeSubscriber(\Panadas\Event\SubscriberInterface $subscriber)
     {
-        foreach ($subscriber->__subscribe() as $name => $listeners) {
+        foreach ($subscriber->subscribe() as $name => $listeners) {
 
             if (is_callable($listeners)) {
                 $this->removeListener($name, $listeners);
