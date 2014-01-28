@@ -30,7 +30,6 @@ class Kernel extends \Panadas\Event\Publisher
 
         (new \Panadas\Error\ExceptionHandler($this))->register();
         (new \Panadas\Error\ErrorHandler($this))->register();
-        throw new \Exception("foo");
     }
 
     public function getName()
