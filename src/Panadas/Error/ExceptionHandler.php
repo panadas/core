@@ -20,7 +20,6 @@ class ExceptionHandler extends \Panadas\Http\AbstractKernelAware
     public function handle(\Exception $exception)
     {
         $kernel = $this->getKernel();
-        $sc = $kernel->getServiceContainer();
 
         if ($kernel->isHandling()) {
 
@@ -28,11 +27,14 @@ class ExceptionHandler extends \Panadas\Http\AbstractKernelAware
 
         } else {
 
-            if ($sc->has("logger")) {
-                $sc->get("logger")->critical($exception->getMessage(), ["exception" => $exception]);
+            $logger = $kernel->getServiceContainer()->get("logger", false);
+
+            if (null !== $logger) {
+                $logger->critical($exception->getMessage(), ["exception" => $exception]);
             }
 
             $response = $this->createResponse($exception);
+
         }
 
         $response->send();
@@ -46,29 +48,57 @@ class ExceptionHandler extends \Panadas\Http\AbstractKernelAware
      */
     protected function createResponse(\Exception $exception)
     {
+        $esc = function($string) {
+            return htmlspecialchars($string);
+        };
+
         $kernel = $this->getKernel();
 
-        $title = "Error - " . htmlspecialchars($kernel->getName());
+        $content = "<!DOCTYPE html>";
+        $content .= "<html lang=\"en\">";
+        $content .= "<head>";
+        $content .= "<meta charset=\"UTF-8\">";
+        $content .= "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">";
+        $content .= "<link rel=\"stylesheet\" href=\"//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css\">";
+        $content .= "<title>Error - {$esc($kernel->getName())}</title>";
+        $content .= "<style>";
+        $content .= "body {padding-top: 60px}";
+        $content .= "</style>";
+        $content .= "</head>";
+        $content .= "<body>";
+        $content .= "<div class=\"container\">";
 
         if ($kernel->isDebugMode()) {
-            $body = "<h1>" . htmlspecialchars(get_class($exception)) . "</h1>";
-            $body .= "<pre>" . htmlspecialchars($exception->getMessage()) . "</pre>";
-            $body .= "<dl>";
-            $body .= "<dt>File:</dt>";
-            $body .= "<dd><code>" . htmlspecialchars($exception->getFile()) . "</code></dd>";
-            $body .= "<dt>Line:</dt>";
-            $body .= "<dd><code>" . htmlspecialchars($exception->getLine()) . "</code></dd>";
-            $body .= "<dt>Trace:</dt>";
-            $body .= "<dd><pre>" . htmlspecialchars($exception->getTraceAsString()) . "</pre></dd>";
-            $body .= "</dl>";
+
+            $content .= "<h1>Fatal Exception</h1>";
+            $content .= "<div class=\"alert alert-danger\">";
+            $content .= "<kbd>{$esc($exception->getMessage())}</kbd>";
+            $content .= "</div>";
+            $content .= "<dl class=\"dl-horizontal\">";
+            $content .= "<dt>File</dt>";
+            $content .= "<dd><kbd>{$esc($exception->getFile())}:{$esc($exception->getLine())}</kbd></dd>";
+            $content .= "<dt>Type</dt>";
+            $content .= "<dd><kbd>" . $esc(get_class($exception)) . " (Code {$esc($exception->getCode())})</kbd></dd>";
+            $content .= "<dt>Trace</dt>";
+            $content .= "<dd><pre>{$esc($exception->getTraceAsString())}</pre></dd>";
+            $content .= "</dl>";
+
         } else {
-            $body = "<h1>Server Error</h1>";
-            $body .= "<p>Sorry, we are unable to process your request right now. Please try again later.</p>";
+
+            $content .= "<div class=\"jumbotron\">";
+            $content .= "<h1>Server Error</h1>";
+            $content .= "<p>Sorry, we are unable to process your request right now. Please try again later.</p>";
+            $content .= "</div>";
+
         }
+
+        $content .= "</div>";
+        $content .= "</body>";
+        $content .= "</html>";
 
         return (new \Panadas\Http\HtmlResponse($kernel))
             ->setStatusCode(500)
-            ->setContent("<!DOCTYPE html><html><head><title>{$title}</title></head><body>{$body}</body></html>");
+            ->setContent($content);
     }
 
 }

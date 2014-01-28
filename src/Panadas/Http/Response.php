@@ -4,6 +4,7 @@ namespace Panadas\Http;
 class Response extends \Panadas\Http\AbstractKernelAware
 {
 
+    private $charset;
     private $content_type;
     private $status_code;
     private $headers = [];
@@ -11,14 +12,39 @@ class Response extends \Panadas\Http\AbstractKernelAware
 
     /**
      * @param \Panadas\Http\Kernel $kernel
+     * @param string               $charset
      */
-    public function __construct(\Panadas\Http\Kernel $kernel)
+    public function __construct(\Panadas\Http\Kernel $kernel, $charset = null)
     {
         parent::__construct($kernel);
 
+        if (null === $charset) {
+            $charset = mb_internal_encoding();
+        }
+
         $this
+            ->setCharset($charset)
             ->setContentType("text/plain")
             ->setStatusCode(200);
+    }
+
+    /**
+     * @return string
+     */
+    public function getCharset()
+    {
+        return $this->charset;
+    }
+
+    /**
+     * @param  string $charset
+     * @return \Panadas\Http\Response
+     */
+    public function setCharset($charset)
+    {
+        $this->charset = $charset;
+
+        return $this;
     }
 
     /**
@@ -211,6 +237,24 @@ class Response extends \Panadas\Http\AbstractKernelAware
     }
 
     /**
+     * @param  string $content
+     * @return \Panadas\Http\Response
+     */
+    public function prependContent($content)
+    {
+        return $this->setContent($content . $this->getContent());
+    }
+
+    /**
+     * @param  string $content
+     * @return \Panadas\Http\Response
+     */
+    public function appendContent($content)
+    {
+        return $this->setContent($this->getContent() . $content);
+    }
+
+    /**
      * @return string
      */
     public function getStatusMessage()
@@ -267,11 +311,9 @@ class Response extends \Panadas\Http\AbstractKernelAware
     }
 
     /**
-     * @param  string $before_content
-     * @param  string $after_content
      * @return \Panadas\Http\Response
      */
-    public function send($before_content = null, $after_content = null)
+    public function send()
     {
         if ( ! headers_sent()) {
 
@@ -286,7 +328,7 @@ class Response extends \Panadas\Http\AbstractKernelAware
 
         }
 
-        return $this->sendContent($before_content, $after_content);
+        return $this->sendContent();
     }
 
     /**
@@ -295,7 +337,7 @@ class Response extends \Panadas\Http\AbstractKernelAware
     protected function sendHeaders()
     {
         header("HTTP/1.1 {$this->getStatusCode()} {$this->getStatusMessage()}", true);
-        header(("Content-Type: {$this->getContentType()}; charset=" . mb_internal_encoding()), true);
+        header(("Content-Type: {$this->getContentType()}; charset={$this->getCharset()}"), true);
 
         foreach ($this->getAllHeaders() as $name => $value) {
             header("{$name}: {$value}", true);
@@ -305,22 +347,12 @@ class Response extends \Panadas\Http\AbstractKernelAware
     }
 
     /**
-     * @param  string $before_content
-     * @param  string $after_content
      * @return \Panadas\Http\Response
      */
-    protected function sendContent($before_content = null, $after_content = null)
+    protected function sendContent()
     {
-        if (null !== $before_content) {
-            echo $before_content;
-        }
-
         if ($this->hasContent()) {
             echo $this->getContent();
-        }
-
-        if (null !== $after_content) {
-            echo $after_content;
         }
 
         return $this;

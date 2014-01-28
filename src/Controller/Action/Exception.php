@@ -39,7 +39,7 @@ class Exception extends \Controller\Action\HttpError
 
         } elseif ($kernel->getServiceContainer()->has("twig")) {
 
-            $response = (new \Panadas\TwigModule\Http\TwigResponse($kernel, "Exception.twig"))
+            $response = (new \Panadas\TwigModule\Http\TwigResponse($kernel))
                 ->set("exception", $exception_data);
 
         } else {
@@ -49,8 +49,13 @@ class Exception extends \Controller\Action\HttpError
 
         }
 
-        return $response
-            ->setStatusCode($this->getArg("status_code", 500));
+        $response->setStatusCode($this->getArg("status_code", 500));
+
+        if ($response instanceof \Panadas\TwigModule\Http\TwigResponse) {
+            $response->render("Exception.twig");
+        }
+
+        return $response;
     }
 
 }

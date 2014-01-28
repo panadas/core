@@ -14,7 +14,8 @@ class Homepage extends \Panadas\Controller\AbstractActionController
 
         } elseif ($kernel->getServiceContainer()->has("twig")) {
 
-            $response = new \Panadas\TwigModule\Http\TwigResponse($kernel, "Homepage.twig");
+            $response = (new \Panadas\TwigModule\Http\TwigResponse($kernel))
+                ->render("Homepage.twig");
 
         } else {
 

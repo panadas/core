@@ -28,12 +28,9 @@ class Kernel extends \Panadas\Event\Publisher
             ->setLoader($loader)
             ->setServiceContainer($service_container_callback($this));
 
-        if ( ! ini_get("date.timezone")) {
-            date_default_timezone_set("UTC");
-        }
-
         (new \Panadas\Error\ExceptionHandler($this))->register();
         (new \Panadas\Error\ErrorHandler($this))->register();
+        throw new \Exception("foo");
     }
 
     public function getName()
@@ -363,15 +360,13 @@ class Kernel extends \Panadas\Event\Publisher
     {
         $params = [
             "request" => $this->getCurrentRequest(),
-            "response" => $response,
-            "before_content" => null,
-            "after_content" => null
+            "response" => $response
         ];
 
         $event = $this->publish("send", $params);
 
         return $event->get("response")
-            ->send($event->get("before_content"), $event->get("after_content"));
+            ->send();
     }
 
     public function httpError($status_code, $message = null, array $action_args = [])

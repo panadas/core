@@ -17,7 +17,7 @@ class HttpError extends \Panadas\Controller\AbstractActionController
 
         } elseif ($kernel->getServiceContainer()->has("twig")) {
 
-            $response = (new \Panadas\TwigModule\Http\TwigResponse($kernel, "HttpError.twig"))
+            $response = (new \Panadas\TwigModule\Http\TwigResponse($kernel))
                 ->set("message", $message);
 
         } else {
@@ -27,8 +27,13 @@ class HttpError extends \Panadas\Controller\AbstractActionController
 
         }
 
-        return $response
-            ->setStatusCode($this->getArg("status_code"));
+        $response->setStatusCode($this->getArg("status_code"));
+
+        if ($response instanceof \Panadas\TwigModule\Http\TwigResponse) {
+            $response->render("HttpError.twig");
+        }
+
+        return $response;
     }
 
     protected function post(\Panadas\Http\Request $request)
