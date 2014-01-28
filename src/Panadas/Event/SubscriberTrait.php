@@ -7,7 +7,7 @@ trait SubscriberTrait
     /**
      * @return array
      */
-    public function __subscribe()
+    public function subscribe()
     {
         return [];
     }

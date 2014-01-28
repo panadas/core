@@ -131,12 +131,12 @@ class Request extends \Panadas\Http\AbstractKernelAware
 
     public function getHeader($name, $default = null)
     {
-        return $this->getKernel()->getServerVar(\Panadas\Util\Http::getPhpHeaderName($name), $default);
+        return $this->getKernel()->getServerVar(static::getPhpHeaderName($name), $default);
     }
 
     public function hasHeader($name)
     {
-        return $this->getKernel()->hasServerVar(\Panadas\Util\Http::getPhpHeaderName($name));
+        return $this->getKernel()->hasServerVar(static::getPhpHeaderName($name));
     }
 
     protected function detectUri()
@@ -270,6 +270,17 @@ class Request extends \Panadas\Http\AbstractKernelAware
         }
 
         return $instance;
+    }
+
+    /**
+     * Convert a raw header name to the PHP equivalent.
+     *
+     * @param  string $name
+     * @return string
+     */
+    public static function getPhpHeaderName($name)
+    {
+        return "HTTP_" . preg_replace("/[^0-9a-z]/i", "_", mb_strtoupper($name));
     }
 
 }

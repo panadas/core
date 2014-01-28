@@ -18,11 +18,6 @@ class Event extends \Panadas\Http\AbstractKernelAware
             ->replace($params);
     }
 
-    public function __toString()
-    {
-        return parent::__toString() . " ({$this->getName()})";
-    }
-
     public function getName()
     {
         return $this->name;

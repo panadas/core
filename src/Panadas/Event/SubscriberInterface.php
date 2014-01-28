@@ -7,6 +7,6 @@ interface SubscriberInterface
     /**
      * @return array
      */
-    public function __subscribe();
+    public function subscribe();
 
 }
