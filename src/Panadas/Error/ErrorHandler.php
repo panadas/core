@@ -12,7 +12,7 @@ class ErrorHandler extends \Panadas\Http\AbstractKernelAware
         set_error_handler([$this, "handle"]);
 
         register_shutdown_function(
-            function() {
+            function () {
 
                 $error = error_get_last();
 
@@ -37,11 +37,10 @@ class ErrorHandler extends \Panadas\Http\AbstractKernelAware
      */
     public function handle($errno, $errstr, $errfile, $errline)
     {
-        if ( ! (error_reporting() & $errno)) {
+        if (!(error_reporting() & $errno)) {
             return;
         }
 
         throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
     }
-
 }

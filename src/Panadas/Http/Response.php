@@ -5,12 +5,12 @@ class Response extends \Panadas\Http\AbstractKernelAware
 {
 
     private $charset;
-    private $content_type;
-    private $status_code;
+    private $contentType;
+    private $statusCode;
     private $headers = [];
     private $content;
 
-    static private $status_codes = [
+    static private $statusCodes = [
         100 => "Continue",
         101 => "Switching Protocols",
         200 => "OK",
@@ -108,16 +108,16 @@ class Response extends \Panadas\Http\AbstractKernelAware
      */
     public function getContentType()
     {
-        return $this->content_type;
+        return $this->contentType;
     }
 
     /**
-     * @param  string $content_type
+     * @param  string $contentType
      * @return \Panadas\Http\Response
      */
-    public function setContentType($content_type)
+    public function setContentType($contentType)
     {
-        $this->content_type = $content_type;
+        $this->contentType = $contentType;
 
         return $this;
     }
@@ -127,21 +127,21 @@ class Response extends \Panadas\Http\AbstractKernelAware
      */
     public function getStatusCode()
     {
-        return $this->status_code;
+        return $this->statusCode;
     }
 
     /**
-     * @param  integer $status_code
+     * @param  integer $statusCode
      * @throws \InvalidArgumentException
      * @return \Panadas\Http\Response
      */
-    public function setStatusCode($status_code)
+    public function setStatusCode($statusCode)
     {
-        if ( ! static::hasStatusCode($status_code)) {
-            throw new \InvalidArgumentException("Invalid status code: {$status_code}");
+        if (!static::hasStatusCode($statusCode)) {
+            throw new \InvalidArgumentException("Invalid status code: {$statusCode}");
         }
 
-        $this->status_code = $status_code;
+        $this->statusCode = $statusCode;
 
         return $this;
     }
@@ -315,9 +315,9 @@ class Response extends \Panadas\Http\AbstractKernelAware
      */
     public function isSuccess()
     {
-        $status_code = $this->getStatusCode();
+        $statusCode = $this->getStatusCode();
 
-        return (($status_code >= 200) && ($status_code < 300));
+        return (($statusCode >= 200) && ($statusCode < 300));
     }
 
     /**
@@ -325,9 +325,9 @@ class Response extends \Panadas\Http\AbstractKernelAware
      */
     public function isRedirect()
     {
-        $status_code = $this->getStatusCode();
+        $statusCode = $this->getStatusCode();
 
-        return (($status_code >= 300) && ($status_code < 400));
+        return (($statusCode >= 300) && ($statusCode < 400));
     }
 
     /**
@@ -335,9 +335,9 @@ class Response extends \Panadas\Http\AbstractKernelAware
      */
     public function isClientError()
     {
-        $status_code = $this->getStatusCode();
+        $statusCode = $this->getStatusCode();
 
-        return (($status_code >= 400) && ($status_code < 500));
+        return (($statusCode >= 400) && ($statusCode < 500));
     }
 
     /**
@@ -345,9 +345,9 @@ class Response extends \Panadas\Http\AbstractKernelAware
      */
     public function isServerError()
     {
-        $status_code = $this->getStatusCode();
+        $statusCode = $this->getStatusCode();
 
-        return (($status_code >= 500) && ($status_code < 600));
+        return (($statusCode >= 500) && ($statusCode < 600));
     }
 
     /**
@@ -384,10 +384,10 @@ class Response extends \Panadas\Http\AbstractKernelAware
             return $this;
         }
 
-        $status_code = $this->getStatusCode();
-        $status_message = static::getStatusMessage($status_code);
+        $statusCode = $this->getStatusCode();
+        $statusMessage = static::getStatusMessage($statusCode);
 
-        header("HTTP/1.1 {$status_code} {$status_message}", true);
+        header("HTTP/1.1 {$statusCode} {$statusMessage}", true);
 
         $headers = $this->getAllHeaders();
         $headers["Content-Type"] = "{$this->getContentType()}; charset={$this->getCharset()}";
@@ -416,25 +416,24 @@ class Response extends \Panadas\Http\AbstractKernelAware
      */
     public static function getStatusCodes()
     {
-        return array_keys(static::$status_codes);
+        return array_keys(static::$statusCodes);
     }
 
     /**
-     * @param  integer $status_code
+     * @param  integer $statusCode
      * @return boolean
      */
-    public static function hasStatusCode($status_code)
+    public static function hasStatusCode($statusCode)
     {
-        return array_key_exists($status_code, static::getStatusCodes());
+        return array_key_exists($statusCode, static::getStatusCodes());
     }
 
     /**
-     * @param  integer $status_code
+     * @param  integer $statusCode
      * @return string
      */
-    public static function getStatusMessage($status_code)
+    public static function getStatusMessage($statusCode)
     {
-        return static::hasStatusCode($code) ? static::$status_codes[$code] : null;
+        return static::hasStatusCode($code) ? static::$statusCodes[$code] : null;
     }
-
 }

@@ -9,5 +9,4 @@ interface ControllerInterface
      * @return string
      */
     public static function getClassName($name);
-
 }

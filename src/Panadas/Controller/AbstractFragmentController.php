@@ -13,5 +13,4 @@ abstract class AbstractFragmentController extends \Panadas\Controller\AbstractCo
     {
         return "Controller\Fragment\\{$name}";
     }
-
 }

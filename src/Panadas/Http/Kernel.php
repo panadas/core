@@ -6,27 +6,33 @@ class Kernel extends \Panadas\Event\Publisher
 
     private $name;
     private $loader;
-    private $service_container;
-    private $original_request;
-    private $current_request;
-    private $server_vars = [];
-    private $env_vars = [];
+    private $serviceContainer;
+    private $originalRequest;
+    private $currentRequest;
+    private $serverVars = [];
+    private $envVars = [];
 
     const ENV_DEBUG = "PANADAS_DEBUG";
     const ACTION_EXCEPTION = "Exception";
     const ACTION_HTTP_ERROR = "HttpError";
     const ACTION_REDIRECT = "Redirect";
 
-    public function __construct($name, \Panadas\Loader $loader, \Panadas\Event\Publisher $event_publisher, callable $service_container_callback, array $server_vars = [], array $env_vars = [])
-    {
+    public function __construct(
+        $name,
+        \Panadas\Loader $loader,
+        \Panadas\Event\Publisher $eventPublisher,
+        callable $serviceContainerCallback,
+        array $serverVars = [],
+        array $envVars = []
+    ) {
         parent::__construct();
 
         $this
             ->setName($name)
-            ->replaceServerVars($server_vars)
-            ->replaceEnvVars($env_vars)
+            ->replaceServerVars($serverVars)
+            ->replaceEnvVars($envVars)
             ->setLoader($loader)
-            ->setServiceContainer($service_container_callback($this));
+            ->setServiceContainer($serviceContainerCallback($this));
 
         (new \Panadas\Error\ExceptionHandler($this))->register();
         (new \Panadas\Error\ErrorHandler($this))->register();
@@ -58,7 +64,7 @@ class Kernel extends \Panadas\Event\Publisher
 
     protected function getOriginalRequest()
     {
-        return $this->original_request;
+        return $this->originalRequest;
     }
 
     protected function hasOriginalRequest()
@@ -66,9 +72,9 @@ class Kernel extends \Panadas\Event\Publisher
         return (null !== $this->getOriginalRequest());
     }
 
-    protected function setOriginalRequest(\Panadas\Http\Request $original_request = null)
+    protected function setOriginalRequest(\Panadas\Http\Request $originalRequest = null)
     {
-        $this->original_request = $original_request;
+        $this->originalRequest = $originalRequest;
 
         return $this;
     }
@@ -80,7 +86,7 @@ class Kernel extends \Panadas\Event\Publisher
 
     protected function getCurrentRequest()
     {
-        return $this->current_request;
+        return $this->currentRequest;
     }
 
     protected function hasCurrentRequest()
@@ -88,9 +94,9 @@ class Kernel extends \Panadas\Event\Publisher
         return (null !== $this->getCurrentRequest());
     }
 
-    protected function setCurrentRequest(\Panadas\Http\Request $current_request = null)
+    protected function setCurrentRequest(\Panadas\Http\Request $currentRequest = null)
     {
-        $this->current_request = $current_request;
+        $this->currentRequest = $currentRequest;
 
         return $this;
     }
@@ -102,24 +108,24 @@ class Kernel extends \Panadas\Event\Publisher
 
     public function getServiceContainer()
     {
-        return $this->service_container;
+        return $this->serviceContainer;
     }
 
-    protected function setServiceContainer(\Panadas\Service\Container $service_container)
+    protected function setServiceContainer(\Panadas\Service\Container $serviceContainer)
     {
-        $this->service_container = $service_container;
+        $this->serviceContainer = $serviceContainer;
 
         return $this;
     }
 
     public function getEnvVar($name, $default = null)
     {
-        return $this->hasEnvVar($name) ? $this->env_vars[$name] : $default;
+        return $this->hasEnvVar($name) ? $this->envVars[$name] : $default;
     }
 
     public function getAllEnvVars()
     {
-        return $this->env_vars;
+        return $this->envVars;
     }
 
     public function getEnvVarNames()
@@ -140,7 +146,7 @@ class Kernel extends \Panadas\Event\Publisher
     public function removeEnvVar($name)
     {
         if ($this->hasEnvVar($name)) {
-            unset($this->env_vars[$name]);
+            unset($this->envVars[$name]);
         }
 
         return $this;
@@ -160,22 +166,22 @@ class Kernel extends \Panadas\Event\Publisher
         return $this->removeManyEnvVars($this->getEnvVarNames());
     }
 
-    public function replaceEnvVars(array $env_vars)
+    public function replaceEnvVars(array $envVars)
     {
         return $this
             ->removeAllEnvVars()
-            ->setManyEnvVars($env_vars);
+            ->setManyEnvVars($envVars);
     }
 
     public function setEnvVar($name, $value)
     {
-        $this->env_vars[$name] = $value;
+        $this->envVars[$name] = $value;
         return $this;
     }
 
-    public function setManyEnvVars(array $env_vars)
+    public function setManyEnvVars(array $envVars)
     {
-        foreach ($env_vars as $name => $value) {
+        foreach ($envVars as $name => $value) {
             $this->setEnvVar($name, $value);
         }
 
@@ -184,12 +190,12 @@ class Kernel extends \Panadas\Event\Publisher
 
     public function getServerVar($name, $default = null)
     {
-        return $this->hasServerVar($name) ? $this->server_vars[$name] : $default;
+        return $this->hasServerVar($name) ? $this->serverVars[$name] : $default;
     }
 
     public function getAllServerVars()
     {
-        return $this->server_vars;
+        return $this->serverVars;
     }
 
     public function getServerVarNames()
@@ -210,7 +216,7 @@ class Kernel extends \Panadas\Event\Publisher
     protected function removeServerVar($name)
     {
         if ($this->hasServerVar($name)) {
-            unset($this->server_vars[$name]);
+            unset($this->serverVars[$name]);
         }
 
         return $this;
@@ -230,21 +236,21 @@ class Kernel extends \Panadas\Event\Publisher
         return $this->removeManyServerVars($this->getServerVarNames());
     }
 
-    protected function replaceServerVars(array $server_vars)
+    protected function replaceServerVars(array $serverVars)
     {
-        return $this->removeAllServerVars()->setManyServerVars($server_vars);
+        return $this->removeAllServerVars()->setManyServerVars($serverVars);
     }
 
     protected function setServerVar($name, $value)
     {
-        $this->server_vars[$name] = $value;
+        $this->serverVars[$name] = $value;
 
         return $this;
     }
 
-    protected function setManyServerVars(array $server_vars)
+    protected function setManyServerVars(array $serverVars)
     {
-        foreach ($server_vars as $name => $value) {
+        foreach ($serverVars as $name => $value) {
             $this->setServerVar($name, $value);
         }
 
@@ -274,8 +280,8 @@ class Kernel extends \Panadas\Event\Publisher
             $params = [
                 "request" => $request,
                 "response" => null,
-                "action_name" => null,
-                "action_args" => []
+                "actionName" => null,
+                "actionArgs" => []
             ];
 
             $event = $this->publish("handle", $params);
@@ -284,14 +290,14 @@ class Kernel extends \Panadas\Event\Publisher
 
             if (null === $response) {
 
-                $action_name = $event->get("action_name");
-                $action_args = $event->get("action_args");
+                $actionName = $event->get("actionName");
+                $actionArgs = $event->get("actionArgs");
 
-                if (null !== $action_name) {
+                if (null !== $actionName) {
 
-                    $response = $this->forward($action_name, $action_args);
+                    $response = $this->forward($actionName, $actionArgs);
 
-                } elseif ( ! $this->isDebugMode()) {
+                } elseif (!$this->isDebugMode()) {
 
                     $response = $this->error404();
 
@@ -314,9 +320,9 @@ class Kernel extends \Panadas\Event\Publisher
         return $response;
     }
 
-    public function forward($action_name, array $action_args = [])
+    public function forward($actionName, array $actionArgs = [])
     {
-        if ( ! $this->isHandling()) {
+        if (!$this->isHandling()) {
             throw new \RuntimeException("Application is not running");
         }
 
@@ -326,8 +332,8 @@ class Kernel extends \Panadas\Event\Publisher
         $params = [
             "request" => $request,
             "response" => null,
-            "action_name" => $action_name,
-            "action_args" => $action_args
+            "actionName" => $actionName,
+            "actionArgs" => $actionArgs
         ];
 
         $event = $this->publish("forward", $params);
@@ -337,11 +343,11 @@ class Kernel extends \Panadas\Event\Publisher
 
         if (null === $response) {
 
-            $action_name = $event->get("action_name");
-            $action_args = $event->get("action_args");
-            $action_class= \Panadas\Controller\AbstractActionController::getClassName($action_name);
+            $actionName = $event->get("actionName");
+            $actionArgs = $event->get("actionArgs");
+            $actionClass= \Panadas\Controller\AbstractActionController::getClassName($actionName);
 
-            $action = new $action_class($this, $action_name, $action_args);
+            $action = new $actionClass($this, $actionName, $actionArgs);
 
             $vars = [
                 "action" => $action,
@@ -368,73 +374,76 @@ class Kernel extends \Panadas\Event\Publisher
             ->send();
     }
 
-    public function httpError($status_code, $message = null, array $action_args = [])
+    public function httpError($statusCode, $message = null, array $actionArgs = [])
     {
-        $action_args["status_code"] = $status_code;
-        $action_args["message"] = $message;
+        $actionArgs["statusCode"] = $statusCode;
+        $actionArgs["message"] = $message;
 
-        return $this->forward(static::ACTION_HTTP_ERROR, $action_args);
+        return $this->forward(static::ACTION_HTTP_ERROR, $actionArgs);
     }
 
-    public function error400($message = null, array $action_args = [])
+    public function error400($message = null, array $actionArgs = [])
     {
-        return $this->httpError(400, $message, $action_args);
+        return $this->httpError(400, $message, $actionArgs);
     }
 
-    public function error401($message = null, array $action_args = [])
+    public function error401($message = null, array $actionArgs = [])
     {
-        return $this->httpError(401, $message, $action_args);
+        return $this->httpError(401, $message, $actionArgs);
     }
 
-    public function error403($message = null, array $action_args = [])
+    public function error403($message = null, array $actionArgs = [])
     {
-        return $this->httpError(403, $message, $action_args);
+        return $this->httpError(403, $message, $actionArgs);
     }
 
-    public function error404($message = null, array $action_args = [])
+    public function error404($message = null, array $actionArgs = [])
     {
-        return $this->httpError(404, $message, $action_args);
+        return $this->httpError(404, $message, $actionArgs);
     }
 
-    public function error500($message = null, array $action_args = [])
+    public function error500($message = null, array $actionArgs = [])
     {
-        return $this->httpError(500, $message, $action_args);
+        return $this->httpError(500, $message, $actionArgs);
     }
 
-    public function exception(\Exception $exception, array $action_args = [])
+    public function exception(\Exception $exception, array $actionArgs = [])
     {
-        $action_args = [
+        $actionArgs = [
             "exception" => $exception
         ];
 
-        return $this->forward(static::ACTION_EXCEPTION, $action_args);
+        return $this->forward(static::ACTION_EXCEPTION, $actionArgs);
     }
 
-    public function redirect($uri, $status_code = 302, array $action_args = [])
+    public function redirect($uri, $statusCode = 302, array $actionArgs = [])
     {
-        $action_args["uri"] = $uri;
-        $action_args["status_code"] = $status_code;
+        $actionArgs["uri"] = $uri;
+        $actionArgs["statusCode"] = $statusCode;
 
-        return $this->forward(static::ACTION_REDIRECT, $action_args);
+        return $this->forward(static::ACTION_REDIRECT, $actionArgs);
     }
 
-    public static function create($name, \Panadas\Loader $loader = null, \Panadas\Event\Publisher $event_publisher = null, callable $service_container_callback = null)
-    {
+    public static function create(
+        $name,
+        \Panadas\Loader $loader = null,
+        \Panadas\Event\Publisher $eventPublisher = null,
+        callable $serviceContainerCallback = null
+    ) {
         if (null === $loader) {
             $loader = new \Panadas\Loader(__DIR__ . "/../../../../../../");
         }
 
-        if (null === $event_publisher) {
-            $event_publisher = new \Panadas\Event\Publisher();
+        if (null === $eventPublisher) {
+            $eventPublisher = new \Panadas\Event\Publisher();
         }
 
-        if (null === $service_container_callback) {
-            $service_container_callback = function(\Panadas\Http\Kernel $kernel) {
+        if (null === $serviceContainerCallback) {
+            $serviceContainerCallback = function (\Panadas\Http\Kernel $kernel) {
                 return new \Panadas\Service\Container($kernel);
             };
         }
 
-        return new static($name, $loader, $event_publisher, $service_container_callback, $_SERVER, $_ENV);
+        return new static($name, $loader, $eventPublisher, $serviceContainerCallback, $_SERVER, $_ENV);
     }
-
 }

@@ -142,13 +142,13 @@ class Request extends \Panadas\Http\AbstractKernelAware
     protected function detectUri()
     {
         $kernel = $this->getKernel();
-        $is_secure = $this->isSecure();
-        $protocol = $is_secure ? "https" : "http";
+        $secure = $this->isSecure();
+        $protocol = $secure ? "https" : "http";
 
         $port = $kernel->getServerVar("SERVER_PORT");
 
         if (null !== $port) {
-            $port = ($port != ($is_secure ? 443 : 80)) ? ":{$port}" : null;
+            $port = ($port != ($secure ? 443 : 80)) ? ":{$port}" : null;
         }
 
         $host = $kernel->getServerVar("HTTP_HOST");
@@ -198,17 +198,15 @@ class Request extends \Panadas\Http\AbstractKernelAware
     {
         $kernel = $this->getKernel();
 
-        $header_map = [
+        $headers = [
             "HTTPS" => "ON",
             "HTTP_X_FORWARDED_PROTO" => "HTTPS"
         ];
 
-        foreach ($header_map as $name => $value) {
-
+        foreach ($headers as $name => $value) {
             if (mb_strtoupper($kernel->getServerVar($name)) === $value) {
                 return true;
             }
-
         }
 
         return false;
@@ -223,13 +221,13 @@ class Request extends \Panadas\Http\AbstractKernelAware
     {
         $kernel = $this->getKernel();
 
-        $header_map = [
+        $headers = [
             "HTTP_CLIENT_IP",
             "HTTP_X_FORWARDED_FOR",
             "REMOTE_ADDR"
         ];
 
-        foreach ($header_map as $name) {
+        foreach ($headers as $name) {
 
             $value = $kernel->getServerVar($name);
 
@@ -258,7 +256,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
             $params = [];
 
             $file = fopen("php://input", "r");
-            while ( ! feof($file)) {
+            while (!feof($file)) {
                 $body .= fread($file, 1024);
             }
             fclose($file);
@@ -282,5 +280,4 @@ class Request extends \Panadas\Http\AbstractKernelAware
     {
         return "HTTP_" . preg_replace("/[^0-9a-z]/i", "_", mb_strtoupper($name));
     }
-
 }

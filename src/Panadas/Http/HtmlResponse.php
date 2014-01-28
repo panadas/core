@@ -17,17 +17,17 @@ class HtmlResponse extends \Panadas\Http\Response
 
     /**
      * @param  string  $content
-     * @param  boolean $within_body
+     * @param  boolean $insideBody
      * @return \Panadas\Http\HtmlResponse
      */
-    public function prependContent($content, $within_body = true)
+    public function prependContent($content, $insideBody = true)
     {
-        if ($within_body) {
+        if ($insideBody) {
 
-            $existing_content = $this->getContent();
+            $existingContent = $this->getContent();
 
-            if (false !== mb_strpos($existing_content, "<body>", null, $this->getCharset())) {
-                return $this->setContent(str_replace("<body>", "<body>{$content}", $existing_content));
+            if (false !== mb_strpos($existingContent, "<body>", null, $this->getCharset())) {
+                return $this->setContent(str_replace("<body>", "<body>{$content}", $existingContent));
             }
 
         }
@@ -37,22 +37,21 @@ class HtmlResponse extends \Panadas\Http\Response
 
     /**
      * @param  string  $content
-     * @param  boolean $within_body
+     * @param  boolean $insideBody
      * @return \Panadas\Http\HtmlResponse
      */
-    public function appendContent($content, $within_body = true)
+    public function appendContent($content, $insideBody = true)
     {
-        if ($within_body) {
+        if ($insideBody) {
 
-            $existing_content = $this->getContent();
+            $existingContent = $this->getContent();
 
-            if (false !== mb_strpos($existing_content, "</body>", null, $this->getCharset())) {
-                return $this->setContent(str_replace("</body>", "{$content}</body>", $existing_content));
+            if (false !== mb_strpos($existingContent, "</body>", null, $this->getCharset())) {
+                return $this->setContent(str_replace("</body>", "{$content}</body>", $existingContent));
             }
 
         }
 
         return parent::appendContent($content);
     }
-
 }

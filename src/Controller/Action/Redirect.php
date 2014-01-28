@@ -25,5 +25,4 @@ class Redirect extends \Panadas\Controller\AbstractActionController
     {
         return $this->get($request);
     }
-
 }

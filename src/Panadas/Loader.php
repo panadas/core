@@ -4,14 +4,14 @@ namespace Panadas;
 class Loader extends \Panadas\AbstractBase
 {
 
-    private $root_dir;
+    private $rootDir;
 
     /**
-     * @param string $root_dir
+     * @param string $rootDir
      */
-    public function __construct($root_dir)
+    public function __construct($rootDir)
     {
-        $this->setRootDir($root_dir);
+        $this->setRootDir($rootDir);
     }
 
     /**
@@ -19,32 +19,31 @@ class Loader extends \Panadas\AbstractBase
      */
     public function getRootDir()
     {
-        return $this->root_dir;
+        return $this->rootDir;
     }
 
     /**
-     * @param  string $root_dir
+     * @param  string $rootDir
      * @return \Panadas\Loader
      */
-    protected function setRootDir($root_dir)
+    protected function setRootDir($rootDir)
     {
-        $this->root_dir = realpath($root_dir);
+        $this->rootDir = realpath($rootDir);
 
         return $this;
     }
 
     /**
-     * @param  string $relative_path
-     * @param  string $root_dir
+     * @param  string $relativePath
+     * @param  string $rootDir
      * @return string
      */
-    public function getAbsolutePath($relative_path, $root_dir = null)
+    public function getAbsolutePath($relativePath, $rootDir = null)
     {
-        if (null === $root_dir) {
-            $root_dir = $this->getRootDir();
+        if (null === $rootDir) {
+            $rootDir = $this->getRootDir();
         }
 
-        return $root_dir . DIRECTORY_SEPARATOR . trim($relative_path, DIRECTORY_SEPARATOR);
+        return $rootDir . DIRECTORY_SEPARATOR . trim($relativePath, DIRECTORY_SEPARATOR);
     }
-
 }

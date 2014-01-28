@@ -26,5 +26,4 @@ class Homepage extends \Panadas\Controller\AbstractActionController
 
         return $response;
     }
-
 }

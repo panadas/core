@@ -41,7 +41,7 @@ class Container extends \Panadas\Http\AbstractKernelAware
      */
     public function get($id, $required = true)
     {
-        if ( ! $this->has($id)) {
+        if (!$this->has($id)) {
 
             if ($required) {
                 throw new \RuntimeException("Service \"{$id}\" is required");
@@ -130,5 +130,4 @@ class Container extends \Panadas\Http\AbstractKernelAware
     {
         return $this->removeAll()->addMany($services);
     }
-
 }

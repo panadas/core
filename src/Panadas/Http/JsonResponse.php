@@ -15,12 +15,12 @@ class JsonResponse extends \Panadas\Http\Response
     }
 
     /**
-     * @param  boolean $as_array
+     * @param  boolean $array
      * @return mixed
      */
-    public function getContent($as_array = true)
+    public function getContent($array = true)
     {
-        return json_decode(parent::getContent(), $as_array);
+        return json_decode(parent::getContent(), $array);
     }
 
     /**
@@ -33,5 +33,4 @@ class JsonResponse extends \Panadas\Http\Response
 
         return $this;
     }
-
 }

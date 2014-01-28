@@ -115,5 +115,4 @@ class Event extends \Panadas\Http\AbstractKernelAware
     {
         return $this->setStopped(true);
     }
-
 }

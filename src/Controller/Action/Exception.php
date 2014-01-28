@@ -11,7 +11,7 @@ class Exception extends \Controller\Action\HttpError
 
         $exception = $this->getArg("exception");
 
-        if ( ! $exception instanceof \Exception) {
+        if (!$exception instanceof \Exception) {
             throw new \RuntimeException("An instance of \Exception is required");
         }
 
@@ -19,11 +19,11 @@ class Exception extends \Controller\Action\HttpError
             $sc->get("logger")->critical($exception->getMessage(), ["exception" => $exception]);
         }
 
-        if ( ! $kernel->isDebugMode()) {
+        if (!$kernel->isDebugMode()) {
             return $kernel->error500();
         }
 
-        $exception_data = [
+        $data = [
             "type" => get_class($exception),
             "code" => $exception->getCode(),
             "message" => $exception->getMessage(),
@@ -35,17 +35,17 @@ class Exception extends \Controller\Action\HttpError
         if ($request->isAjax()) {
 
             $response = (new \Panadas\Http\JsonResponse($kernel))
-                ->setContent($exception_data);
+                ->setContent($data);
 
         } elseif ($kernel->getServiceContainer()->has("twig")) {
 
             $response = (new \Panadas\TwigModule\Http\TwigResponse($kernel))
-                ->set("exception", $exception_data);
+                ->set("exception", $data);
 
         } else {
 
             $response = (new \Panadas\Http\HtmlResponse($kernel))
-                ->setContent("<pre>[{$exception_data["type"]}] {$exception_data["message"]} in {$exception_data["file"]}:{$exception_data["line"]}</pre>");
+                ->setContent("<pre>[{$data["type"]}] {$data["message"]} in {$data["file"]}:{$data["line"]}</pre>");
 
         }
 
@@ -57,5 +57,4 @@ class Exception extends \Controller\Action\HttpError
 
         return $response;
     }
-
 }

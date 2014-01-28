@@ -8,5 +8,4 @@ interface SubscriberInterface
      * @return array
      */
     public function subscribe();
-
 }

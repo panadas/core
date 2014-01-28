@@ -24,5 +24,4 @@ trait KernelAwareTrait
 
         return $this;
     }
-
 }

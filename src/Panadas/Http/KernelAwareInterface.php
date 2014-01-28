@@ -8,5 +8,4 @@ interface KernelAwareInterface
      * @return \Panadas\Http\Kernel
      */
     public function getKernel();
-
 }

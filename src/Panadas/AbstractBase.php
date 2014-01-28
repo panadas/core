@@ -55,5 +55,4 @@ abstract class AbstractBase implements \JsonSerializable, \Serializable
 
         return $this;
     }
-
 }

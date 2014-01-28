@@ -15,5 +15,4 @@ abstract class AbstractKernelAware extends \Panadas\AbstractBase implements \Pan
 
         $this->setKernel($kernel);
     }
-
 }

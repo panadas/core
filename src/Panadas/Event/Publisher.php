@@ -152,7 +152,7 @@ class Publisher extends \Panadas\AbstractBase
 
         if (is_array($config) && (array_key_exists("priority", $config) || array_key_exists("listener", $config))) {
 
-            if ( ! array_key_exists("listener", $config)) {
+            if (!array_key_exists("listener", $config)) {
                 throw new \Exception("A listener to must be provided for event: {$name}");
             }
 
@@ -170,5 +170,4 @@ class Publisher extends \Panadas\AbstractBase
 
         return true;
     }
-
 }

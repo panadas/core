@@ -6,11 +6,11 @@ abstract class AbstractActionController extends \Panadas\Controller\AbstractCont
 
     public function handle(\Panadas\Http\Request $request)
     {
-        $request_method = $request->getMethod();
+        $requestMethod = $request->getMethod();
 
-        if (
-            ! in_array(
-                $request_method,
+        if (!
+            in_array(
+                $requestMethod,
                 [
                     \Panadas\Http\Request::METHOD_HEAD,
                     \Panadas\Http\Request::METHOD_GET,
@@ -23,15 +23,15 @@ abstract class AbstractActionController extends \Panadas\Controller\AbstractCont
             $logger = $this->getKernel()->getServiceContainer()->get("logger", false);
 
             if (null !== $logger) {
-                $logger->warn("Invalid request method: {$request_method}");
+                $logger->warn("Invalid request method: {$requestMethod}");
             }
 
-            $request_method = \Panadas\Http\Request::METHOD_GET;
+            $requestMethod = \Panadas\Http\Request::METHOD_GET;
         }
 
-        $method_name = mb_strtolower($request_method);
+        $methodName = mb_strtolower($requestMethod);
 
-        foreach (["before", $method_name, "after"] as $method) {
+        foreach (["before", $methodName, "after"] as $method) {
 
             $result = $this->$method($request);
 
@@ -93,5 +93,4 @@ abstract class AbstractActionController extends \Panadas\Controller\AbstractCont
     {
         return "Controller\Action\\{$name}";
     }
-
 }
