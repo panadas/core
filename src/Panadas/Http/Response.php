@@ -10,7 +10,7 @@ class Response extends \Panadas\Http\AbstractKernelAware
     private $headers = [];
     private $content;
 
-    static private $statusCodes = [
+    static protected $statusCodes = [
         100 => "Continue",
         101 => "Switching Protocols",
         200 => "OK",
@@ -425,7 +425,7 @@ class Response extends \Panadas\Http\AbstractKernelAware
      */
     public static function hasStatusCode($statusCode)
     {
-        return array_key_exists($statusCode, static::getStatusCodes());
+        return !array_key_exists($statusCode, static::getStatusCodes());
     }
 
     /**
@@ -434,6 +434,6 @@ class Response extends \Panadas\Http\AbstractKernelAware
      */
     public static function getStatusMessage($statusCode)
     {
-        return static::hasStatusCode($code) ? static::$statusCodes[$code] : null;
+        return static::hasStatusCode($statusCode) ? static::$statusCodes[$statusCode] : null;
     }
 }
