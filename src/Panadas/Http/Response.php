@@ -7,7 +7,7 @@ class Response extends \Panadas\Http\AbstractKernelAware
     private $charset;
     private $contentType;
     private $statusCode;
-    private $headers = [];
+    private $headers;
     private $content;
 
     static protected $statusCodes = [
@@ -69,8 +69,10 @@ class Response extends \Panadas\Http\AbstractKernelAware
     /**
      * @param \Panadas\Http\Kernel $kernel
      * @param string               $charset
+     * @param array                $headers
+     * @param string               $content
      */
-    public function __construct(\Panadas\Http\Kernel $kernel, $charset = null)
+    public function __construct(\Panadas\Http\Kernel $kernel, $charset = null, array $headers = [], $content = null)
     {
         parent::__construct($kernel);
 
@@ -81,6 +83,8 @@ class Response extends \Panadas\Http\AbstractKernelAware
         $this
             ->setCharset($charset)
             ->setContentType("text/plain")
+            ->setHeaders(new \Panadas\ArrayStore\HashArrayStore($headers))
+            ->setContent($content)
             ->setStatusCode(200);
     }
 
@@ -147,112 +151,20 @@ class Response extends \Panadas\Http\AbstractKernelAware
     }
 
     /**
-     * @param  string $name
-     * @param  mixed  $default
-     * @return mixed
+     * @return \Panadas\ArrayStore\HashArrayStore
      */
-    public function getHeader($name, $default = null)
-    {
-        return $this->hasHeader($name) ? $this->headers[$name] : $default;
-    }
-
-    /**
-     * @return array
-     */
-    public function getAllHeaders()
+    protected function getHeaders()
     {
         return $this->headers;
     }
 
     /**
-     * @return array
-     */
-    public function getHeaderNames()
-    {
-        return array_keys($this->getAllHeaders());
-    }
-
-    /**
-     * @param  string $name
-     * @return boolean
-     */
-    public function hasHeader($name)
-    {
-        return array_key_exists($name, $this->getAllHeaders());
-    }
-
-    /**
-     * @return boolean
-     */
-    public function hasAnyHeaders()
-    {
-        return (count($this->getAllHeaders()) > 0);
-    }
-
-    /**
-     * @param  string $name
+     * @param  \Panadas\ArrayStore\HashArrayStore $headers
      * @return \Panadas\Http\Response
      */
-    public function removeHeader($name)
+    protected function setHeaders(\Panadas\ArrayStore\HashArrayStore $headers)
     {
-        if ($this->hasHeader($name)) {
-            unset($this->headers[$name]);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param  array $names
-     * @return \Panadas\Http\Response
-     */
-    public function removeManyHeaders(array $names)
-    {
-        foreach ($names as $name) {
-            $this->removeHeader($name);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return \Panadas\Http\Response
-     */
-    public function removeAllHeaders()
-    {
-        return $this->removeManyHeaders($this->getHeaderNames());
-    }
-
-    /**
-     * @param  array $headers
-     * @return \Panadas\Http\Response
-     */
-    public function replaceHeaders(array $headers)
-    {
-        return $this->removeAllHeaders()->setManyHeaders($headers);
-    }
-
-    /**
-     * @param  string $name
-     * @param  string $value
-     * @return \Panadas\Http\Response
-     */
-    public function setHeader($name, $value)
-    {
-        $this->headers[$name] = $value;
-
-        return $this;
-    }
-
-    /**
-     * @param  array $data
-     * @return \Panadas\Http\Response
-     */
-    public function setManyHeaders(array $data)
-    {
-        foreach ($data as $name => $value) {
-            $this->setHeader($name, $value);
-        }
+        $this->headers = $headers;
 
         return $this;
     }
@@ -290,6 +202,93 @@ class Response extends \Panadas\Http\AbstractKernelAware
     public function removeContent()
     {
         return $this->setContent(null);
+    }
+
+    /**
+     * @param  string $name
+     * @param  mixed  $default
+     * @return mixed
+     */
+    public function getHeader($name, $default = null)
+    {
+        return $this->getHeaders()->get($name, $default);
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllHeaders()
+    {
+        return $this->getHeaders()->getAll();
+    }
+
+    /**
+     * @return array
+     */
+    public function getHeaderNames()
+    {
+        return $this->getHeaders()->getNames();
+    }
+
+    /**
+     * @param  string $name
+     * @return boolean
+     */
+    public function hasHeader($name)
+    {
+        return $this->getHeaders()->has($name);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasAnyHeaders()
+    {
+        return $this->getHeaders()->hasAny();
+    }
+
+    /**
+     * @param  string $name
+     * @return \Panadas\Http\Response
+     */
+    public function removeHeader($name)
+    {
+        $this->getHeaders()->remove($name);
+
+        return $this;
+    }
+
+    /**
+     * @return \Panadas\Http\Response
+     */
+    public function removeAllHeaders()
+    {
+        $this->getHeaders()->removeAll();
+
+        return $this;
+    }
+
+    /**
+     * @param  string $name
+     * @param  mixed  $value
+     * @return \Panadas\Http\Response
+     */
+    public function setHeader($name, $value)
+    {
+        $this->getHeaders()->set($name, $value);
+
+        return $this;
+    }
+
+    /**
+     * @param  array $headers
+     * @return \Panadas\Http\Response
+     */
+    public function replaceHeaders(array $headers)
+    {
+        $this->getHeaders()->replace($headers);
+
+        return $this;
     }
 
     /**

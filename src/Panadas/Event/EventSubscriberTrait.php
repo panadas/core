@@ -1,7 +1,7 @@
 <?php
 namespace Panadas\Event;
 
-trait SubscriberTrait
+trait EventSubscriberTrait
 {
 
     /**

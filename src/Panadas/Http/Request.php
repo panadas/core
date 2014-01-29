@@ -5,9 +5,9 @@ class Request extends \Panadas\Http\AbstractKernelAware
 {
 
     private $uri;
-    private $queryParamsContainer;
-    private $dataParamsContainer;
-    private $cookiesContainer;
+    private $queryParams;
+    private $dataParams;
+    private $cookies;
 
     const METHOD_HEAD = "HEAD";
     const METHOD_GET = "GET";
@@ -17,17 +17,28 @@ class Request extends \Panadas\Http\AbstractKernelAware
 
     const PARAM_METHOD = "_method";
 
+    /**
+     * @param \Panadas\Http\Kernel $kernel
+     * @param array                $queryParams
+     * @param array                $dataParams
+     * @param array                $cookies
+     */
     public function __construct(\Panadas\Http\Kernel $kernel, array $queryParams = [], array $dataParams = [], array $cookies = [])
     {
         parent::__construct($kernel);
 
         $this
             ->setUri($this->detectUri())
-            ->setQueryParamsContainer(new \Panadas\ParamContainer($queryParams))
-            ->setDataParamsContainer(new \Panadas\ParamContainer($dataParams))
-            ->setCookiesContainer(new \Panadas\ParamContainer($cookies));
+            ->setQueryParams(new \Panadas\ArrayStore\HashArrayStore($queryParams))
+            ->setDataParams(new \Panadas\ArrayStore\HashArrayStore($dataParams))
+            ->setCookies(new \Panadas\ArrayStore\HashArrayStore($cookies));
     }
 
+    /**
+     * @param  string $absolute
+     * @param  string $query
+     * @return string
+     */
     public function getUri($absolute = true, $query = true)
     {
         $uri = $this->uri;
@@ -57,6 +68,10 @@ class Request extends \Panadas\Http\AbstractKernelAware
         return $uri;
     }
 
+    /**
+     * @param  string $uri
+     * @return \Panadas\Http\Request
+     */
     protected function setUri($uri)
     {
         $this->uri = $uri;
@@ -64,60 +79,61 @@ class Request extends \Panadas\Http\AbstractKernelAware
         return $this;
     }
 
-    protected function getQueryParamsContainer()
+    /**
+     * @return \Panadas\ArrayStore\HashArrayStore
+     */
+    protected function getQueryParams()
     {
-        return $this->queryParamsContainer;
+        return $this->queryParams;
     }
 
-    protected function setQueryParamsContainer(\Panadas\ParamContainer $queryParamsContainer)
+    /**
+     * @param  \Panadas\ArrayStore\HashArrayStore $queryParams
+     * @return \Panadas\Http\Request
+     */
+    protected function setQueryParams(\Panadas\ArrayStore\HashArrayStore $queryParams)
     {
-        $this->queryParamsContainer = $queryParamsContainer;
+        $this->queryParams = $queryParams;
 
         return $this;
     }
 
-    protected function getDataParamsContainer()
+    /**
+     * @return \Panadas\ArrayStore\HashArrayStore
+     */
+    protected function getDataParams()
     {
-        return $this->dataParamsContainer;
+        return $this->dataParams;
     }
 
-    protected function setDataParamsContainer(\Panadas\ParamContainer $dataParamsContainer)
+    /**
+     * @param  \Panadas\ArrayStore\HashArrayStore $dataParams
+     * @return \Panadas\Http\Request
+     */
+    protected function setDataParams(\Panadas\ArrayStore\HashArrayStore $dataParams)
     {
-        $this->dataParamsContainer = $dataParamsContainer;
+        $this->dataParams = $dataParams;
 
         return $this;
     }
 
-    protected function getCookiesContainer()
+    /**
+     * @return \Panadas\ArrayStore\HashArrayStore
+     */
+    protected function getCookies()
     {
-        return $this->cookiesContainer;
+        return $this->cookies;
     }
 
-    protected function setCookiesContainer(\Panadas\ParamContainer $cookiesContainer)
+    /**
+     * @param  \Panadas\ArrayStore\HashArrayStore $cookies
+     * @return \Panadas\Http\Request
+     */
+    protected function setCookies(\Panadas\ArrayStore\HashArrayStore $cookies)
     {
-        $this->cookiesContainer = $cookiesContainer;
+        $this->cookies = $cookies;
 
         return $this;
-    }
-
-    public function get($name, $default = null)
-    {
-        return $this->getQueryParam(
-            $name,
-            function ($name) use ($default) {
-        	   return $this->getDataParam($name, $default);
-            }
-        );
-    }
-
-    public function has($name)
-    {
-        return ($this->hasQueryParam($name) || $this->hasDataParam($name));
-    }
-
-    public function hasAny()
-    {
-        return ($this->hasAnyQueryParams() || $this->hasAnyDataParams());
     }
 
     /**
@@ -127,7 +143,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function getQueryParam($name, $default = null)
     {
-        return $this->getQueryParamsContainer()->get($name, $default);
+        return $this->getQueryParams()->get($name, $default);
     }
 
     /**
@@ -135,7 +151,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function getAllQueryParams()
     {
-        return $this->getQueryParamsContainer()->getAll();
+        return $this->getQueryParams()->getAll();
     }
 
     /**
@@ -143,7 +159,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function getQueryParamNames()
     {
-        return $this->getQueryParamsContainer()->getNames();
+        return $this->getQueryParams()->getNames();
     }
 
     /**
@@ -152,7 +168,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function hasQueryParam($name)
     {
-        return $this->getQueryParamsContainer()->has($name);
+        return $this->getQueryParams()->has($name);
     }
 
     /**
@@ -160,7 +176,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function hasAnyQueryParams()
     {
-        return $this->getQueryParamsContainer()->hasAny();
+        return $this->getQueryParams()->hasAny();
     }
 
     /**
@@ -169,18 +185,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function removeQueryParam($name)
     {
-        $this->getQueryParamsContainer()->remove($name);
-
-        return $this;
-    }
-
-    /**
-     * @param  array $names
-     * @return \Panadas\Http\Request
-     */
-    public function removeManyQueryParams(array $names)
-    {
-        $this->getQueryParamsContainer()->removeMany($names);
+        $this->getQueryParams()->remove($name);
 
         return $this;
     }
@@ -190,7 +195,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function removeAllQueryParams()
     {
-        $this->getQueryParamsContainer()->removeAll();
+        $this->getQueryParams()->removeAll();
 
         return $this;
     }
@@ -202,18 +207,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function setQueryParam($name, $value)
     {
-        $this->getQueryParamsContainer()->set($name, $value);
-
-        return $this;
-    }
-
-    /**
-     * @param  array $queryParams
-     * @return \Panadas\Http\Request
-     */
-    public function setManyQueryParams(array $queryParams)
-    {
-        $this->getQueryParamsContainer()->setMany($queryParams);
+        $this->getQueryParams()->set($name, $value);
 
         return $this;
     }
@@ -224,7 +218,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function replaceQueryParams(array $queryParams)
     {
-        $this->getQueryParamsContainer()->replace($queryParams);
+        $this->getQueryParams()->replace($queryParams);
 
         return $this;
     }
@@ -236,7 +230,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function getDataParam($name, $default = null)
     {
-        return $this->getDataParamsContainer()->get($name, $default);
+        return $this->getDataParams()->get($name, $default);
     }
 
     /**
@@ -244,7 +238,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function getAllDataParams()
     {
-        return $this->getDataParamsContainer()->getAll();
+        return $this->getDataParams()->getAll();
     }
 
     /**
@@ -252,7 +246,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function getDataParamNames()
     {
-        return $this->getDataParamsContainer()->getNames();
+        return $this->getDataParams()->getNames();
     }
 
     /**
@@ -261,7 +255,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function hasDataParam($name)
     {
-        return $this->getDataParamsContainer()->has($name);
+        return $this->getDataParams()->has($name);
     }
 
     /**
@@ -269,7 +263,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function hasAnyDataParams()
     {
-        return $this->getDataParamsContainer()->hasAny();
+        return $this->getDataParams()->hasAny();
     }
 
     /**
@@ -278,18 +272,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function removeDataParam($name)
     {
-        $this->getDataParamsContainer()->remove($name);
-
-        return $this;
-    }
-
-    /**
-     * @param  array $names
-     * @return \Panadas\Http\Request
-     */
-    public function removeManyDataParams(array $names)
-    {
-        $this->getDataParamsContainer()->removeMany($names);
+        $this->getDataParams()->remove($name);
 
         return $this;
     }
@@ -299,7 +282,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function removeAllDataParams()
     {
-        $this->getDataParamsContainer()->removeAll();
+        $this->getDataParams()->removeAll();
 
         return $this;
     }
@@ -311,18 +294,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function setDataParam($name, $value)
     {
-        $this->getDataParamsContainer()->set($name, $value);
-
-        return $this;
-    }
-
-    /**
-     * @param  array $dataParams
-     * @return \Panadas\Http\Request
-     */
-    public function setManyDataParams(array $dataParams)
-    {
-        $this->getDataParamsContainer()->setMany($dataParams);
+        $this->getDataParams()->set($name, $value);
 
         return $this;
     }
@@ -333,7 +305,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function replaceDataParams(array $dataParams)
     {
-        $this->getDataParamsContainer()->replace($dataParams);
+        $this->getDataParams()->replace($dataParams);
 
         return $this;
     }
@@ -345,7 +317,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function getCookie($name, $default = null)
     {
-        return $this->getCookiesContainer()->get($name, $default);
+        return $this->getCookies()->get($name, $default);
     }
 
     /**
@@ -353,7 +325,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function getAllCookies()
     {
-        return $this->getCookiesContainer()->getAll();
+        return $this->getCookies()->getAll();
     }
 
     /**
@@ -361,7 +333,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function getCookieNames()
     {
-        return $this->getCookiesContainer()->getNames();
+        return $this->getCookies()->getNames();
     }
 
     /**
@@ -370,7 +342,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function hasCookie($name)
     {
-        return $this->getCookiesContainer()->has($name);
+        return $this->getCookies()->has($name);
     }
 
     /**
@@ -378,7 +350,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function hasAnyCookies()
     {
-        return $this->getCookiesContainer()->hasAny();
+        return $this->getCookies()->hasAny();
     }
 
     /**
@@ -387,18 +359,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     protected function removeCookie($name)
     {
-        $this->getCookiesContainer()->remove($name);
-
-        return $this;
-    }
-
-    /**
-     * @param  array $names
-     * @return \Panadas\Http\Request
-     */
-    protected function removeManyCookies(array $names)
-    {
-        $this->getCookiesContainer()->removeMany($names);
+        $this->getCookies()->remove($name);
 
         return $this;
     }
@@ -408,7 +369,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     protected function removeAllCookies()
     {
-        $this->getCookiesContainer()->removeAll();
+        $this->getCookies()->removeAll();
 
         return $this;
     }
@@ -420,18 +381,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     protected function setCookie($name, $value)
     {
-        $this->getCookiesContainer()->set($name, $value);
-
-        return $this;
-    }
-
-    /**
-     * @param  array $cookies
-     * @return \Panadas\Http\Request
-     */
-    protected function setManyCookies(array $cookies)
-    {
-        $this->getCookiesContainer()->setMany($cookies);
+        $this->getCookies()->set($name, $value);
 
         return $this;
     }
@@ -442,21 +392,33 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     protected function replaceCookies(array $cookies)
     {
-        $this->getCookiesContainer()->replace($cookies);
+        $this->getCookies()->replace($cookies);
 
         return $this;
     }
 
+    /**
+     * @param  string $name
+     * @param  mixed  $default
+     * @return mixed
+     */
     public function getHeader($name, $default = null)
     {
         return $this->getKernel()->getServerVar(static::getPhpHeaderName($name), $default);
     }
 
+    /**
+     * @param  string $name
+     * @return boolean
+     */
     public function hasHeader($name)
     {
         return $this->getKernel()->hasServerVar(static::getPhpHeaderName($name));
     }
 
+    /**
+     * @return string
+     */
     protected function detectUri()
     {
         $kernel = $this->getKernel();
@@ -480,38 +442,64 @@ class Request extends \Panadas\Http\AbstractKernelAware
         return "{$protocol}://{$host}{$port}{$path}{$query}";
     }
 
+    /**
+     * @return string
+     */
     public function getMethod()
     {
         return mb_strtoupper(
-            $this->get(static::PARAM_METHOD, $this->getKernel()->getServerVar("REQUEST_METHOD", static::METHOD_GET))
+            $this->get(
+                static::PARAM_METHOD,
+                function ($name) {
+                    $this->getKernel()->getServerParam("REQUEST_METHOD", static::METHOD_GET);
+                }
+            )
         );
     }
 
+    /**
+     * @return boolean
+     */
     public function isHead()
     {
         return ($this->getMethod() === static::METHOD_HEAD);
     }
 
+    /**
+     * @return boolean
+     */
     public function isGet()
     {
         return ($this->getMethod() === static::METHOD_GET);
     }
 
+    /**
+     * @return boolean
+     */
     public function isPost()
     {
         return ($this->getMethod() === static::METHOD_POST);
     }
 
+    /**
+     * @return boolean
+     */
     public function isPut()
     {
         return ($this->getMethod() === static::METHOD_PUT);
     }
 
+    /**
+     * @return boolean
+     */
     public function isDelete()
     {
         return ($this->getMethod() === static::METHOD_DELETE);
     }
 
+    /**
+     * @return boolean
+     */
     public function isSecure()
     {
         $kernel = $this->getKernel();
@@ -530,11 +518,17 @@ class Request extends \Panadas\Http\AbstractKernelAware
         return false;
     }
 
+    /**
+     * @return boolean
+     */
     public function isAjax()
     {
         return (mb_strtoupper($this->getKernel()->getServerVar("HTTP_X_REQUESTED_WITH")) === "XMLHTTPREQUEST");
     }
 
+    /**
+     * @return string
+     */
     public function getIp()
     {
         $kernel = $this->getKernel();
@@ -564,6 +558,10 @@ class Request extends \Panadas\Http\AbstractKernelAware
         return null;
     }
 
+    /**
+     * @param  \Panadas\Http\Kernel $kernel
+     * @return \Panadas\Http\Request
+     */
     public static function create(\Panadas\Http\Kernel $kernel)
     {
         $instance = new static($kernel, $_GET, $_POST, $_COOKIE);

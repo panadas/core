@@ -5,9 +5,14 @@ class Event extends \Panadas\Http\AbstractKernelAware
 {
 
     private $name;
-    private $params = [];
+    private $params;
     private $stopped;
 
+    /**
+     * @param \Panadas\Http\Kernel $kernel
+     * @param string               $name
+     * @param array                $params
+     */
     public function __construct(\Panadas\Http\Kernel $kernel, $name, array $params = [])
     {
         parent::__construct($kernel);
@@ -15,14 +20,21 @@ class Event extends \Panadas\Http\AbstractKernelAware
         $this
             ->setStopped(false)
             ->setName($name)
-            ->replace($params);
+            ->setParams(new \Panadas\ArrayStore\HashArrayStore($params));
     }
 
+    /**
+     * @return string
+     */
     public function getName()
     {
         return $this->name;
     }
 
+    /**
+     * @param  string $name
+     * @return \Panadas\Event\Event
+     */
     protected function setName($name)
     {
         $this->name = $name;
@@ -30,80 +42,37 @@ class Event extends \Panadas\Http\AbstractKernelAware
         return $this;
     }
 
-    public function get($name, $default = null)
-    {
-        return $this->has($name) ? $this->params[$name] : $default;
-    }
-
-    public function getAll()
+    /**
+     * @return \Panadas\ArrayStore\HashArrayStore
+     */
+    protected function getParams()
     {
         return $this->params;
     }
 
-    public function getNames()
+    /**
+     * @param  \Panadas\ArrayStore\HashArrayStore $params
+     * @return \Panadas\Event\Event
+     */
+    protected function setParams(\Panadas\ArrayStore\HashArrayStore $params)
     {
-        return array_keys($this->getAll());
-    }
-
-    public function has($name)
-    {
-        return array_key_exists($name, $this->getAll());
-    }
-
-    public function hasAny()
-    {
-        return (count($this->getAll()) > 0);
-    }
-
-    public function set($name, $value)
-    {
-        $this->params[$name] = $value;
+        $this->params = $params;
 
         return $this;
     }
 
-    public function setMany(array $params = [])
-    {
-        foreach ($params as $name => $value) {
-            $this->set($name, $value);
-        }
-
-        return $this;
-    }
-
-    protected function remove($name)
-    {
-        if ($this->has($name)) {
-            unset($this->params[$name]);
-        }
-
-        return $this;
-    }
-
-    protected function removeMany(array $names)
-    {
-        foreach ($names as $name) {
-            $this->remove($name);
-        }
-
-        return $this;
-    }
-
-    protected function removeAll()
-    {
-        return $this->removeMany($this->getNames());
-    }
-
-    protected function replace(array $params)
-    {
-        return $this->removeAll()->setMany($params);
-    }
-
+    /**
+     * @return boolean
+     */
     public function isStopped()
     {
         return $this->stopped;
     }
 
+    /**
+     * @param  boolean $stopped
+     * @return \Panadas\Event\Event
+     */
     public function setStopped($stopped)
     {
         $this->stopped = (bool) $stopped;
@@ -111,6 +80,96 @@ class Event extends \Panadas\Http\AbstractKernelAware
         return $this;
     }
 
+    /**
+     * @param  string $name
+     * @param  mixed  $default
+     * @return mixed
+     */
+    public function get($name, $default = null)
+    {
+        return $this->getParams()->get($name, $default);
+    }
+
+    /**
+     * @return array
+     */
+    public function getAll()
+    {
+        return $this->getParams()->getAll();
+    }
+
+    /**
+     * @return array
+     */
+    public function getNames()
+    {
+        return $this->getParams()->getNames();
+    }
+
+    /**
+     * @param  string $name
+     * @return boolean
+     */
+    public function has($name)
+    {
+        return $this->getParams()->has($name);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasAny()
+    {
+        return $this->getParams()->hasAny();
+    }
+
+    /**
+     * @param  string $name
+     * @return \Panadas\Event\Event
+     */
+    public function remove($name)
+    {
+        $this->getParams()->remove($name);
+
+        return $this;
+    }
+
+    /**
+     * @return \Panadas\Event\Event
+     */
+    public function removeAll()
+    {
+        $this->getParams()->removeAll();
+
+        return $this;
+    }
+
+    /**
+     * @param  string $name
+     * @param  mixed  $value
+     * @return \Panadas\Event\Event
+     */
+    public function set($name, $value)
+    {
+        $this->getParams()->set($name, $value);
+
+        return $this;
+    }
+
+    /**
+     * @param  array $args
+     * @return \Panadas\Event\Event
+     */
+    public function replace(array $args)
+    {
+        $this->getParams()->replace($args);
+
+        return $this;
+    }
+
+    /**
+     * @return \Panadas\Event\Event
+     */
     public function stop()
     {
         return $this->setStopped(true);

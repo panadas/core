@@ -1,9 +1,10 @@
 <?php
 namespace Panadas\Event;
 
-class Publisher extends \Panadas\AbstractBase
+class EventPublisher extends \Panadas\AbstractBase
 {
 
+    // TODO: custom array store for event data
     private $events = [];
 
     public function addListener($name, callable $listener, $priority = 0)
@@ -95,7 +96,7 @@ class Publisher extends \Panadas\AbstractBase
         $this->removeAllListeners($name)->addManyListeners($name, $listeners);
     }
 
-    public function addSubscriber(\Panadas\Event\SubscriberInterface $subscriber)
+    public function addSubscriber(\Panadas\Event\EventSubscriberInterface $subscriber)
     {
         foreach ($subscriber->subscribe() as $name => $listeners) {
 
@@ -110,7 +111,7 @@ class Publisher extends \Panadas\AbstractBase
         return $this;
     }
 
-    public function removeSubscriber(\Panadas\Event\SubscriberInterface $subscriber)
+    public function removeSubscriber(\Panadas\Event\EventSubscriberInterface $subscriber)
     {
         foreach ($subscriber->subscribe() as $name => $listeners) {
 

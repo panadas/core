@@ -6,7 +6,7 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
 {
 
     private $name;
-    private $argsContainer;
+    private $args;
 
     abstract public function handle(\Panadas\Http\Request $request);
 
@@ -21,7 +21,7 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
 
         $this
             ->setName($name)
-            ->setArgsContainer(new \Panadas\ParamContainer($args));
+            ->setArgs(new \Panadas\ArrayStore\HashArrayStore($args));
     }
 
     /**
@@ -44,20 +44,20 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
     }
 
     /**
-     * @return \Panadas\ParamContainer
+     * @return \Panadas\ArrayStore\HashArrayStore
      */
-    protected function getArgsContainer()
+    protected function getArgs()
     {
-        return $this->argsContainer;
+        return $this->args;
     }
 
     /**
-     * @param  \Panadas\ParamContainer $argsContainer
+     * @param  \Panadas\ArrayStore\HashArrayStore $args
      * @return \Panadas\Controller\AbstractController
      */
-    protected function setArgsContainer(\Panadas\ParamContainer $argsContainer)
+    protected function setArgs(\Panadas\ArrayStore\HashArrayStore $args)
     {
-        $this->argsContainer = $argsContainer;
+        $this->args = $args;
 
         return $this;
     }
@@ -69,7 +69,7 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
      */
     public function getArg($name, $default = null)
     {
-        return $this->getArgsContainer()->get($name, $default);
+        return $this->getArgs()->get($name, $default);
     }
 
     /**
@@ -77,7 +77,7 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
      */
     public function getAllArgs()
     {
-        return $this->getArgsContainer()->getAll();
+        return $this->getArgs()->getAll();
     }
 
     /**
@@ -85,7 +85,7 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
      */
     public function getArgNames()
     {
-        return $this->getArgsContainer()->getNames();
+        return $this->getArgs()->getNames();
     }
 
     /**
@@ -94,7 +94,7 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
      */
     public function hasArg($name)
     {
-        return $this->getArgsContainer()->has($name);
+        return $this->getArgs()->has($name);
     }
 
     /**
@@ -102,7 +102,7 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
      */
     public function hasAnyArgs()
     {
-        return $this->getArgsContainer()->hasAny();
+        return $this->getArgs()->hasAny();
     }
 
     /**
@@ -111,18 +111,7 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
      */
     public function removeArg($name)
     {
-        $this->getArgsContainer()->remove($name);
-
-        return $this;
-    }
-
-    /**
-     * @param  array $names
-     * @return \Panadas\Controller\AbstractController
-     */
-    public function removeManyArgs(array $names)
-    {
-        $this->getArgsContainer()->removeMany($names);
+        $this->getArgs()->remove($name);
 
         return $this;
     }
@@ -132,7 +121,7 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
      */
     public function removeAllArgs()
     {
-        $this->getArgsContainer()->removeAll();
+        $this->getArgs()->removeAll();
 
         return $this;
     }
@@ -144,18 +133,7 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
      */
     public function setArg($name, $value)
     {
-        $this->getArgsContainer()->set($name, $value);
-
-        return $this;
-    }
-
-    /**
-     * @param  array $args
-     * @return \Panadas\Controller\AbstractController
-     */
-    public function setManyArgs(array $args)
-    {
-        $this->getArgsContainer()->setMany($args);
+        $this->getArgs()->set($name, $value);
 
         return $this;
     }
@@ -166,7 +144,7 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
      */
     public function replaceArgs(array $args)
     {
-        $this->getArgsContainer()->replace($args);
+        $this->getArgs()->replace($args);
 
         return $this;
     }

@@ -1,7 +1,7 @@
 <?php
 namespace Panadas\Event;
 
-interface SubscriberInterface
+interface EventSubscriberInterface
 {
 
     /**

@@ -7,10 +7,12 @@ class HtmlResponse extends \Panadas\Http\Response
     /**
      * @param \Panadas\Http\Kernel $kernel
      * @param string               $charset
+     * @param array                $headers
+     * @param string               $content
      */
-    public function __construct(\Panadas\Http\Kernel $kernel, $charset = null)
+    public function __construct(\Panadas\Http\Kernel $kernel, $charset = null, array $headers = [], $content = null)
     {
-        parent::__construct($kernel, $charset);
+        parent::__construct($kernel, $charset, $headers, $content);
 
         $this->setContentType("text/html");
     }
