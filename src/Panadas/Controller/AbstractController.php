@@ -6,7 +6,7 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
 {
 
     private $name;
-    private $args = [];
+    private $argsContainer;
 
     abstract public function handle(\Panadas\Http\Request $request);
 
@@ -21,7 +21,7 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
 
         $this
             ->setName($name)
-            ->replaceArgs($args);
+            ->setArgsContainer(new \Panadas\ParamContainer($args));
     }
 
     /**
@@ -44,13 +44,32 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
     }
 
     /**
+     * @return \Panadas\ParamContainer
+     */
+    protected function getArgsContainer()
+    {
+        return $this->argsContainer;
+    }
+
+    /**
+     * @param  \Panadas\ParamContainer $argsContainer
+     * @return \Panadas\Controller\AbstractController
+     */
+    protected function setArgsContainer(\Panadas\ParamContainer $argsContainer)
+    {
+        $this->argsContainer = $argsContainer;
+
+        return $this;
+    }
+
+    /**
      * @param  string $name
-     * @param  string $default
+     * @param  mixed  $default
      * @return mixed
      */
     public function getArg($name, $default = null)
     {
-        return $this->hasArg($name) ? $this->args[$name] : $default;
+        return $this->getArgsContainer()->get($name, $default);
     }
 
     /**
@@ -58,7 +77,7 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
      */
     public function getAllArgs()
     {
-        return $this->args;
+        return $this->getArgsContainer()->getAll();
     }
 
     /**
@@ -66,7 +85,7 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
      */
     public function getArgNames()
     {
-        return array_keys($this->getAllArgs());
+        return $this->getArgsContainer()->getNames();
     }
 
     /**
@@ -75,7 +94,7 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
      */
     public function hasArg($name)
     {
-        return array_key_exists($name, $this->getAllArgs());
+        return $this->getArgsContainer()->has($name);
     }
 
     /**
@@ -83,73 +102,71 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
      */
     public function hasAnyArgs()
     {
-        return (count($this->getAllArgs()) > 0);
+        return $this->getArgsContainer()->hasAny();
     }
 
     /**
      * @param  string $name
-     * @return \Panadas\AbstractController
+     * @return \Panadas\Controller\AbstractController
      */
     public function removeArg($name)
     {
-        if ($this->hasArg($name)) {
-            unset($this->args[$name]);
-        }
+        $this->getArgsContainer()->remove($name);
 
         return $this;
     }
 
     /**
      * @param  array $names
-     * @return \Panadas\AbstractController
+     * @return \Panadas\Controller\AbstractController
      */
     public function removeManyArgs(array $names)
     {
-        foreach ($names as $name) {
-            $this->removeArg($name);
-        }
+        $this->getArgsContainer()->removeMany($names);
 
         return $this;
     }
 
     /**
-     * @return \Panadas\AbstractController
+     * @return \Panadas\Controller\AbstractController
      */
     public function removeAllArgs()
     {
-        return $this->removeManyArgs($this->getArgNames());
-    }
+        $this->getArgsContainer()->removeAll();
 
-    /**
-     * @param  array $args
-     * @return \Panadas\AbstractController
-     */
-    public function replaceArgs(array $args)
-    {
-        return $this->removeAllArgs()->setManyArgs($args);
+        return $this;
     }
 
     /**
      * @param  string $name
      * @param  mixed  $value
-     * @return \Panadas\AbstractController
+     * @return \Panadas\Controller\AbstractController
      */
     public function setArg($name, $value)
     {
-        $this->args[$name] = $value;
+        $this->getArgsContainer()->set($name, $value);
 
         return $this;
     }
 
     /**
      * @param  array $args
-     * @return \Panadas\AbstractController
+     * @return \Panadas\Controller\AbstractController
      */
     public function setManyArgs(array $args)
     {
-        foreach ($args as $name => $value) {
-            $this->setArg($name, $value);
-        }
+        $this->getArgsContainer()->setMany($args);
+
+        return $this;
+    }
+
+    /**
+     * @param  array $args
+     * @return \Panadas\Controller\AbstractController
+     */
+    public function replaceArgs(array $args)
+    {
+        $this->getArgsContainer()->replace($args);
 
         return $this;
     }

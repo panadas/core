@@ -9,6 +9,8 @@ class ErrorHandler extends \Panadas\Http\AbstractKernelAware
      */
     public function register()
     {
+        ini_set("display_errors", 0);
+
         set_error_handler([$this, "handle"]);
 
         register_shutdown_function(
@@ -16,11 +18,11 @@ class ErrorHandler extends \Panadas\Http\AbstractKernelAware
 
                 $error = error_get_last();
 
-                if ((0 === error_reporting()) || (null === $error) || (E_ERROR !== $error["type"])) {
+                if ((null === $error) || (E_ERROR !== $error["type"])) {
                     return;
                 }
 
-                $this->handle($error["type"], $error["message"], $error["file"], $error["line"]);
+                $this->handleFatal($error["type"], $error["message"], $error["file"], $error["line"]);
 
             }
         );
@@ -42,5 +44,24 @@ class ErrorHandler extends \Panadas\Http\AbstractKernelAware
         }
 
         throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+    }
+
+    /**
+     * @param  integer $errno
+     * @param  string  $errstr
+     * @param  string  $errfile
+     * @param  integer $errline
+     * @throws \ErrorException
+     */
+    public function handleFatal($errno, $errstr, $errfile, $errline)
+    {
+        if (0 === error_reporting()) {
+            return;
+        }
+
+        $handler = set_exception_handler(function (){});
+        restore_exception_handler();
+
+        $handler(new \ErrorException($errstr, 0, $errno, $errfile, $errline));
     }
 }

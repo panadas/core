@@ -38,8 +38,6 @@ class ExceptionHandler extends \Panadas\Http\AbstractKernelAware
         }
 
         $response->send();
-
-        return;
     }
 
     /**

@@ -5,7 +5,9 @@ class Request extends \Panadas\Http\AbstractKernelAware
 {
 
     private $uri;
-    private $params = [];
+    private $queryParamsContainer;
+    private $dataParamsContainer;
+    private $cookiesContainer;
 
     const METHOD_HEAD = "HEAD";
     const METHOD_GET = "GET";
@@ -15,13 +17,15 @@ class Request extends \Panadas\Http\AbstractKernelAware
 
     const PARAM_METHOD = "_method";
 
-    public function __construct(\Panadas\Http\Kernel $kernel, array $params = [])
+    public function __construct(\Panadas\Http\Kernel $kernel, array $queryParams = [], array $dataParams = [], array $cookies = [])
     {
         parent::__construct($kernel);
 
         $this
             ->setUri($this->detectUri())
-            ->replace($params);
+            ->setQueryParamsContainer(new \Panadas\ParamContainer($queryParams))
+            ->setDataParamsContainer(new \Panadas\ParamContainer($dataParams))
+            ->setCookiesContainer(new \Panadas\ParamContainer($cookies));
     }
 
     public function getUri($absolute = true, $query = true)
@@ -60,71 +64,385 @@ class Request extends \Panadas\Http\AbstractKernelAware
         return $this;
     }
 
+    protected function getQueryParamsContainer()
+    {
+        return $this->queryParamsContainer;
+    }
+
+    protected function setQueryParamsContainer(\Panadas\ParamContainer $queryParamsContainer)
+    {
+        $this->queryParamsContainer = $queryParamsContainer;
+
+        return $this;
+    }
+
+    protected function getDataParamsContainer()
+    {
+        return $this->dataParamsContainer;
+    }
+
+    protected function setDataParamsContainer(\Panadas\ParamContainer $dataParamsContainer)
+    {
+        $this->dataParamsContainer = $dataParamsContainer;
+
+        return $this;
+    }
+
+    protected function getCookiesContainer()
+    {
+        return $this->cookiesContainer;
+    }
+
+    protected function setCookiesContainer(\Panadas\ParamContainer $cookiesContainer)
+    {
+        $this->cookiesContainer = $cookiesContainer;
+
+        return $this;
+    }
+
     public function get($name, $default = null)
     {
-        return $this->has($name) ? $this->params[$name] : $default;
-    }
-
-    public function getAll()
-    {
-        return $this->params;
-    }
-
-    public function getNames()
-    {
-        return array_keys($this->getAll());
+        return $this->getQueryParam(
+            $name,
+            function ($name) use ($default) {
+        	   return $this->getDataParam($name, $default);
+            }
+        );
     }
 
     public function has($name)
     {
-        return array_key_exists($name, $this->getAll());
+        return ($this->hasQueryParam($name) || $this->hasDataParam($name));
     }
 
     public function hasAny()
     {
-        return (count($this->getAll()) > 0);
+        return ($this->hasAnyQueryParams() || $this->hasAnyDataParams());
     }
 
-    public function remove($name)
+    /**
+     * @param  string $name
+     * @param  mixed  $default
+     * @return mixed
+     */
+    public function getQueryParam($name, $default = null)
     {
-        if ($this->has($name)) {
-            unset($this->params[$name]);
-        }
+        return $this->getQueryParamsContainer()->get($name, $default);
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllQueryParams()
+    {
+        return $this->getQueryParamsContainer()->getAll();
+    }
+
+    /**
+     * @return array
+     */
+    public function getQueryParamNames()
+    {
+        return $this->getQueryParamsContainer()->getNames();
+    }
+
+    /**
+     * @param  string $name
+     * @return boolean
+     */
+    public function hasQueryParam($name)
+    {
+        return $this->getQueryParamsContainer()->has($name);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasAnyQueryParams()
+    {
+        return $this->getQueryParamsContainer()->hasAny();
+    }
+
+    /**
+     * @param  string $name
+     * @return \Panadas\Http\Request
+     */
+    public function removeQueryParam($name)
+    {
+        $this->getQueryParamsContainer()->remove($name);
 
         return $this;
     }
 
-    public function removeMany(array $names)
+    /**
+     * @param  array $names
+     * @return \Panadas\Http\Request
+     */
+    public function removeManyQueryParams(array $names)
     {
-        foreach ($names as $name) {
-            $this->remove($name);
-        }
+        $this->getQueryParamsContainer()->removeMany($names);
 
         return $this;
     }
 
-    public function removeAll()
+    /**
+     * @return \Panadas\Http\Request
+     */
+    public function removeAllQueryParams()
     {
-        return $this->removeMany($this->getNames());
-    }
-
-    public function replace(array $params)
-    {
-        return $this->removeAll()->setMany($params);
-    }
-
-    public function set($name, $value)
-    {
-        $this->params[$name] = $value;
+        $this->getQueryParamsContainer()->removeAll();
 
         return $this;
     }
 
-    public function setMany(array $params)
+    /**
+     * @param  string $name
+     * @param  mixed  $value
+     * @return \Panadas\Http\Request
+     */
+    public function setQueryParam($name, $value)
     {
-        foreach ($params as $name => $value) {
-            $this->set($name, $value);
-        }
+        $this->getQueryParamsContainer()->set($name, $value);
+
+        return $this;
+    }
+
+    /**
+     * @param  array $queryParams
+     * @return \Panadas\Http\Request
+     */
+    public function setManyQueryParams(array $queryParams)
+    {
+        $this->getQueryParamsContainer()->setMany($queryParams);
+
+        return $this;
+    }
+
+    /**
+     * @param  array $queryParams
+     * @return \Panadas\Http\Request
+     */
+    public function replaceQueryParams(array $queryParams)
+    {
+        $this->getQueryParamsContainer()->replace($queryParams);
+
+        return $this;
+    }
+
+    /**
+     * @param  string $name
+     * @param  mixed  $default
+     * @return mixed
+     */
+    public function getDataParam($name, $default = null)
+    {
+        return $this->getDataParamsContainer()->get($name, $default);
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllDataParams()
+    {
+        return $this->getDataParamsContainer()->getAll();
+    }
+
+    /**
+     * @return array
+     */
+    public function getDataParamNames()
+    {
+        return $this->getDataParamsContainer()->getNames();
+    }
+
+    /**
+     * @param  string $name
+     * @return boolean
+     */
+    public function hasDataParam($name)
+    {
+        return $this->getDataParamsContainer()->has($name);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasAnyDataParams()
+    {
+        return $this->getDataParamsContainer()->hasAny();
+    }
+
+    /**
+     * @param  string $name
+     * @return \Panadas\Http\Request
+     */
+    public function removeDataParam($name)
+    {
+        $this->getDataParamsContainer()->remove($name);
+
+        return $this;
+    }
+
+    /**
+     * @param  array $names
+     * @return \Panadas\Http\Request
+     */
+    public function removeManyDataParams(array $names)
+    {
+        $this->getDataParamsContainer()->removeMany($names);
+
+        return $this;
+    }
+
+    /**
+     * @return \Panadas\Http\Request
+     */
+    public function removeAllDataParams()
+    {
+        $this->getDataParamsContainer()->removeAll();
+
+        return $this;
+    }
+
+    /**
+     * @param  string $name
+     * @param  mixed  $value
+     * @return \Panadas\Http\Request
+     */
+    public function setDataParam($name, $value)
+    {
+        $this->getDataParamsContainer()->set($name, $value);
+
+        return $this;
+    }
+
+    /**
+     * @param  array $dataParams
+     * @return \Panadas\Http\Request
+     */
+    public function setManyDataParams(array $dataParams)
+    {
+        $this->getDataParamsContainer()->setMany($dataParams);
+
+        return $this;
+    }
+
+    /**
+     * @param  array $dataParams
+     * @return \Panadas\Http\Request
+     */
+    public function replaceDataParams(array $dataParams)
+    {
+        $this->getDataParamsContainer()->replace($dataParams);
+
+        return $this;
+    }
+
+    /**
+     * @param  string $name
+     * @param  mixed  $default
+     * @return mixed
+     */
+    public function getCookie($name, $default = null)
+    {
+        return $this->getCookiesContainer()->get($name, $default);
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllCookies()
+    {
+        return $this->getCookiesContainer()->getAll();
+    }
+
+    /**
+     * @return array
+     */
+    public function getCookieNames()
+    {
+        return $this->getCookiesContainer()->getNames();
+    }
+
+    /**
+     * @param  string $name
+     * @return boolean
+     */
+    public function hasCookie($name)
+    {
+        return $this->getCookiesContainer()->has($name);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasAnyCookies()
+    {
+        return $this->getCookiesContainer()->hasAny();
+    }
+
+    /**
+     * @param  string $name
+     * @return \Panadas\Http\Request
+     */
+    protected function removeCookie($name)
+    {
+        $this->getCookiesContainer()->remove($name);
+
+        return $this;
+    }
+
+    /**
+     * @param  array $names
+     * @return \Panadas\Http\Request
+     */
+    protected function removeManyCookies(array $names)
+    {
+        $this->getCookiesContainer()->removeMany($names);
+
+        return $this;
+    }
+
+    /**
+     * @return \Panadas\Http\Request
+     */
+    protected function removeAllCookies()
+    {
+        $this->getCookiesContainer()->removeAll();
+
+        return $this;
+    }
+
+    /**
+     * @param  string $name
+     * @param  mixed  $value
+     * @return \Panadas\Http\Request
+     */
+    protected function setCookie($name, $value)
+    {
+        $this->getCookiesContainer()->set($name, $value);
+
+        return $this;
+    }
+
+    /**
+     * @param  array $cookies
+     * @return \Panadas\Http\Request
+     */
+    protected function setManyCookies(array $cookies)
+    {
+        $this->getCookiesContainer()->setMany($cookies);
+
+        return $this;
+    }
+
+    /**
+     * @param  array $cookies
+     * @return \Panadas\Http\Request
+     */
+    protected function replaceCookies(array $cookies)
+    {
+        $this->getCookiesContainer()->replace($cookies);
 
         return $this;
     }
@@ -248,7 +566,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
 
     public static function create(\Panadas\Http\Kernel $kernel)
     {
-        $instance = new static($kernel, $_REQUEST);
+        $instance = new static($kernel, $_GET, $_POST, $_COOKIE);
 
         if ($instance->isPut()) {
 
