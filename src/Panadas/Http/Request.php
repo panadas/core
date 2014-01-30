@@ -19,13 +19,13 @@ class Request extends \Panadas\Kernel\AbstractKernelAware
     const PARAM_METHOD = "_method";
 
     /**
-     * @param \Panadas\Kernel\HttpKernel $kernel
-     * @param array                      $queryParams
-     * @param array                      $dataParams
-     * @param array                      $cookies
+     * @param \Panadas\Kernel\Kernel $kernel
+     * @param array                  $queryParams
+     * @param array                  $dataParams
+     * @param array                  $cookies
      */
     public function __construct(
-        \Panadas\Kernel\HttpKernel $kernel,
+        \Panadas\Kernel\Kernel $kernel,
         array $headers = [],
         array $queryParams = [],
         array $dataParams = [],
@@ -657,16 +657,14 @@ class Request extends \Panadas\Kernel\AbstractKernelAware
     }
 
     /**
-     * @param  \Panadas\Kernel\HttpKernel $kernel
+     * @param  \Panadas\Kernel\Kernel $kernel
      * @return \Panadas\Http\Request
      */
-    public static function create(\Panadas\Kernel\HttpKernel $kernel)
+    public static function create(\Panadas\Kernel\Kernel $kernel)
     {
-        $headers = apache_request_headers();
+        $request = new static($kernel, apache_request_headers(), $_GET, $_POST, $_COOKIE);
 
-        $instance = new static($kernel, $headers, $_GET, $_POST, $_COOKIE);
-
-        if ($instance->isPut()) {
+        if ($request->isPut()) {
 
             $body = null;
             $params = [];
@@ -679,10 +677,12 @@ class Request extends \Panadas\Kernel\AbstractKernelAware
 
             parse_str($body, $params);
 
-            $instance->setMany($params);
+            foreach ($params as $name => $value) {
+                $request->setDataParam($name, $value);
+            }
 
         }
 
-        return $instance;
+        return $request;
     }
 }

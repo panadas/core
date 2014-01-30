@@ -7,7 +7,7 @@ trait KernelAwareTrait
     private $kernel;
 
     /**
-     * @return \Panadas\Kernel\AbstractKernel
+     * @return \Panadas\Kernel\Kernel
      */
     public function getKernel()
     {
@@ -15,10 +15,10 @@ trait KernelAwareTrait
     }
 
     /**
-     * @param  \Panadas\Kernel\AbstractKernel $kernel
+     * @param  \Panadas\Kernel\Kernel $kernel
      * @return mixed
      */
-    protected function setKernel(\Panadas\Kernel\AbstractKernel $kernel = null)
+    protected function setKernel(\Panadas\Kernel\Kernel $kernel = null)
     {
         $this->kernel = $kernel;
 

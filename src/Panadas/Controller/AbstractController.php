@@ -11,11 +11,11 @@ abstract class AbstractController extends \Panadas\Kernel\AbstractKernelAware im
     abstract public function handle(\Panadas\Http\Request $request);
 
     /**
-     * @param \Panadas\Kernel\AbstractKernel $kernel
-     * @param string                         $name
-     * @param array                          $args
+     * @param \Panadas\Kernel\Kernel $kernel
+     * @param string                 $name
+     * @param array                  $args
      */
-    public function __construct(\Panadas\Kernel\AbstractKernel $kernel, $name, array $args = [])
+    public function __construct(\Panadas\Kernel\Kernel $kernel, $name, array $args = [])
     {
         parent::__construct($kernel);
 

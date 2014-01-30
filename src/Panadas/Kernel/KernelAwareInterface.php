@@ -5,7 +5,7 @@ interface KernelAwareInterface
 {
 
     /**
-     * @return \Panadas\Kernel\AbstractKernel
+     * @return \Panadas\Kernel\Kernel
      */
     public function getKernel();
 }

@@ -9,11 +9,11 @@ class Event extends \Panadas\Kernel\AbstractKernelAware
     private $stopped;
 
     /**
-     * @param \Panadas\Kernel\AbstractKernel $kernel
-     * @param string                         $name
-     * @param array                          $params
+     * @param \Panadas\Kernel\Kernel $kernel
+     * @param string                 $name
+     * @param array                  $params
      */
-    public function __construct(\Panadas\Kernel\AbstractKernel $kernel, $name, array $params = [])
+    public function __construct(\Panadas\Kernel\Kernel $kernel, $name, array $params = [])
     {
         parent::__construct($kernel);
 

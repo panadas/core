@@ -8,10 +8,10 @@ class ServiceContainer extends \Panadas\Kernel\AbstractKernelAware
     private $services;
 
     /**
-     * @param \Panadas\Kernel\AbstractKernel $kernel
-     * @param array                          $services
+     * @param \Panadas\Kernel\Kernel $kernel
+     * @param array                  $services
      */
-    public function __construct(\Panadas\Kernel\AbstractKernel $kernel, array $services = [])
+    public function __construct(\Panadas\Kernel\Kernel $kernel, array $services = [])
     {
         parent::__construct($kernel);
 

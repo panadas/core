@@ -67,17 +67,13 @@ class Response extends \Panadas\Kernel\AbstractKernelAware
     ];
 
     /**
-     * @param \Panadas\Kernel\HttpKernel $kernel
-     * @param string                     $charset
-     * @param array                      $headers
-     * @param string                     $content
+     * @param \Panadas\Kernel\Kernel $kernel
+     * @param string                 $charset
+     * @param array                  $headers
+     * @param string                 $content
      */
-    public function __construct(
-        \Panadas\Kernel\HttpKernel $kernel,
-        $charset = null,
-        array $headers = [],
-        $content = null
-    ) {
+    public function __construct(\Panadas\Kernel\Kernel $kernel, $charset = null, array $headers = [], $content = null)
+    {
         parent::__construct($kernel);
 
         if (null === $charset) {
