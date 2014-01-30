@@ -54,38 +54,28 @@ abstract class AbstractActionController extends \Panadas\Controller\AbstractCont
         return $this;
     }
 
-    protected function invalid(\Panadas\Http\Request $request, $message = null)
-    {
-        if (null === $message) {
-            $message = "HTTP method not supported: {$request->getMethod()}";
-        }
-
-        return $this->getKernel()->error400($message);
-    }
-
     protected function head(\Panadas\Http\Request $request)
     {
-        return $this->get($request)
-            ->removeContent();
+        return $this->get($request)->removeContent();
     }
 
     protected function get(\Panadas\Http\Request $request)
     {
-        return $this->invalid($request);
+        return $request->errorBadRequest();
     }
 
     protected function post(\Panadas\Http\Request $request)
     {
-        return $this->invalid($request);
+        return $request->errorBadRequest();
     }
 
     protected function put(\Panadas\Http\Request $request)
     {
-        return $this->invalid($request);
+        return $request->errorBadRequest();
     }
 
     protected function delete(\Panadas\Http\Request $request)
     {
-        return $this->invalid($request);
+        return $request->errorBadRequest();
     }
 }

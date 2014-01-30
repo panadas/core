@@ -17,9 +17,8 @@
         "panadas/phpcs-standard": "~1.0"
     },
     "autoload": {
-        "psr-0" : {
+        "psr-4" : {
             "Panadas\\": "src/",
-            "Controller\\": "src/"
         }
     },
     "minimum-stability": "dev",

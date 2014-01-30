@@ -9,13 +9,10 @@ class Kernel extends \Panadas\Event\EventPublisher
     private $serviceContainer;
     private $serverParams;
     private $envParams;
-    private $originalRequest;
-    private $currentRequest;
 
     const ENV_DEBUG = "PANADAS_DEBUG";
 
     const ACTION_CLASS_DEFAULT = "Panadas\Controller\DefaultActionController";
-    const ACTION_CLASS_EXCEPTION = "Panadas\Controller\ExceptionActionController";
     const ACTION_CLASS_HTTP_ERROR = "Panadas\Controller\HttpErrorActionController";
     const ACTION_CLASS_REDIRECT = "Panadas\Controller\HttpRedirectActionController";
 
@@ -318,89 +315,11 @@ class Kernel extends \Panadas\Event\EventPublisher
     }
 
     /**
-     * @return \Panadas\Http\Request
-     */
-    protected function getOriginalRequest()
-    {
-        return $this->originalRequest;
-    }
-
-    /**
-     * @return boolean
-     */
-    protected function hasOriginalRequest()
-    {
-        return (null !== $this->getOriginalRequest());
-    }
-
-    /**
-     * @param  \Panadas\Http\Request $originalRequest
-     * @return \Panadas\Kernel\Kernel
-     */
-    protected function setOriginalRequest(\Panadas\Http\Request $originalRequest = null)
-    {
-        $this->originalRequest = $originalRequest;
-
-        return $this;
-    }
-
-    /**
-     * @return \Panadas\Kernel\Kernel
-     */
-    protected function removeOriginalRequest()
-    {
-        return $this->setOriginalRequest(null);
-    }
-
-    /**
-     * @return \Panadas\Http\Request
-     */
-    protected function getCurrentRequest()
-    {
-        return $this->currentRequest;
-    }
-
-    /**
-     * @return boolean
-     */
-    protected function hasCurrentRequest()
-    {
-        return (null !== $this->getCurrentRequest());
-    }
-
-    /**
-     * @param  \Panadas\Http\Request $currentRequest
-     * @return \Panadas\Kernel\Kernel
-     */
-    protected function setCurrentRequest(\Panadas\Http\Request $currentRequest = null)
-    {
-        $this->currentRequest = $currentRequest;
-
-        return $this;
-    }
-
-    /**
-     * @return \Panadas\Kernel\Kernel
-     */
-    protected function removeCurrentRequest()
-    {
-        return $this->setCurrentRequest(null);
-    }
-
-    /**
      * @return boolean
      */
     public function isDebugMode()
     {
         return $this->hasEnvParam(static::ENV_DEBUG);
-    }
-
-    /**
-     * @return boolean
-     */
-    public function isHandling()
-    {
-        return $this->hasOriginalRequest();
     }
 
     /**
@@ -410,80 +329,14 @@ class Kernel extends \Panadas\Event\EventPublisher
      */
     public function handle(\Panadas\Http\Request $request)
     {
-        if ($this->isHandling()) {
-            throw new \RuntimeException("Application is already running");
-        }
-
-        $this->setOriginalRequest($request);
-
-        try {
-
-            $params = [
-                "request" => $request,
-                "response" => null,
-                "actionClass" => null,
-                "actionArgs" => []
-            ];
-
-            $event = $this->publish("handle", $params);
-
-            $response = $event->get("response");
-
-            if (null === $response) {
-
-                $actionClass = $event->get("actionClass");
-                $actionArgs = $event->get("actionArgs");
-
-                if (null !== $actionClass) {
-
-                    $response = $this->forward($actionClass, $actionArgs);
-
-                } elseif (!$this->isDebugMode()) {
-
-                    $response = $this->error404();
-
-                } else {
-
-                    throw new \RuntimeException("An action name was not provided");
-
-                }
-
-            }
-
-            $response = $this->send($response);
-
-        } catch (\Exception $exception) {
-
-            $response = $this->send($this->exception($exception));
-
-        }
-
-        return $response;
-    }
-
-    /**
-     * @param  string $actionClass
-     * @param  array  $actionArgs
-     * @throws \RuntimeException
-     * @return \Panadas\Http\Response
-     */
-    public function forward($actionClass, array $actionArgs = [])
-    {
-        if (!$this->isHandling()) {
-            throw new \RuntimeException("Application is not running");
-        }
-
-        $request = clone $this->getOriginalRequest();
-        $this->setCurrentRequest($request);
-
         $params = [
             "request" => $request,
             "response" => null,
-            "actionClass" => $actionClass,
-            "actionArgs" => $actionArgs
+            "actionClass" => null,
+            "actionArgs" => []
         ];
 
-        $event = $this->publish("forward", $params);
+        $event = $this->publish("handle", $params);
 
         $request = $event->get("request");
         $response = $event->get("response");
@@ -493,120 +346,30 @@ class Kernel extends \Panadas\Event\EventPublisher
             $actionClass = $event->get("actionClass");
             $actionArgs = $event->get("actionArgs");
 
-            if (!class_exists($actionClass)) {
-                throw new \RuntimeException("Action class not found: {$actionClass}");
+            if (null !== $actionClass) {
+
+                $response = $request->forward($actionClass, $actionArgs);
+
+            } else {
+
+                if (!$this->isDebugMode()) {
+                    $response = $request->errorNotFound();
+                } else {
+                    throw new \RuntimeException("An action name was not provided");
+                }
+
             }
-
-            $action = new $actionClass($this, $actionArgs);
-
-            $vars = [
-                "action" => $action,
-                "request" => $request
-            ];
-
-            $response = $action->handle($request);
 
         }
 
-        return $response;
-    }
-
-    /**
-     * @param \Panadas\Http\Response $response
-     */
-    public function send(\Panadas\Http\Response $response)
-    {
         $params = [
-            "request" => $this->getCurrentRequest(),
+            "request" => $request,
             "response" => $response
         ];
 
         $event = $this->publish("send", $params);
-        $event->get("response")->send();
 
-        return $this;
-    }
-
-    /**
-     * @param  integer $statusCode
-     * @param  string  $message
-     * @param  array   $actionArgs
-     * @return \Panadas\Http\Response
-     */
-    public function httpError($statusCode, $message = null, array $actionArgs = [])
-    {
-        $actionArgs["statusCode"] = $statusCode;
-        $actionArgs["message"] = $message;
-
-        return $this->forward(static::ACTION_CLASS_HTTP_ERROR, $actionArgs);
-    }
-
-    /**
-     * @param  string $message
-     * @param  array $actionArgs
-     * @return \Panadas\Http\Response
-     */
-    public function error400($message = null, array $actionArgs = [])
-    {
-        return $this->httpError(400, $message, $actionArgs);
-    }
-
-    /**
-     * @param  string $message
-     * @param  array $actionArgs
-     * @return \Panadas\Http\Response
-     */
-    public function error401($message = null, array $actionArgs = [])
-    {
-        return $this->httpError(401, $message, $actionArgs);
-    }
-
-    /**
-     * @param  string $message
-     * @param  array $actionArgs
-     * @return \Panadas\Http\Response
-     */
-    public function error403($message = null, array $actionArgs = [])
-    {
-        return $this->httpError(403, $message, $actionArgs);
-    }
-
-    /**
-     * @param  string $message
-     * @param  array $actionArgs
-     * @return \Panadas\Http\Response
-     */
-    public function error404($message = null, array $actionArgs = [])
-    {
-        return $this->httpError(404, $message, $actionArgs);
-    }
-
-    /**
-     * @param  \Exception $exception
-     * @param  array      $actionArgs
-     * @return \Panadas\Http\Response
-     */
-    public function exception(\Exception $exception, array $actionArgs = [])
-    {
-        $actionArgs = [
-          "exception" => $exception
-        ];
-
-        return $this->forward(static::ACTION_CLASS_EXCEPTION, $actionArgs);
-    }
-
-    /**
-     * @param  string  $uri
-     * @param  integer $statusCode
-     * @param  array   $actionArgs
-     * @return \Panadas\Http\Response
-     */
-    public function redirect($uri, $statusCode = 302, array $actionArgs = [])
-    {
-        $actionArgs["uri"] = $uri;
-        $actionArgs["statusCode"] = $statusCode;
-
-        return $this->forward(static::ACTION_CLASS_REDIRECT, $actionArgs);
+        return $event->get("response")->send();
     }
 
     /**

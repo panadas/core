@@ -657,6 +657,120 @@ class Request extends \Panadas\Kernel\AbstractKernelAware
     }
 
     /**
+     * @param  integer $statusCode
+     * @param  string  $message
+     * @param  array   $actionArgs
+     * @return \Panadas\Http\Response
+     */
+    public function error($statusCode, $message = null, array $actionArgs = [])
+    {
+        $kernel = $this->getKernel();
+        $actionArgs["statusCode"] = $statusCode;
+        $actionArgs["message"] = $message;
+
+        return $this->forward($kernel::ACTION_CLASS_HTTP_ERROR, $actionArgs);
+    }
+
+    /**
+     * @param  string $message
+     * @param  array  $actionArgs
+     * @return \Panadas\Http\Response
+     */
+    public function errorUnauthorized($message = null, array $actionArgs = [])
+    {
+        return $this->error(401, $message, $actionArgs);
+    }
+
+    /**
+     * @param  string $message
+     * @param  array  $actionArgs
+     * @return \Panadas\Http\Response
+     */
+    public function errorForbidden($message = null, array $actionArgs = [])
+    {
+        return $this->error(403, $message, $actionArgs);
+    }
+
+    /**
+     * @param  string $message
+     * @param  array  $actionArgs
+     * @return \Panadas\Http\Response
+     */
+    public function errorNotFound($message = null, array $actionArgs = [])
+    {
+        return $this->error(404, $message, $actionArgs);
+    }
+
+    /**
+     * @param  string $message
+     * @param  array  $actionArgs
+     * @return \Panadas\Http\Response
+     */
+    public function errorBadRequest($message = null, array $actionArgs = [])
+    {
+        if (null === $message) {
+            $message = "HTTP method not supported: {$this->getMethod()}";
+        }
+
+        return $this->error(400, $message);
+    }
+
+    /**
+     * @param  string  $uri
+     * @param  integer $statusCode
+     * @param  array   $actionArgs
+     * @return \Panadas\Http\Response
+     */
+    public function redirect($uri, $statusCode = 302, array $actionArgs = [])
+    {
+        $kernel = $this->getKernel();
+        $actionArgs["uri"] = $uri;
+        $actionArgs["statusCode"] = $statusCode;
+
+        return $this->forward($kernel::ACTION_CLASS_REDIRECT, $actionArgs);
+    }
+
+    /**
+     * @param  string $actionClass
+     * @param  array  $actionArgs
+     * @throws \RuntimeException
+     * @return \Panadas\Http\Response
+     */
+    public function forward($actionClass, array $actionArgs = [])
+    {
+        $kernel = $this->getKernel();
+
+        $params = [
+            "request" => $this,
+            "response" => null,
+            "actionClass" => $actionClass,
+            "actionArgs" => $actionArgs
+        ];
+
+        $event = $kernel->publish("forward", $params);
+
+        $request = $event->get("request");
+        $response = $event->get("response");
+
+        if (null === $response) {
+
+            $actionClass = $event->get("actionClass");
+            $actionArgs = $event->get("actionArgs");
+
+            if (!class_exists($actionClass)) {
+                throw new \RuntimeException("Action class not found: {$actionClass}");
+            }
+
+            $action = new $actionClass($kernel, $actionArgs);
+
+            $response = $action->handle($request);
+
+        }
+
+        return $response;
+    }
+
+    /**
      * @param  \Panadas\Kernel\Kernel $kernel
      * @return \Panadas\Http\Request
      */

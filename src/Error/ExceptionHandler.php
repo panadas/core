@@ -1,38 +1,27 @@
 <?php
-namespace Panadas\Controller;
+namespace Panadas\Error;
 
-class ExceptionActionController extends \Panadas\Controller\AbstractActionController implements
-    \Panadas\Error\ExceptionProcessorInterface
+class ExceptionHandler extends \Panadas\Kernel\AbstractKernelAware
 {
 
-    protected function get(\Panadas\Http\Request $request)
+    /**
+     * @return \Panadas\Error\ExceptionHandler
+     */
+    public function register()
     {
-        $exception = $this->getArg("exception");
+        set_exception_handler([$this, "handle"]);
 
-        if (!$exception instanceof \Exception) {
-            throw new \RuntimeException("An instance of \Exception is required");
-        }
-
-        return static::process($this->getKernel(), $exception);
+        return $this;
     }
 
-    protected function post(\Panadas\Http\Request $request)
-    {
-        return $this->get($request);
-    }
 
-    protected function put(\Panadas\Http\Request $request)
+    /**
+     * @param \Exception $exception
+     */
+    public function handle(\Exception $exception)
     {
-        return $this->get($request);
-    }
+        $kernel = $this->getKernel();
 
-    protected function delete(\Panadas\Http\Request $request)
-    {
-        return $this->get($request);
-    }
-
-    public static function process(\Panadas\Kernel\Kernel $kernel, \Exception $exception)
-    {
         $logger = $kernel->getServiceContainer()->get("logger", false);
         if (null !== $logger) {
             $logger->critical($exception->getMessage(), ["exception" => $exception]);
@@ -79,9 +68,9 @@ CONTENT;
 
         }
 
-        return $response
+        $response
             ->setStatusCode(500)
-            ->setContent($content);
+            ->setContent($content)
+            ->send();
     }
-
 }
