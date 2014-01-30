@@ -1,7 +1,7 @@
 <?php
 namespace Panadas\Service;
 
-class ServiceContainer extends \Panadas\Http\AbstractKernelAware
+class ServiceContainer extends \Panadas\Kernel\AbstractKernelAware
 {
 
     // TODO: Use custom array store for event subscription handling

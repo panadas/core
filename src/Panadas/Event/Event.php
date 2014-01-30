@@ -1,7 +1,7 @@
 <?php
 namespace Panadas\Event;
 
-class Event extends \Panadas\Http\AbstractKernelAware
+class Event extends \Panadas\Kernel\AbstractKernelAware
 {
 
     private $name;

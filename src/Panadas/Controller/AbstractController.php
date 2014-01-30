@@ -1,7 +1,7 @@
 <?php
 namespace Panadas\Controller;
 
-abstract class AbstractController extends \Panadas\Http\AbstractKernelAware implements
+abstract class AbstractController extends \Panadas\Kernel\AbstractKernelAware implements
     \Panadas\Controller\ControllerInterface
 {
 

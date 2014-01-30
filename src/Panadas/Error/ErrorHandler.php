@@ -1,7 +1,7 @@
 <?php
 namespace Panadas\Error;
 
-class ErrorHandler extends \Panadas\Http\AbstractKernelAware
+class ErrorHandler extends \Panadas\Kernel\AbstractKernelAware
 {
 
     /**

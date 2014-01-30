@@ -1,7 +1,7 @@
 <?php
 namespace Panadas\Event;
 
-abstract class AbstractEventSubscriber extends \Panadas\Http\AbstractKernelAware implements
+abstract class AbstractEventSubscriber extends \Panadas\Kernel\AbstractKernelAware implements
     \Panadas\Event\EventSubscriberInterface
 {
 

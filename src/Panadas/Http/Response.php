@@ -1,7 +1,7 @@
 <?php
 namespace Panadas\Http;
 
-class Response extends \Panadas\Http\AbstractKernelAware
+class Response extends \Panadas\Kernel\AbstractKernelAware
 {
 
     private $charset;

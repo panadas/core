@@ -1,7 +1,7 @@
 <?php
 namespace Panadas\Http;
 
-class Request extends \Panadas\Http\AbstractKernelAware
+class Request extends \Panadas\Kernel\AbstractKernelAware
 {
 
     private $uri;

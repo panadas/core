@@ -317,4 +317,21 @@ abstract class AbstractKernel extends \Panadas\Event\EventPublisher
     {
         return $this->hasEnvParam(static::ENV_DEBUG);
     }
+
+    /**
+     * @param  string $name
+     * @return \Panadas\Kernel\AbstractKernel
+     */
+    public static function create($name)
+    {
+        $loader = new \Panadas\Loader(__DIR__ . "/../../../../../../");
+
+        $eventPublisher = new \Panadas\Event\EventPublisher();
+
+        $serviceContainerCallback = function (\Panadas\Kernel\AbstractKernel $kernel) {
+            return new \Panadas\Service\ServiceContainer($kernel);
+        };
+
+        return new static($name, $loader, $eventPublisher, $serviceContainerCallback, $_SERVER, $_ENV);
+    }
 }
