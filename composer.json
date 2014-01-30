@@ -16,10 +16,6 @@
         "phpunit/phpunit": "~3.7.0",
         "panadas/phpcs-standard": "~1.0"
     },
-    "suggest": {
-        "panadas/module-logger": "Adds support for monolog to your application.",
-        "panadas/module-router": "Map requests to controllers in your application."
-    },
     "autoload": {
         "psr-0" : {
             "Panadas\\": "src/",
