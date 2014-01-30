@@ -18,42 +18,50 @@ class HtmlResponse extends \Panadas\Http\Response
     }
 
     /**
-     * @param  string  $content
-     * @param  boolean $insideBody
+     * @param  string $content
      * @return \Panadas\Http\HtmlResponse
      */
-    public function prependContent($content, $insideBody = true)
+    public function prependContent($content)
     {
-        if ($insideBody) {
+        $existingContent = $this->getContent();
 
-            $existingContent = $this->getContent();
-
-            if (false !== mb_strpos($existingContent, "<body>", null, $this->getCharset())) {
-                return $this->setContent(str_replace("<body>", "<body>{$content}", $existingContent));
-            }
-
+        if (false === mb_strpos($existingContent, "<body>", null, $this->getCharset())) {
+            return parent::prependContent($content);
         }
 
-        return parent::prependContent($content);
+        return $this->setContent(str_replace("<body>", "<body>{$content}", $existingContent));
     }
 
     /**
-     * @param  string  $content
-     * @param  boolean $insideBody
+     * @param  string $content
      * @return \Panadas\Http\HtmlResponse
      */
-    public function appendContent($content, $insideBody = true)
+    public function appendContent($content)
     {
-        if ($insideBody) {
+        $existingContent = $this->getContent();
 
-            $existingContent = $this->getContent();
-
-            if (false !== mb_strpos($existingContent, "</body>", null, $this->getCharset())) {
-                return $this->setContent(str_replace("</body>", "{$content}</body>", $existingContent));
-            }
-
+        if (false === mb_strpos($existingContent, "</body>", null, $this->getCharset())) {
+            return parent::appendContent($content);
         }
 
-        return parent::appendContent($content);
+        return $this->setContent(str_replace("</body>", "{$content}</body>", $existingContent));
+    }
+
+    /**
+     * @param  string $string
+     * @return string
+     */
+    public function esc($string)
+    {
+        return htmlspecialchars($string, ENT_COMPAT, $this->getCharset());
+    }
+
+    /**
+     * @param  string $string
+     * @return string
+     */
+    public function escAttr($string)
+    {
+        return htmlspecialchars($string, ENT_QUOTES, $this->getCharset());
     }
 }

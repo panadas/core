@@ -88,9 +88,4 @@ abstract class AbstractActionController extends \Panadas\Controller\AbstractCont
     {
         return $this->invalid($request);
     }
-
-    public static function getClassName($name)
-    {
-        return "Controller\Action\\{$name}";
-    }
 }

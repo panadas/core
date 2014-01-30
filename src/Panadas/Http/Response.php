@@ -358,6 +358,14 @@ class Response extends \Panadas\Kernel\AbstractKernelAware
     }
 
     /**
+     * @return string
+     */
+    public function render()
+    {
+        return $this->getContent();
+    }
+
+    /**
      * @return \Panadas\Http\Response
      */
     public function send()
@@ -437,17 +445,11 @@ class Response extends \Panadas\Kernel\AbstractKernelAware
     }
 
     /**
-     * @param  \Panadas\Http\Request $request
+     * @param  \Panadas\Kernel\Kernel $kernel
      * @return \Panadas\Http\Response
      */
-    public static function create(\Panadas\Http\Request $request)
+    public static function create(\Panadas\Kernel\Kernel $kernel)
     {
-        $kernel = $request->getKernel();
-
-        if ($request->isAjax()) {
-            return new \Panadas\Http\JsonResponse($kernel);
-        }
-
-        return new \Panadas\Http\HtmlResponse($kernel);
+        return new static($kernel);
     }
 }

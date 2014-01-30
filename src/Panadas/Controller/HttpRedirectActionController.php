@@ -1,7 +1,7 @@
 <?php
-namespace Controller\Action;
+namespace Panadas\Controller;
 
-class Redirect extends \Panadas\Controller\AbstractActionController
+class HttpRedirectActionController extends \Panadas\Controller\AbstractActionController
 {
 
     protected function get(\Panadas\Http\Request $request)

@@ -46,4 +46,25 @@ class Loader extends \Panadas\AbstractBase
 
         return $rootDir . DIRECTORY_SEPARATOR . trim($relativePath, DIRECTORY_SEPARATOR);
     }
+
+    /**
+     * @param  string $absolutePath
+     * @param  string $rootDir
+     * @return string
+     */
+    public function getRelativePath($absolutePath, $rootDir = null)
+    {
+        if (null === $rootDir) {
+            $rootDir = $this->getRootDir();
+        }
+
+        $rootDir = rtrim($rootDir, DIRECTORY_SEPARATOR);
+        $rootDirLength = mb_strlen($rootDir);
+
+        if (mb_substr($absolutePath, 0, $rootDirLength) !== $rootDir) {
+            throw new \InvalidArgumentException("Absolute path is not within root directory");
+        }
+
+        return "." . mb_substr($absolutePath, $rootDirLength);
+    }
 }

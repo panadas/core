@@ -14,9 +14,10 @@ class Kernel extends \Panadas\Event\EventPublisher
 
     const ENV_DEBUG = "PANADAS_DEBUG";
 
-    const ACTION_EXCEPTION = "Exception";
-    const ACTION_HTTP_ERROR = "HttpError";
-    const ACTION_REDIRECT = "Redirect";
+    const ACTION_CLASS_DEFAULT = "Panadas\Controller\DefaultActionController";
+    const ACTION_CLASS_EXCEPTION = "Panadas\Controller\ExceptionActionController";
+    const ACTION_CLASS_HTTP_ERROR = "Panadas\Controller\HttpErrorActionController";
+    const ACTION_CLASS_REDIRECT = "Panadas\Controller\HttpRedirectActionController";
 
     /**
      * @param string                        $name
@@ -418,10 +419,10 @@ class Kernel extends \Panadas\Event\EventPublisher
         try {
 
             $params = [
-            "request" => $request,
-            "response" => null,
-            "actionName" => null,
-            "actionArgs" => []
+                "request" => $request,
+                "response" => null,
+                "actionClass" => null,
+                "actionArgs" => []
             ];
 
             $event = $this->publish("handle", $params);
@@ -430,12 +431,12 @@ class Kernel extends \Panadas\Event\EventPublisher
 
             if (null === $response) {
 
-                $actionName = $event->get("actionName");
+                $actionClass = $event->get("actionClass");
                 $actionArgs = $event->get("actionArgs");
 
-                if (null !== $actionName) {
+                if (null !== $actionClass) {
 
-                    $response = $this->forward($actionName, $actionArgs);
+                    $response = $this->forward($actionClass, $actionArgs);
 
                 } elseif (!$this->isDebugMode()) {
 
@@ -461,12 +462,12 @@ class Kernel extends \Panadas\Event\EventPublisher
     }
 
     /**
-     * @param  string $actionName
-     * @param  array $actionArgs
+     * @param  string $actionClass
+     * @param  array  $actionArgs
      * @throws \RuntimeException
      * @return \Panadas\Http\Response
      */
-    public function forward($actionName, array $actionArgs = [])
+    public function forward($actionClass, array $actionArgs = [])
     {
         if (!$this->isHandling()) {
             throw new \RuntimeException("Application is not running");
@@ -476,10 +477,10 @@ class Kernel extends \Panadas\Event\EventPublisher
         $this->setCurrentRequest($request);
 
         $params = [
-        "request" => $request,
-        "response" => null,
-        "actionName" => $actionName,
-        "actionArgs" => $actionArgs
+            "request" => $request,
+            "response" => null,
+            "actionClass" => $actionClass,
+            "actionArgs" => $actionArgs
         ];
 
         $event = $this->publish("forward", $params);
@@ -489,15 +490,18 @@ class Kernel extends \Panadas\Event\EventPublisher
 
         if (null === $response) {
 
-            $actionName = $event->get("actionName");
+            $actionClass = $event->get("actionClass");
             $actionArgs = $event->get("actionArgs");
-            $actionClass= \Panadas\Controller\AbstractActionController::getClassName($actionName);
 
-            $action = new $actionClass($this, $actionName, $actionArgs);
+            if (!class_exists($actionClass)) {
+                throw new \RuntimeException("Action class not found: {$actionClass}");
+            }
+
+            $action = new $actionClass($this, $actionArgs);
 
             $vars = [
-            "action" => $action,
-            "request" => $request
+                "action" => $action,
+                "request" => $request
             ];
 
             $response = $action->handle($request);
@@ -513,8 +517,8 @@ class Kernel extends \Panadas\Event\EventPublisher
     public function send(\Panadas\Http\Response $response)
     {
         $params = [
-        "request" => $this->getCurrentRequest(),
-        "response" => $response
+            "request" => $this->getCurrentRequest(),
+            "response" => $response
         ];
 
         $event = $this->publish("send", $params);
@@ -534,7 +538,7 @@ class Kernel extends \Panadas\Event\EventPublisher
         $actionArgs["statusCode"] = $statusCode;
         $actionArgs["message"] = $message;
 
-        return $this->forward(static::ACTION_HTTP_ERROR, $actionArgs);
+        return $this->forward(static::ACTION_CLASS_HTTP_ERROR, $actionArgs);
     }
 
     /**
@@ -578,16 +582,6 @@ class Kernel extends \Panadas\Event\EventPublisher
     }
 
     /**
-     * @param  string $message
-     * @param  array $actionArgs
-     * @return \Panadas\Http\Response
-     */
-    public function error500($message = null, array $actionArgs = [])
-    {
-        return $this->httpError(500, $message, $actionArgs);
-    }
-
-    /**
      * @param  \Exception $exception
      * @param  array      $actionArgs
      * @return \Panadas\Http\Response
@@ -595,10 +589,10 @@ class Kernel extends \Panadas\Event\EventPublisher
     public function exception(\Exception $exception, array $actionArgs = [])
     {
         $actionArgs = [
-        "exception" => $exception
+          "exception" => $exception
         ];
 
-        return $this->forward(static::ACTION_EXCEPTION, $actionArgs);
+        return $this->forward(static::ACTION_CLASS_EXCEPTION, $actionArgs);
     }
 
     /**
@@ -612,7 +606,7 @@ class Kernel extends \Panadas\Event\EventPublisher
         $actionArgs["uri"] = $uri;
         $actionArgs["statusCode"] = $statusCode;
 
-        return $this->forward(static::ACTION_REDIRECT, $actionArgs);
+        return $this->forward(static::ACTION_CLASS_REDIRECT, $actionArgs);
     }
 
     /**

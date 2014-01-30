@@ -1,46 +1,22 @@
 <?php
 namespace Panadas\Controller;
 
-abstract class AbstractController extends \Panadas\Kernel\AbstractKernelAware implements
-    \Panadas\Controller\ControllerInterface
+abstract class AbstractController extends \Panadas\Kernel\AbstractKernelAware
 {
 
-    private $name;
     private $args;
 
     abstract public function handle(\Panadas\Http\Request $request);
 
     /**
      * @param \Panadas\Kernel\Kernel $kernel
-     * @param string                 $name
      * @param array                  $args
      */
-    public function __construct(\Panadas\Kernel\Kernel $kernel, $name, array $args = [])
+    public function __construct(\Panadas\Kernel\Kernel $kernel, array $args = [])
     {
         parent::__construct($kernel);
 
-        $this
-            ->setName($name)
-            ->setArgs(new \Panadas\DataStructure\HashDataStructure($args));
-    }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param  string $name
-     * @return \Panadas\AbstractController
-     */
-    protected function setName($name)
-    {
-        $this->name = $name;
-
-        return $this;
+        $this->setArgs(new \Panadas\DataStructure\HashDataStructure($args));
     }
 
     /**

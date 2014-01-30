@@ -18,28 +18,49 @@ class JsonResponse extends \Panadas\Http\Response
     }
 
     /**
-     * @param  boolean $array
+     * @param  string $content
+     * @throws \RuntimeException
+     */
+    public function prependContent($content)
+    {
+        throw new \RuntimeException("Cannot prepend to JSON content");
+    }
+
+    /**
+     * @param  string $content
+     * @throws \RuntimeException
+     */
+    public function appendContent($content)
+    {
+        throw new \RuntimeException("Cannot append to JSON content");
+    }
+
+    /**
+     * @param  boolean $raw
      * @return mixed
      */
-    public function getContent($decode = false, $array = true)
+    public function getContent($raw = true)
     {
         $content = parent::getContent();
 
-        if ($decode) {
-            return json_decode($content, $array);
+        if ((null !== $content) && !$raw) {
+            $content = json_decode($content);
         }
 
         return $content;
     }
 
     /**
-     * @param  mixed $content
+     * @param  string  $content
+     * @param  boolean $raw
      * @return \Panadas\Http\JsonResponse
      */
-    public function setContent($content)
+    public function setContent($content, $raw = true)
     {
-        parent::setContent(json_encode($content));
+        if ((null !== $content) && $raw) {
+            $content = json_encode($content);
+        }
 
-        return $this;
+        return parent::setContent($content);
     }
 }

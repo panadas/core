@@ -8,9 +8,4 @@ abstract class AbstractFragmentController extends \Panadas\Controller\AbstractCo
     {
         // TODO
     }
-
-    public static function getClassName($name)
-    {
-        return "Controller\Fragment\\{$name}";
-    }
 }
