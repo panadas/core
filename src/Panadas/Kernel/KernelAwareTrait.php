@@ -1,5 +1,5 @@
 <?php
-namespace Panadas\Http;
+namespace Panadas\Kernel;
 
 trait KernelAwareTrait
 {
@@ -7,7 +7,7 @@ trait KernelAwareTrait
     private $kernel;
 
     /**
-     * @return \Panadas\Http\Kernel
+     * @return \Panadas\Kernel\AbstractKernel
      */
     public function getKernel()
     {
@@ -15,10 +15,10 @@ trait KernelAwareTrait
     }
 
     /**
-     * @param  \Panadas\Http\Kernel $kernel
+     * @param  \Panadas\Kernel\AbstractKernel $kernel
      * @return mixed
      */
-    protected function setKernel(\Panadas\Http\Kernel $kernel = null)
+    protected function setKernel(\Panadas\Kernel\AbstractKernel $kernel = null)
     {
         $this->kernel = $kernel;
 

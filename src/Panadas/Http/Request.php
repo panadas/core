@@ -19,13 +19,13 @@ class Request extends \Panadas\Http\AbstractKernelAware
     const PARAM_METHOD = "_method";
 
     /**
-     * @param \Panadas\Http\Kernel $kernel
-     * @param array                $queryParams
-     * @param array                $dataParams
-     * @param array                $cookies
+     * @param \Panadas\Kernel\HttpKernel $kernel
+     * @param array                      $queryParams
+     * @param array                      $dataParams
+     * @param array                      $cookies
      */
     public function __construct(
-        \Panadas\Http\Kernel $kernel,
+        \Panadas\Kernel\HttpKernel $kernel,
         array $headers = [],
         array $queryParams = [],
         array $dataParams = [],
@@ -657,10 +657,10 @@ class Request extends \Panadas\Http\AbstractKernelAware
     }
 
     /**
-     * @param  \Panadas\Http\Kernel $kernel
+     * @param  \Panadas\Kernel\HttpKernel $kernel
      * @return \Panadas\Http\Request
      */
-    public static function create(\Panadas\Http\Kernel $kernel)
+    public static function create(\Panadas\Kernel\HttpKernel $kernel)
     {
         $headers = apache_request_headers();
 

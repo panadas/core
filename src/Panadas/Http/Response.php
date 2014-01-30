@@ -67,13 +67,17 @@ class Response extends \Panadas\Http\AbstractKernelAware
     ];
 
     /**
-     * @param \Panadas\Http\Kernel $kernel
-     * @param string               $charset
-     * @param array                $headers
-     * @param string               $content
+     * @param \Panadas\Kernel\HttpKernel $kernel
+     * @param string                     $charset
+     * @param array                      $headers
+     * @param string                     $content
      */
-    public function __construct(\Panadas\Http\Kernel $kernel, $charset = null, array $headers = [], $content = null)
-    {
+    public function __construct(
+        \Panadas\Kernel\HttpKernel $kernel,
+        $charset = null,
+        array $headers = [],
+        $content = null
+    ) {
         parent::__construct($kernel);
 
         if (null === $charset) {
@@ -434,5 +438,20 @@ class Response extends \Panadas\Http\AbstractKernelAware
     public static function getStatusMessage($statusCode)
     {
         return static::hasStatusCode($statusCode) ? static::$statusCodes[$statusCode] : null;
+    }
+
+    /**
+     * @param  \Panadas\Http\Request $request
+     * @return \Panadas\Http\Response
+     */
+    public static function create(\Panadas\Http\Request $request)
+    {
+        $kernel = $request->getKernel();
+
+        if ($request->isAjax()) {
+            return new \Panadas\Http\JsonResponse($kernel);
+        }
+
+        return new \Panadas\Http\HtmlResponse($kernel);
     }
 }

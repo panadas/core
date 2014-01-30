@@ -1,6 +1,6 @@
 <?php
 namespace Panadas\Service;
 
-interface ServiceInterface extends \Panadas\Http\KernelAwareInterface, \Panadas\Event\EventSubscriberInterface
+interface ServiceInterface extends \Panadas\Kernel\KernelAwareInterface, \Panadas\Event\EventSubscriberInterface
 {
 }

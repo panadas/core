@@ -1,18 +1,12 @@
 <?php
-namespace Panadas\Http;
+namespace Panadas\Kernel;
 
-class Kernel extends \Panadas\Event\EventPublisher
+class HttpKernel extends \Panadas\Kernel\AbstractKernel
 {
 
-    private $name;
-    private $loader;
-    private $serviceContainer;
     private $originalRequest;
     private $currentRequest;
-    private $serverParams;
-    private $envParams;
 
-    const ENV_DEBUG = "PANADAS_DEBUG";
     const ACTION_EXCEPTION = "Exception";
     const ACTION_HTTP_ERROR = "HttpError";
     const ACTION_REDIRECT = "Redirect";
@@ -33,56 +27,10 @@ class Kernel extends \Panadas\Event\EventPublisher
         array $serverParams = [],
         array $envParams = []
     ) {
-        parent::__construct();
-
-        $this
-            ->setLoader($loader)
-            ->setName($name)
-            ->setServerParams(new \Panadas\DataStructure\HashDataStructure($serverParams))
-            ->setEnvParams(new \Panadas\DataStructure\HashDataStructure($envParams))
-            ->setServiceContainer($serviceContainerCallback($this));
+        parent::__construct($name, $loader, $eventPublisher, $serviceContainerCallback, $serverParams, $envParams);
 
         (new \Panadas\Error\ExceptionHandler($this))->register();
         (new \Panadas\Error\ErrorHandler($this))->register();
-
-    }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param  string $name
-     * @return \Panadas\Http\Kernel
-     */
-    protected function setName($name)
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * @return \Panadas\Loader
-     */
-    public function getLoader()
-    {
-        return $this->loader;
-    }
-
-    /**
-     * @param  \Panadas\Loader $loader
-     * @return \Panadas\Http\Kernel
-     */
-    protected function setLoader(\Panadas\Loader $loader)
-    {
-        $this->loader = $loader;
-
-        return $this;
     }
 
     /**
@@ -103,7 +51,7 @@ class Kernel extends \Panadas\Event\EventPublisher
 
     /**
      * @param  \Panadas\Http\Request $originalRequest
-     * @return \Panadas\Http\Kernel
+     * @return \Panadas\Kernel\HttpKernel
      */
     protected function setOriginalRequest(\Panadas\Http\Request $originalRequest = null)
     {
@@ -113,7 +61,7 @@ class Kernel extends \Panadas\Event\EventPublisher
     }
 
     /**
-     * @return \Panadas\Http\Kernel
+     * @return \Panadas\Kernel\HttpKernel
      */
     protected function removeOriginalRequest()
     {
@@ -138,7 +86,7 @@ class Kernel extends \Panadas\Event\EventPublisher
 
     /**
      * @param  \Panadas\Http\Request $currentRequest
-     * @return \Panadas\Http\Kernel
+     * @return \Panadas\Kernel\HttpKernel
      */
     protected function setCurrentRequest(\Panadas\Http\Request $currentRequest = null)
     {
@@ -148,250 +96,11 @@ class Kernel extends \Panadas\Event\EventPublisher
     }
 
     /**
-     * @return \Panadas\Http\Kernel
+     * @return \Panadas\Kernel\HttpKernel
      */
     protected function removeCurrentRequest()
     {
         return $this->setCurrentRequest(null);
-    }
-
-    /**
-     * @return \Panadas\Service\ServiceContainer
-     */
-    public function getServiceContainer()
-    {
-        return $this->serviceContainer;
-    }
-
-    /**
-     * @param  \Panadas\Service\ServiceContainer $serviceContainer
-     * @return \Panadas\Http\Kernel
-     */
-    protected function setServiceContainer(\Panadas\Service\ServiceContainer $serviceContainer)
-    {
-        $this->serviceContainer = $serviceContainer;
-
-        return $this;
-    }
-
-    /**
-     * @return \Panadas\DataStructure\HashDataStructure
-     */
-    protected function getServerParams()
-    {
-        return $this->serverParams;
-    }
-
-    /**
-     * @param  \Panadas\DataStructure\HashDataStructure $serverParams
-     * @return \Panadas\Http\Kernel
-     */
-    protected function setServerParams(\Panadas\DataStructure\HashDataStructure $serverParams)
-    {
-        $this->serverParams = $serverParams;
-
-        return $this;
-    }
-
-    /**
-     * @return \Panadas\DataStructure\HashDataStructure
-     */
-    protected function getEnvParams()
-    {
-        return $this->envParams;
-    }
-
-    /**
-     * @param  \Panadas\DataStructure\HashDataStructure $envParams
-     * @return \Panadas\Http\Kernel
-     */
-    protected function setEnvParams(\Panadas\DataStructure\HashDataStructure $envParams)
-    {
-        $this->envParams = $envParams;
-
-        return $this;
-    }
-
-    /**
-     * @param  string $name
-     * @param  mixed  $default
-     * @return mixed
-     */
-    public function getServerParam($name, $default = null)
-    {
-        return $this->getServerParams()->get($name, $default);
-    }
-
-    /**
-     * @return array
-     */
-    public function getAllServerParams()
-    {
-        return $this->getServerParams()->getAll();
-    }
-
-    /**
-     * @return array
-     */
-    public function getServerParamNames()
-    {
-        return $this->getServerParams()->getNames();
-    }
-
-    /**
-     * @param  string $name
-     * @return boolean
-     */
-    public function hasServerParam($name)
-    {
-        return $this->getServerParams()->has($name);
-    }
-
-    /**
-     * @return boolean
-     */
-    public function hasAnyServerParams()
-    {
-        return $this->getServerParams()->hasAny();
-    }
-
-    /**
-     * @param  string $name
-     * @return \Panadas\Http\Kernel
-     */
-    public function removeServerParam($name)
-    {
-        $this->getServerParams()->remove($name);
-
-        return $this;
-    }
-
-    /**
-     * @return \Panadas\Http\Kernel
-     */
-    public function removeAllServerParams()
-    {
-        $this->getServerParams()->removeAll();
-
-        return $this;
-    }
-
-    /**
-     * @param  string $name
-     * @param  mixed  $value
-     * @return \Panadas\Http\Kernel
-     */
-    public function setServerParam($name, $value)
-    {
-        $this->getServerParams()->set($name, $value);
-
-        return $this;
-    }
-
-    /**
-     * @param  array $serverParams
-     * @return \Panadas\Http\Kernel
-     */
-    public function replaceServerParams(array $serverParams)
-    {
-        $this->getServerParams()->replace($serverParams);
-
-        return $this;
-    }
-
-    /**
-     * @param  string $name
-     * @param  mixed  $default
-     * @return mixed
-     */
-    public function getEnvParam($name, $default = null)
-    {
-        return $this->getEnvParams()->get($name, $default);
-    }
-
-    /**
-     * @return array
-     */
-    public function getAllEnvParams()
-    {
-        return $this->getEnvParams()->getAll();
-    }
-
-    /**
-     * @return array
-     */
-    public function getEnvParamNames()
-    {
-        return $this->getEnvParams()->getNames();
-    }
-
-    /**
-     * @param  string $name
-     * @return boolean
-     */
-    public function hasEnvParam($name)
-    {
-        return $this->getEnvParams()->has($name);
-    }
-
-    /**
-     * @return boolean
-     */
-    public function hasAnyEnvParams()
-    {
-        return $this->getEnvParams()->hasAny();
-    }
-
-    /**
-     * @param  string $name
-     * @return \Panadas\Http\Kernel
-     */
-    public function removeEnvParam($name)
-    {
-        $this->getEnvParams()->remove($name);
-
-        return $this;
-    }
-
-    /**
-     * @return \Panadas\Http\Kernel
-     */
-    public function removeAllEnvParams()
-    {
-        $this->getEnvParams()->removeAll();
-
-        return $this;
-    }
-
-    /**
-     * @param  string $name
-     * @param  mixed  $value
-     * @return \Panadas\Http\Kernel
-     */
-    public function setEnvParam($name, $value)
-    {
-        $this->getEnvParams()->set($name, $value);
-
-        return $this;
-    }
-
-    /**
-     * @param  array $envParams
-     * @return \Panadas\Http\Kernel
-     */
-    public function replaceEnvParams(array $envParams)
-    {
-        $this->getEnvParams()->replace($envParams);
-
-        return $this;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function isDebugMode()
-    {
-        return $this->hasEnvParam(static::ENV_DEBUG);
     }
 
     /**
@@ -613,22 +322,5 @@ class Kernel extends \Panadas\Event\EventPublisher
         $actionArgs["statusCode"] = $statusCode;
 
         return $this->forward(static::ACTION_REDIRECT, $actionArgs);
-    }
-
-    /**
-     * @param  string $name
-     * @return \Panadas\Http\Kernel
-     */
-    public static function create($name)
-    {
-        $loader = new \Panadas\Loader(__DIR__ . "/../../../../../../");
-
-        $eventPublisher = new \Panadas\Event\EventPublisher();
-
-        $serviceContainerCallback = function (\Panadas\Http\Kernel $kernel) {
-            return new \Panadas\Service\ServiceContainer($kernel);
-        };
-
-        return new static($name, $loader, $eventPublisher, $serviceContainerCallback, $_SERVER, $_ENV);
     }
 }

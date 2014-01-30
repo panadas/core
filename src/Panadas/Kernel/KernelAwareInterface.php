@@ -1,11 +1,11 @@
 <?php
-namespace Panadas\Http;
+namespace Panadas\Kernel;
 
 interface KernelAwareInterface
 {
 
     /**
-     * @return \Panadas\Http\Kernel
+     * @return \Panadas\Kernel\AbstractKernel
      */
     public function getKernel();
 }
