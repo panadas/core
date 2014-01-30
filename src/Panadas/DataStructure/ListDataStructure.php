@@ -102,7 +102,7 @@ class ListDataStructure extends \Panadas\DataStructure\AbstractDataStructure
         array_walk(
             $params,
             function ($value) {
-        	   $this->append($name);
+               $this->append($name);
             }
         );
 
