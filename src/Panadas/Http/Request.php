@@ -5,6 +5,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
 {
 
     private $uri;
+    private $headers;
     private $queryParams;
     private $dataParams;
     private $cookies;
@@ -23,15 +24,40 @@ class Request extends \Panadas\Http\AbstractKernelAware
      * @param array                $dataParams
      * @param array                $cookies
      */
-    public function __construct(\Panadas\Http\Kernel $kernel, array $queryParams = [], array $dataParams = [], array $cookies = [])
-    {
+    public function __construct(
+        \Panadas\Http\Kernel $kernel,
+        array $headers = [],
+        array $queryParams = [],
+        array $dataParams = [],
+        array $cookies = []
+    ) {
         parent::__construct($kernel);
 
         $this
             ->setUri($this->detectUri())
+            ->setHeaders(new \Panadas\ArrayStore\HashArrayStore($headers))
             ->setQueryParams(new \Panadas\ArrayStore\HashArrayStore($queryParams))
             ->setDataParams(new \Panadas\ArrayStore\HashArrayStore($dataParams))
             ->setCookies(new \Panadas\ArrayStore\HashArrayStore($cookies));
+    }
+
+    /**
+     * @return \Panadas\ArrayStore\HashArrayStore
+     */
+    protected function getHeaders()
+    {
+        return $this->headers;
+    }
+
+    /**
+     * @param  \Panadas\ArrayStore\HashArrayStore $headers
+     * @return \Panadas\Http\Request
+     */
+    protected function setHeaders(\Panadas\ArrayStore\HashArrayStore $headers)
+    {
+        $this->headers = $headers;
+
+        return $this;
     }
 
     /**
@@ -132,6 +158,93 @@ class Request extends \Panadas\Http\AbstractKernelAware
     protected function setCookies(\Panadas\ArrayStore\HashArrayStore $cookies)
     {
         $this->cookies = $cookies;
+
+        return $this;
+    }
+
+    /**
+     * @param  string $name
+     * @param  mixed  $default
+     * @return mixed
+     */
+    public function getHeader($name, $default = null)
+    {
+        return $this->getHeaders()->get($name, $default);
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllHeaders()
+    {
+        return $this->getHeaders()->getAll();
+    }
+
+    /**
+     * @return array
+     */
+    public function getHeaderNames()
+    {
+        return $this->getHeaders()->getNames();
+    }
+
+    /**
+     * @param  string $name
+     * @return boolean
+     */
+    public function hasHeader($name)
+    {
+        return $this->getHeaders()->has($name);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasAnyHeaders()
+    {
+        return $this->getHeaders()->hasAny();
+    }
+
+    /**
+     * @param  string $name
+     * @return \Panadas\Http\Request
+     */
+    public function removeHeader($name)
+    {
+        $this->getHeaders()->remove($name);
+
+        return $this;
+    }
+
+    /**
+     * @return \Panadas\Http\Request
+     */
+    public function removeAllHeaders()
+    {
+        $this->getHeaders()->removeAll();
+
+        return $this;
+    }
+
+    /**
+     * @param  string $name
+     * @param  mixed  $value
+     * @return \Panadas\Http\Request
+     */
+    public function setHeader($name, $value)
+    {
+        $this->getHeaders()->set($name, $value);
+
+        return $this;
+    }
+
+    /**
+     * @param  array $headers
+     * @return \Panadas\Http\Request
+     */
+    public function replaceHeaders(array $headers)
+    {
+        $this->getHeaders()->replace($headers);
 
         return $this;
     }
@@ -398,42 +511,24 @@ class Request extends \Panadas\Http\AbstractKernelAware
     }
 
     /**
-     * @param  string $name
-     * @param  mixed  $default
-     * @return mixed
-     */
-    public function getHeader($name, $default = null)
-    {
-        return $this->getKernel()->getServerVar(static::getPhpHeaderName($name), $default);
-    }
-
-    /**
-     * @param  string $name
-     * @return boolean
-     */
-    public function hasHeader($name)
-    {
-        return $this->getKernel()->hasServerVar(static::getPhpHeaderName($name));
-    }
-
-    /**
      * @return string
      */
     protected function detectUri()
     {
         $kernel = $this->getKernel();
         $secure = $this->isSecure();
+
         $protocol = $secure ? "https" : "http";
 
-        $port = $kernel->getServerVar("SERVER_PORT");
+        $port = $kernel->getServerParam("SERVER_PORT");
 
         if (null !== $port) {
             $port = ($port != ($secure ? 443 : 80)) ? ":{$port}" : null;
         }
 
-        $host = $kernel->getServerVar("HTTP_HOST");
-        $path = $kernel->getServerVar("PATH_INFO", $kernel->getServerVar("REQUEST_URI"));
-        $query = $kernel->getServerVar("QUERY_STRING");
+        $host = $kernel->getServerParam("HTTP_HOST");
+        $path = $kernel->getServerParam("PATH_INFO", $kernel->getServerParam("REQUEST_URI"));
+        $query = $kernel->getServerParam("QUERY_STRING");
 
         if (mb_strlen($query) > 0) {
             $query = "?{$query}";
@@ -447,14 +542,17 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function getMethod()
     {
-        return mb_strtoupper(
-            $this->get(
-                static::PARAM_METHOD,
-                function ($name) {
-                    $this->getKernel()->getServerParam("REQUEST_METHOD", static::METHOD_GET);
-                }
-            )
-        );
+        $method = $this->getQueryParam(static::PARAM_METHOD);
+        if (null !== $method) {
+            return $method;
+        }
+
+        $method = $this->getDataParam(static::PARAM_METHOD);
+        if (null !== $method) {
+            return $method;
+        }
+
+        return $this->getKernel()->getServerParam("REQUEST_METHOD", static::METHOD_GET);
     }
 
     /**
@@ -510,7 +608,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
         ];
 
         foreach ($headers as $name => $value) {
-            if (mb_strtoupper($kernel->getServerVar($name)) === $value) {
+            if (mb_strtoupper($kernel->getServerParam($name)) === $value) {
                 return true;
             }
         }
@@ -523,7 +621,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public function isAjax()
     {
-        return (mb_strtoupper($this->getKernel()->getServerVar("HTTP_X_REQUESTED_WITH")) === "XMLHTTPREQUEST");
+        return ($this->getHeader("X-Requested-With") === "XMLHttpRequest");
     }
 
     /**
@@ -541,7 +639,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
 
         foreach ($headers as $name) {
 
-            $value = $kernel->getServerVar($name);
+            $value = $kernel->getServerParam($name);
 
             if (null === $value) {
                 continue;
@@ -564,7 +662,9 @@ class Request extends \Panadas\Http\AbstractKernelAware
      */
     public static function create(\Panadas\Http\Kernel $kernel)
     {
-        $instance = new static($kernel, $_GET, $_POST, $_COOKIE);
+        $headers = apache_request_headers();
+
+        $instance = new static($kernel, $headers, $_GET, $_POST, $_COOKIE);
 
         if ($instance->isPut()) {
 
@@ -584,16 +684,5 @@ class Request extends \Panadas\Http\AbstractKernelAware
         }
 
         return $instance;
-    }
-
-    /**
-     * Convert a raw header name to the PHP equivalent.
-     *
-     * @param  string $name
-     * @return string
-     */
-    public static function getPhpHeaderName($name)
-    {
-        return "HTTP_" . preg_replace("/[^0-9a-z]/i", "_", mb_strtoupper($name));
     }
 }

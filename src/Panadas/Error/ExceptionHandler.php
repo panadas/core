@@ -21,23 +21,13 @@ class ExceptionHandler extends \Panadas\Http\AbstractKernelAware
     {
         $kernel = $this->getKernel();
 
-        if ($kernel->isHandling()) {
+        $logger = $kernel->getServiceContainer()->get("logger", false);
 
-            $response = $kernel->exception($exception);
-
-        } else {
-
-            $logger = $kernel->getServiceContainer()->get("logger", false);
-
-            if (null !== $logger) {
-                $logger->critical($exception->getMessage(), ["exception" => $exception]);
-            }
-
-            $response = $this->createResponse($exception);
-
+        if (null !== $logger) {
+            $logger->critical($exception->getMessage(), ["exception" => $exception]);
         }
 
-        $response->send();
+        $this->createResponse($exception)->send();
     }
 
     /**

@@ -39,12 +39,12 @@ class Kernel extends \Panadas\Event\EventPublisher
             ->setLoader($loader)
             ->setName($name)
             ->setServerParams(new \Panadas\ArrayStore\HashArrayStore($serverParams))
-            ->setEnvParams(new \Panadas\ArrayStore\HashArrayStore($envParams));
+            ->setEnvParams(new \Panadas\ArrayStore\HashArrayStore($envParams))
+            ->setServiceContainer($serviceContainerCallback($this));
 
         (new \Panadas\Error\ExceptionHandler($this))->register();
         (new \Panadas\Error\ErrorHandler($this))->register();
 
-        $this->setServiceContainer($serviceContainerCallback($this));
     }
 
     /**
@@ -391,7 +391,7 @@ class Kernel extends \Panadas\Event\EventPublisher
      */
     public function isDebugMode()
     {
-        return $this->hasEnvVar(static::ENV_DEBUG);
+        return $this->hasEnvParam(static::ENV_DEBUG);
     }
 
     /**
@@ -626,7 +626,7 @@ class Kernel extends \Panadas\Event\EventPublisher
         $eventPublisher = new \Panadas\Event\EventPublisher();
 
         $serviceContainerCallback = function (\Panadas\Http\Kernel $kernel) {
-            return new \Panadas\Service\Container($kernel);
+            return new \Panadas\Service\ServiceContainer($kernel);
         };
 
         return new static($name, $loader, $eventPublisher, $serviceContainerCallback, $_SERVER, $_ENV);

@@ -21,9 +21,15 @@ class JsonResponse extends \Panadas\Http\Response
      * @param  boolean $array
      * @return mixed
      */
-    public function getContent($array = true)
+    public function getContent($decode = false, $array = true)
     {
-        return json_decode(parent::getContent(), $array);
+        $content = parent::getContent();
+
+        if ($decode) {
+            return json_decode($content, $array);
+        }
+
+        return $content;
     }
 
     /**
