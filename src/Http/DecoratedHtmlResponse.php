@@ -6,7 +6,7 @@ class DecoratedHtmlResponse extends \Panadas\Http\HtmlResponse
 
     /**
      * @param  string $content
-     * @return \Panadas\Http\SimpleHtmlResponse
+     * @return \Panadas\Http\DecoratedHtmlResponse
      */
     public function setContent($content)
     {
@@ -19,7 +19,7 @@ class DecoratedHtmlResponse extends \Panadas\Http\HtmlResponse
 
     /**
      * @param  string $content
-     * @return \Panadas\Http\SimpleHtmlResponse
+     * @return \Panadas\Http\DecoratedHtmlResponse
      */
     public function decorate(&$content)
     {

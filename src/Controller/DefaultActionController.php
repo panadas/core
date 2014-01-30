@@ -4,6 +4,10 @@ namespace Panadas\Controller;
 class DefaultActionController extends \Panadas\Controller\AbstractActionController
 {
 
+    /**
+     * @param  \Panadas\Http\Request $request
+     * @return \Panadas\Http\Response
+     */
     protected function get(\Panadas\Http\Request $request)
     {
         $content = <<<CONTENT

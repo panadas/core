@@ -4,6 +4,10 @@ namespace Panadas\Controller;
 class HttpErrorActionController extends \Panadas\Controller\AbstractActionController
 {
 
+    /**
+     * @param  \Panadas\Http\Request $request
+     * @return \Panadas\Http\Response
+     */
     protected function get(\Panadas\Http\Request $request)
     {
         $response = \Panadas\Http\DecoratedHtmlResponse::create($this->getKernel());
@@ -30,16 +34,28 @@ CONTENT;
             ->setContent($content);
     }
 
+    /**
+     * @param  \Panadas\Http\Request $request
+     * @return \Panadas\Http\Response
+     */
     protected function post(\Panadas\Http\Request $request)
     {
         return $this->get($request);
     }
 
+    /**
+     * @param  \Panadas\Http\Request $request
+     * @return \Panadas\Http\Response
+     */
     protected function put(\Panadas\Http\Request $request)
     {
         return $this->get($request);
     }
 
+    /**
+     * @param  \Panadas\Http\Request $request
+     * @return \Panadas\Http\Response
+     */
     protected function delete(\Panadas\Http\Request $request)
     {
         return $this->get($request);

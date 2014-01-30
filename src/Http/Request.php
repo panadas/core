@@ -16,6 +16,7 @@ class Request extends \Panadas\Kernel\AbstractKernelAware
     const METHOD_PUT = "PUT";
     const METHOD_DELETE = "DELETE";
 
+    const PARAM_AJAX = "_ajax";
     const PARAM_METHOD = "_method";
 
     /**
@@ -621,7 +622,18 @@ class Request extends \Panadas\Kernel\AbstractKernelAware
      */
     public function isAjax()
     {
-        return ($this->getHeader("X-Requested-With") === "XMLHttpRequest");
+        if ($this->getHeader("X-Requested-With") === "XMLHttpRequest") {
+            return true;
+        }
+
+        if (
+            $this->getKernel()->isDebugMode()
+            && ($this->hasQueryParam(static::PARAM_AJAX) || $this->hasDataParam(static::PARAM_AJAX))
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

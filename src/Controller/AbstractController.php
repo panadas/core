@@ -6,6 +6,10 @@ abstract class AbstractController extends \Panadas\Kernel\AbstractKernelAware
 
     private $args;
 
+    /**
+     * @param  \Panadas\Http\Request $request
+     * @return \Panadas\Http\Response
+     */
     abstract public function handle(\Panadas\Http\Request $request);
 
     /**

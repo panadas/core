@@ -7,6 +7,12 @@ class EventPublisher extends \Panadas\AbstractBase
     // TODO: custom array store for event data
     private $events = [];
 
+    /**
+     * @param  string   $name
+     * @param  callable $listener
+     * @param  integer  $priority
+     * @return \Panadas\Event\EventPublisher
+     */
     public function addListener($name, callable $listener, $priority = 0)
     {
         $this->events[$name][$priority][] = $listener;
@@ -16,6 +22,11 @@ class EventPublisher extends \Panadas\AbstractBase
         return $this;
     }
 
+    /**
+     * @param  string $name
+     * @param  array  $listeners
+     * @return \Panadas\Event\EventPublisher
+     */
     public function addManyListeners($name, array $listeners)
     {
         foreach ($listeners as $config) {
@@ -29,6 +40,11 @@ class EventPublisher extends \Panadas\AbstractBase
         return $this;
     }
 
+    /**
+     * @param  string   $name
+     * @param  callable $listener
+     * @return boolean
+     */
     public function hasListener($name, callable $listener)
     {
         foreach ($this->getAllListeners($name) as $priority => $listeners) {
@@ -40,16 +56,29 @@ class EventPublisher extends \Panadas\AbstractBase
         return false;
     }
 
+    /**
+     * @param  string $name
+     * @return boolean
+     */
     public function hasAnyListeners($name)
     {
         return (count($this->getAllListeners($name)) > 0);
     }
 
+    /**
+     * @param  string $name
+     * @return array
+     */
     public function getAllListeners($name)
     {
         return array_key_exists($name, $this->events) ? $this->events[$name] : [];
     }
 
+    /**
+     * @param  string   $name
+     * @param  callable $listener
+     * @return \Panadas\Event\EventPublisher
+     */
     public function removeListener($name, callable $listener)
     {
         foreach ($this->getAllListeners($name) as $priority => $listeners) {
@@ -69,6 +98,11 @@ class EventPublisher extends \Panadas\AbstractBase
         return $this;
     }
 
+    /**
+     * @param  string $name
+     * @param  array  $listeners
+     * @return \Panadas\Event\EventPublisher
+     */
     public function removeManyListeners($name, array $listeners)
     {
         foreach ($listeners as $config) {
@@ -82,6 +116,10 @@ class EventPublisher extends \Panadas\AbstractBase
         return $this;
     }
 
+    /**
+     * @param  string $name
+     * @return \Panadas\Event\EventPublisher
+     */
     public function removeAllListeners($name)
     {
         foreach ($this->getAllListeners($name) as $priority => $listeners) {
@@ -91,11 +129,22 @@ class EventPublisher extends \Panadas\AbstractBase
         return $this;
     }
 
+    /**
+     * @param  string $name
+     * @param  array  $listeners
+     * @return \Panadas\Event\EventPublisher
+     */
     public function replaceListeners($name, array $listeners)
     {
         $this->removeAllListeners($name)->addManyListeners($name, $listeners);
+
+        return $this;
     }
 
+    /**
+     * @param  \Panadas\Event\EventSubscriberInterface $subscriber
+     * @return \Panadas\Event\EventPublisher
+     */
     public function addSubscriber(\Panadas\Event\EventSubscriberInterface $subscriber)
     {
         foreach ($subscriber->subscribe() as $name => $listeners) {
@@ -111,6 +160,10 @@ class EventPublisher extends \Panadas\AbstractBase
         return $this;
     }
 
+    /**
+     * @param  \Panadas\Event\EventSubscriberInterface $subscriber
+     * @return \Panadas\Event\EventPublisher
+     */
     public function removeSubscriber(\Panadas\Event\EventSubscriberInterface $subscriber)
     {
         foreach ($subscriber->subscribe() as $name => $listeners) {
@@ -126,6 +179,11 @@ class EventPublisher extends \Panadas\AbstractBase
         return $this;
     }
 
+    /**
+     * @param  string $name
+     * @param  array  $params
+     * @return \Panadas\Event\Event
+     */
     public function publish($name, array $params = [])
     {
         $event = new \Panadas\Event\Event($this, $name, $params);
@@ -147,6 +205,13 @@ class EventPublisher extends \Panadas\AbstractBase
         return $event;
     }
 
+    /**
+     * @param  mixed   $config
+     * @param  mixed   $listener
+     * @param  integer $priority
+     * @throws \Exception
+     * @return boolean
+     */
     protected static function normalizeListenerConfig($config, &$listener, &$priority)
     {
         $priority = 0;

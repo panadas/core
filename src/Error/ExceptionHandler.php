@@ -14,19 +14,26 @@ class ExceptionHandler extends \Panadas\Kernel\AbstractKernelAware
         return $this;
     }
 
-
     /**
      * @param \Exception $exception
      */
     public function handle(\Exception $exception)
     {
-        $kernel = $this->getKernel();
-
-        $logger = $kernel->getServiceContainer()->get("logger", false);
+        $logger = $this->getKernel()->getServiceContainer()->get("logger", false);
         if (null !== $logger) {
             $logger->critical($exception->getMessage(), ["exception" => $exception]);
         }
 
+        $this->send($exception);
+    }
+
+    /**
+     * @param  \Exception $exception
+     * @return \Panadas\Http\Response
+     */
+    protected function send(\Exception $exception)
+    {
+        $kernel = $this->getKernel();
         $response = \Panadas\Http\DecoratedHtmlResponse::create($kernel);
 
         if (!$kernel->isDebugMode()) {
@@ -68,7 +75,7 @@ CONTENT;
 
         }
 
-        $response
+        return $response
             ->setStatusCode(500)
             ->setContent($content)
             ->send();

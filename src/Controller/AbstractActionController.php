@@ -4,6 +4,10 @@ namespace Panadas\Controller;
 abstract class AbstractActionController extends \Panadas\Controller\AbstractController
 {
 
+    /**
+     * @param  \Panadas\Http\Request $request
+     * @return \Panadas\Http\Response
+     */
     public function handle(\Panadas\Http\Request $request)
     {
         $requestMethod = $request->getMethod();
@@ -44,36 +48,68 @@ abstract class AbstractActionController extends \Panadas\Controller\AbstractCont
         return null;
     }
 
+    /**
+     * @param  \Panadas\Http\Request $request
+     * @return \Panadas\Controller\AbstractActionController
+     */
     protected function before(\Panadas\Http\Request $request)
     {
         return $this;
     }
 
+    /**
+     * @param  \Panadas\Http\Request $request
+     * @return \Panadas\Controller\AbstractActionController
+     */
     protected function after(\Panadas\Http\Request $request)
     {
         return $this;
     }
 
+    /**
+     * @param  \Panadas\Http\Request $request
+     * @return \Panadas\Http\Response
+     */
     protected function head(\Panadas\Http\Request $request)
     {
-        return $this->get($request)->removeContent();
+        $response = $this->get($request);
+
+        return $response
+            ->setHeader("Content-Length", mb_strlen($response->getContent(), $response->getCharset()))
+            ->removeContent();
     }
 
+    /**
+     * @param  \Panadas\Http\Request $request
+     * @return \Panadas\Http\Response
+     */
     protected function get(\Panadas\Http\Request $request)
     {
         return $request->errorBadRequest();
     }
 
+    /**
+     * @param  \Panadas\Http\Request $request
+     * @return \Panadas\Http\Response
+     */
     protected function post(\Panadas\Http\Request $request)
     {
         return $request->errorBadRequest();
     }
 
+    /**
+     * @param  \Panadas\Http\Request $request
+     * @return \Panadas\Http\Response
+     */
     protected function put(\Panadas\Http\Request $request)
     {
         return $request->errorBadRequest();
     }
 
+    /**
+     * @param  \Panadas\Http\Request $request
+     * @return \Panadas\Http\Response
+     */
     protected function delete(\Panadas\Http\Request $request)
     {
         return $request->errorBadRequest();
