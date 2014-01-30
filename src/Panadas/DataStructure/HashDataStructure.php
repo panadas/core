@@ -1,7 +1,7 @@
 <?php
-namespace Panadas\ArrayStore;
+namespace Panadas\DataStructure;
 
-class HashArrayStore extends \Panadas\ArrayStore\AbstractArrayStore
+class HashDataStructure extends \Panadas\DataStructure\AbstractDataStructure
 {
 
     /**
@@ -41,7 +41,7 @@ class HashArrayStore extends \Panadas\ArrayStore\AbstractArrayStore
 
     /**
      * @param  string $name
-     * @return \Panadas\ArrayStore\HashArrayStore
+     * @return \Panadas\DataStructure\HashDataStructure
      */
     public function remove($name)
     {
@@ -53,7 +53,7 @@ class HashArrayStore extends \Panadas\ArrayStore\AbstractArrayStore
     }
 
     /**
-     * @return \Panadas\ArrayStore\AbstractArrayStore
+     * @return \Panadas\DataStructure\AbstractDataStructure
      */
     public function removeAll()
     {
@@ -67,7 +67,7 @@ class HashArrayStore extends \Panadas\ArrayStore\AbstractArrayStore
      * @param  string  $name
      * @param  mixed   $value
      * @param  boolean $replace
-     * @return \Panadas\ArrayStore\HashArrayStore
+     * @return \Panadas\DataStructure\HashDataStructure
      */
     public function set($name, $value, $replace = true)
     {
@@ -80,7 +80,7 @@ class HashArrayStore extends \Panadas\ArrayStore\AbstractArrayStore
 
     /**
      * @param  array $params
-     * @return \Panadas\ArrayStore\HashArrayStore
+     * @return \Panadas\DataStructure\HashDataStructure
      */
     public function replace(array $params)
     {

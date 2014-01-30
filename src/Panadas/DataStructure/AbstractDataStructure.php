@@ -1,19 +1,19 @@
 <?php
-namespace Panadas\ArrayStore;
+namespace Panadas\DataStructure;
 
-abstract class AbstractArrayStore extends \Panadas\AbstractBase
+abstract class AbstractDataStructure extends \Panadas\AbstractBase
 {
 
     protected $params = [];
 
     /**
      * @param  array $params
-     * @return \Panadas\ArrayStore\AbstractArrayStore
+     * @return \Panadas\DataStructure\AbstractDataStructure
      */
     abstract public function replace(array $params);
 
     /**
-     * @return \Panadas\ArrayStore\AbstractArrayStore
+     * @return \Panadas\DataStructure\AbstractDataStructure
      */
     abstract public function removeAll();
 

@@ -20,7 +20,7 @@ class Event extends \Panadas\Http\AbstractKernelAware
         $this
             ->setStopped(false)
             ->setName($name)
-            ->setParams(new \Panadas\ArrayStore\HashArrayStore($params));
+            ->setParams(new \Panadas\DataStructure\HashDataStructure($params));
     }
 
     /**
@@ -43,7 +43,7 @@ class Event extends \Panadas\Http\AbstractKernelAware
     }
 
     /**
-     * @return \Panadas\ArrayStore\HashArrayStore
+     * @return \Panadas\DataStructure\HashDataStructure
      */
     protected function getParams()
     {
@@ -51,10 +51,10 @@ class Event extends \Panadas\Http\AbstractKernelAware
     }
 
     /**
-     * @param  \Panadas\ArrayStore\HashArrayStore $params
+     * @param  \Panadas\DataStructure\HashDataStructure $params
      * @return \Panadas\Event\Event
      */
-    protected function setParams(\Panadas\ArrayStore\HashArrayStore $params)
+    protected function setParams(\Panadas\DataStructure\HashDataStructure $params)
     {
         $this->params = $params;
 

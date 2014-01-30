@@ -83,7 +83,7 @@ class Response extends \Panadas\Http\AbstractKernelAware
         $this
             ->setCharset($charset)
             ->setContentType("text/plain")
-            ->setHeaders(new \Panadas\ArrayStore\HashArrayStore($headers))
+            ->setHeaders(new \Panadas\DataStructure\HashDataStructure($headers))
             ->setContent($content)
             ->setStatusCode(200);
     }
@@ -151,7 +151,7 @@ class Response extends \Panadas\Http\AbstractKernelAware
     }
 
     /**
-     * @return \Panadas\ArrayStore\HashArrayStore
+     * @return \Panadas\DataStructure\HashDataStructure
      */
     protected function getHeaders()
     {
@@ -159,10 +159,10 @@ class Response extends \Panadas\Http\AbstractKernelAware
     }
 
     /**
-     * @param  \Panadas\ArrayStore\HashArrayStore $headers
+     * @param  \Panadas\DataStructure\HashDataStructure $headers
      * @return \Panadas\Http\Response
      */
-    protected function setHeaders(\Panadas\ArrayStore\HashArrayStore $headers)
+    protected function setHeaders(\Panadas\DataStructure\HashDataStructure $headers)
     {
         $this->headers = $headers;
 

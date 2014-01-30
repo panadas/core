@@ -1,7 +1,7 @@
 <?php
-namespace Panadas\ArrayStore;
+namespace Panadas\DataStructure;
 
-class ListArrayStore extends \Panadas\ArrayStore\AbstractArrayStore
+class ListDataStructure extends \Panadas\DataStructure\AbstractDataStructure
 {
 
     /**
@@ -29,7 +29,7 @@ class ListArrayStore extends \Panadas\ArrayStore\AbstractArrayStore
 
     /**
      * @param  mixed   $value
-     * @return \Panadas\ArrayStore\ListArrayStore
+     * @return \Panadas\DataStructure\ListDataStructure
      */
     public function prepend($value)
     {
@@ -40,7 +40,7 @@ class ListArrayStore extends \Panadas\ArrayStore\AbstractArrayStore
 
     /**
      * @param  mixed   $value
-     * @return \Panadas\ArrayStore\ListArrayStore
+     * @return \Panadas\DataStructure\ListDataStructure
      */
     public function append($value)
     {
@@ -67,7 +67,7 @@ class ListArrayStore extends \Panadas\ArrayStore\AbstractArrayStore
 
     /**
      * @param  mixed $value
-     * @return \Panadas\ArrayStore\ListArrayStore
+     * @return \Panadas\DataStructure\ListDataStructure
      */
     public function remove($value)
     {
@@ -80,7 +80,7 @@ class ListArrayStore extends \Panadas\ArrayStore\AbstractArrayStore
     }
 
     /**
-     * @return \Panadas\ArrayStore\ListArrayStore
+     * @return \Panadas\DataStructure\ListDataStructure
      */
     public function removeAll()
     {
@@ -93,7 +93,7 @@ class ListArrayStore extends \Panadas\ArrayStore\AbstractArrayStore
 
     /**
      * @param  array $params
-     * @return \Panadas\ArrayStore\ListArrayStore
+     * @return \Panadas\DataStructure\ListDataStructure
      */
     public function replace(array $params)
     {

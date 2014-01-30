@@ -35,14 +35,14 @@ class Request extends \Panadas\Http\AbstractKernelAware
 
         $this
             ->setUri($this->detectUri())
-            ->setHeaders(new \Panadas\ArrayStore\HashArrayStore($headers))
-            ->setQueryParams(new \Panadas\ArrayStore\HashArrayStore($queryParams))
-            ->setDataParams(new \Panadas\ArrayStore\HashArrayStore($dataParams))
-            ->setCookies(new \Panadas\ArrayStore\HashArrayStore($cookies));
+            ->setHeaders(new \Panadas\DataStructure\HashDataStructure($headers))
+            ->setQueryParams(new \Panadas\DataStructure\HashDataStructure($queryParams))
+            ->setDataParams(new \Panadas\DataStructure\HashDataStructure($dataParams))
+            ->setCookies(new \Panadas\DataStructure\HashDataStructure($cookies));
     }
 
     /**
-     * @return \Panadas\ArrayStore\HashArrayStore
+     * @return \Panadas\DataStructure\HashDataStructure
      */
     protected function getHeaders()
     {
@@ -50,10 +50,10 @@ class Request extends \Panadas\Http\AbstractKernelAware
     }
 
     /**
-     * @param  \Panadas\ArrayStore\HashArrayStore $headers
+     * @param  \Panadas\DataStructure\HashDataStructure $headers
      * @return \Panadas\Http\Request
      */
-    protected function setHeaders(\Panadas\ArrayStore\HashArrayStore $headers)
+    protected function setHeaders(\Panadas\DataStructure\HashDataStructure $headers)
     {
         $this->headers = $headers;
 
@@ -106,7 +106,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
     }
 
     /**
-     * @return \Panadas\ArrayStore\HashArrayStore
+     * @return \Panadas\DataStructure\HashDataStructure
      */
     protected function getQueryParams()
     {
@@ -114,10 +114,10 @@ class Request extends \Panadas\Http\AbstractKernelAware
     }
 
     /**
-     * @param  \Panadas\ArrayStore\HashArrayStore $queryParams
+     * @param  \Panadas\DataStructure\HashDataStructure $queryParams
      * @return \Panadas\Http\Request
      */
-    protected function setQueryParams(\Panadas\ArrayStore\HashArrayStore $queryParams)
+    protected function setQueryParams(\Panadas\DataStructure\HashDataStructure $queryParams)
     {
         $this->queryParams = $queryParams;
 
@@ -125,7 +125,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
     }
 
     /**
-     * @return \Panadas\ArrayStore\HashArrayStore
+     * @return \Panadas\DataStructure\HashDataStructure
      */
     protected function getDataParams()
     {
@@ -133,10 +133,10 @@ class Request extends \Panadas\Http\AbstractKernelAware
     }
 
     /**
-     * @param  \Panadas\ArrayStore\HashArrayStore $dataParams
+     * @param  \Panadas\DataStructure\HashDataStructure $dataParams
      * @return \Panadas\Http\Request
      */
-    protected function setDataParams(\Panadas\ArrayStore\HashArrayStore $dataParams)
+    protected function setDataParams(\Panadas\DataStructure\HashDataStructure $dataParams)
     {
         $this->dataParams = $dataParams;
 
@@ -144,7 +144,7 @@ class Request extends \Panadas\Http\AbstractKernelAware
     }
 
     /**
-     * @return \Panadas\ArrayStore\HashArrayStore
+     * @return \Panadas\DataStructure\HashDataStructure
      */
     protected function getCookies()
     {
@@ -152,10 +152,10 @@ class Request extends \Panadas\Http\AbstractKernelAware
     }
 
     /**
-     * @param  \Panadas\ArrayStore\HashArrayStore $cookies
+     * @param  \Panadas\DataStructure\HashDataStructure $cookies
      * @return \Panadas\Http\Request
      */
-    protected function setCookies(\Panadas\ArrayStore\HashArrayStore $cookies)
+    protected function setCookies(\Panadas\DataStructure\HashDataStructure $cookies)
     {
         $this->cookies = $cookies;
 

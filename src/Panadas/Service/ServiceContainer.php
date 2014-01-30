@@ -15,11 +15,11 @@ class ServiceContainer extends \Panadas\Http\AbstractKernelAware
     {
         parent::__construct($kernel);
 
-        $this->setServices(new \Panadas\ArrayStore\HashArrayStore($services));
+        $this->setServices(new \Panadas\DataStructure\HashDataStructure($services));
     }
 
     /**
-     * @return \Panadas\ArrayStore\HashArrayStore
+     * @return \Panadas\DataStructure\HashDataStructure
      */
     protected function getServices()
     {
@@ -27,10 +27,10 @@ class ServiceContainer extends \Panadas\Http\AbstractKernelAware
     }
 
     /**
-     * @param  \Panadas\ArrayStore\HashArrayStore $services
+     * @param  \Panadas\DataStructure\HashDataStructure $services
      * @return \Panadas\Service\ServiceContainer
      */
-    protected function setServices(\Panadas\ArrayStore\HashArrayStore $services)
+    protected function setServices(\Panadas\DataStructure\HashDataStructure $services)
     {
         $this->services = $services;
 

@@ -1,12 +1,12 @@
 <?php
-namespace Panadas\ArrayStore;
+namespace Panadas\DataStructure;
 
-class SetArrayStore extends \Panadas\ArrayStore\ListArrayStore
+class SetDataStructure extends \Panadas\DataStructure\ListDataStructure
 {
 
     /**
      * @param  mixed   $value
-     * @return \Panadas\ArrayStore\SetArrayStore
+     * @return \Panadas\DataStructure\SetDataStructure
      */
     public function prepend($value)
     {
@@ -19,7 +19,7 @@ class SetArrayStore extends \Panadas\ArrayStore\ListArrayStore
 
     /**
      * @param  mixed   $value
-     * @return \Panadas\ArrayStore\SetArrayStore
+     * @return \Panadas\DataStructure\SetDataStructure
      */
     public function append($value)
     {

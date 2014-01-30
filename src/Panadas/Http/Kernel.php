@@ -38,8 +38,8 @@ class Kernel extends \Panadas\Event\EventPublisher
         $this
             ->setLoader($loader)
             ->setName($name)
-            ->setServerParams(new \Panadas\ArrayStore\HashArrayStore($serverParams))
-            ->setEnvParams(new \Panadas\ArrayStore\HashArrayStore($envParams))
+            ->setServerParams(new \Panadas\DataStructure\HashDataStructure($serverParams))
+            ->setEnvParams(new \Panadas\DataStructure\HashDataStructure($envParams))
             ->setServiceContainer($serviceContainerCallback($this));
 
         (new \Panadas\Error\ExceptionHandler($this))->register();
@@ -175,7 +175,7 @@ class Kernel extends \Panadas\Event\EventPublisher
     }
 
     /**
-     * @return \Panadas\ArrayStore\HashArrayStore
+     * @return \Panadas\DataStructure\HashDataStructure
      */
     protected function getServerParams()
     {
@@ -183,10 +183,10 @@ class Kernel extends \Panadas\Event\EventPublisher
     }
 
     /**
-     * @param  \Panadas\ArrayStore\HashArrayStore $serverParams
+     * @param  \Panadas\DataStructure\HashDataStructure $serverParams
      * @return \Panadas\Http\Kernel
      */
-    protected function setServerParams(\Panadas\ArrayStore\HashArrayStore $serverParams)
+    protected function setServerParams(\Panadas\DataStructure\HashDataStructure $serverParams)
     {
         $this->serverParams = $serverParams;
 
@@ -194,7 +194,7 @@ class Kernel extends \Panadas\Event\EventPublisher
     }
 
     /**
-     * @return \Panadas\ArrayStore\HashArrayStore
+     * @return \Panadas\DataStructure\HashDataStructure
      */
     protected function getEnvParams()
     {
@@ -202,10 +202,10 @@ class Kernel extends \Panadas\Event\EventPublisher
     }
 
     /**
-     * @param  \Panadas\ArrayStore\HashArrayStore $envParams
+     * @param  \Panadas\DataStructure\HashDataStructure $envParams
      * @return \Panadas\Http\Kernel
      */
-    protected function setEnvParams(\Panadas\ArrayStore\HashArrayStore $envParams)
+    protected function setEnvParams(\Panadas\DataStructure\HashDataStructure $envParams)
     {
         $this->envParams = $envParams;
 

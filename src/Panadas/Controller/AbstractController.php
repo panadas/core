@@ -21,7 +21,7 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
 
         $this
             ->setName($name)
-            ->setArgs(new \Panadas\ArrayStore\HashArrayStore($args));
+            ->setArgs(new \Panadas\DataStructure\HashDataStructure($args));
     }
 
     /**
@@ -44,7 +44,7 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
     }
 
     /**
-     * @return \Panadas\ArrayStore\HashArrayStore
+     * @return \Panadas\DataStructure\HashDataStructure
      */
     protected function getArgs()
     {
@@ -52,10 +52,10 @@ abstract class AbstractController extends \Panadas\Http\AbstractKernelAware impl
     }
 
     /**
-     * @param  \Panadas\ArrayStore\HashArrayStore $args
+     * @param  \Panadas\DataStructure\HashDataStructure $args
      * @return \Panadas\Controller\AbstractController
      */
-    protected function setArgs(\Panadas\ArrayStore\HashArrayStore $args)
+    protected function setArgs(\Panadas\DataStructure\HashDataStructure $args)
     {
         $this->args = $args;
 
