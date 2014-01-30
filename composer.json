@@ -1,5 +1,5 @@
 {
-    "name": "panadas/core",
+    "name": "panadas/framework",
     "description": "PHP5 web application framework.",
     "license": "MIT",
     "type": "library",
