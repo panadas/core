@@ -99,9 +99,12 @@ class ListArrayStore extends \Panadas\ArrayStore\AbstractArrayStore
     {
         $this->removeAll();
 
-        array_walk($params, function ($value) {
-        	$this->append($name);
-        });
+        array_walk(
+            $params,
+            function ($value) {
+        	   $this->append($name);
+            }
+        );
 
         return $this;
     }

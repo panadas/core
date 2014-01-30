@@ -87,7 +87,7 @@ class HashArrayStore extends \Panadas\ArrayStore\AbstractArrayStore
         $this->removeAll();
 
         $callback = function ($value, $name) {
-        	$this->set($name, $value);
+            $this->set($name, $value);
         };
 
         array_walk($params, $callback);
