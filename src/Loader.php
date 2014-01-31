@@ -67,4 +67,12 @@ class Loader extends \Panadas\AbstractBase
 
         return "." . mb_substr($absolutePath, $rootDirLength);
     }
+
+    /**
+     * @return \Panadas\Loader
+     */
+    public static function create()
+    {
+        return new static(__DIR__ . "/../../../../");
+    }
 }

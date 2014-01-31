@@ -121,7 +121,7 @@ class ServiceContainer extends \Panadas\Kernel\AbstractKernelAware
     public function set($id, \Panadas\Service\ServiceInterface $service)
     {
         $this->getServices()->set($id, $service);
-        $this->getKernel()->addSubscriber($service);
+        $this->getKernel()->getEventPublisher()->addSubscriber($service);
 
         return $this;
     }
@@ -135,5 +135,14 @@ class ServiceContainer extends \Panadas\Kernel\AbstractKernelAware
         $this->getServices()->replace($services);
 
         return $this;
+    }
+
+    /**
+     * @param  \Panadas\Kernel\Kernel $kernel
+     * @return \Panadas\Service\ServiceContainer
+     */
+    public static function create(\Panadas\Kernel\Kernel $kernel)
+    {
+        return new static($kernel);
     }
 }

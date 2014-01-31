@@ -759,7 +759,7 @@ class Request extends \Panadas\Kernel\AbstractKernelAware
             "actionArgs" => $actionArgs
         ];
 
-        $event = $kernel->publish("forward", $params);
+        $event = $kernel->getEventPublisher()->publish("forward", $params);
 
         $request = $event->get("request");
         $response = $event->get("response");

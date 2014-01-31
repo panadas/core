@@ -1,7 +1,7 @@
 <?php
 namespace Panadas\Event;
 
-class EventPublisher extends \Panadas\AbstractBase
+class EventPublisher extends \Panadas\Kernel\AbstractKernelAware
 {
 
     // TODO: custom array store for event data
@@ -186,7 +186,7 @@ class EventPublisher extends \Panadas\AbstractBase
      */
     public function publish($name, array $params = [])
     {
-        $event = new \Panadas\Event\Event($this, $name, $params);
+        $event = new \Panadas\Event\Event($this->getKernel(), $name, $params);
 
         foreach ($this->getAllListeners($name) as $priority => $listeners) {
 
@@ -235,5 +235,14 @@ class EventPublisher extends \Panadas\AbstractBase
         }
 
         return true;
+    }
+
+    /**
+     * @param  \Panadas\Kernel\Kernel $kernel
+     * @return \Panadas\Event\EventPublisher
+     */
+    public static function create(\Panadas\Kernel\Kernel $kernel)
+    {
+        return new static($kernel);
     }
 }

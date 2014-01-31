@@ -1,11 +1,12 @@
 <?php
 namespace Panadas\Kernel;
 
-class Kernel extends \Panadas\Event\EventPublisher
+class Kernel extends \Panadas\AbstractBase
 {
 
     private $name;
     private $loader;
+    private $eventPublisher;
     private $serviceContainer;
     private $serverParams;
     private $envParams;
@@ -17,17 +18,17 @@ class Kernel extends \Panadas\Event\EventPublisher
     const ACTION_CLASS_REDIRECT = "Panadas\Controller\HttpRedirectActionController";
 
     /**
-     * @param string                        $name
-     * @param \Panadas\Loader               $loader
-     * @param \Panadas\Event\EventPublisher $eventPublisher
-     * @param callable                      $serviceContainerCallback
-     * @param array                         $serverParams
-     * @param array                         $envParams
+     * @param string          $name
+     * @param \Panadas\Loader $loader
+     * @param callable        $eventPublisherCallback
+     * @param callable        $serviceContainerCallback
+     * @param array           $serverParams
+     * @param array           $envParams
      */
     public function __construct(
         $name,
         \Panadas\Loader $loader,
-        \Panadas\Event\EventPublisher $eventPublisher,
+        callable $eventPublisherCallback,
         callable $serviceContainerCallback,
         array $serverParams = [],
         array $envParams = []
@@ -35,8 +36,9 @@ class Kernel extends \Panadas\Event\EventPublisher
         parent::__construct();
 
         $this
-            ->setLoader($loader)
             ->setName($name)
+            ->setLoader($loader)
+            ->setEventPublisher($eventPublisherCallback($this))
             ->setServerParams(new \Panadas\DataStructure\HashDataStructure($serverParams))
             ->setEnvParams(new \Panadas\DataStructure\HashDataStructure($envParams))
             ->setServiceContainer($serviceContainerCallback($this));
@@ -79,6 +81,25 @@ class Kernel extends \Panadas\Event\EventPublisher
     protected function setLoader(\Panadas\Loader $loader)
     {
         $this->loader = $loader;
+
+        return $this;
+    }
+
+    /**
+     * @return \Panadas\Event\EventPublisher
+     */
+    public function getEventPublisher()
+    {
+        return $this->eventPublisher;
+    }
+
+    /**
+     * @param  \Panadas\Event\EventPublisher $eventPublisher
+     * @return \Panadas\Kernel\Kernel
+     */
+    protected function setEventPublisher(\Panadas\Event\EventPublisher $eventPublisher)
+    {
+        $this->eventPublisher = $eventPublisher;
 
         return $this;
     }
@@ -329,6 +350,8 @@ class Kernel extends \Panadas\Event\EventPublisher
      */
     public function handle(\Panadas\Http\Request $request)
     {
+        $ep = $this->getEventPublisher();
+
         $params = [
             "request" => $request,
             "response" => null,
@@ -336,7 +359,7 @@ class Kernel extends \Panadas\Event\EventPublisher
             "actionArgs" => []
         ];
 
-        $event = $this->publish("handle", $params);
+        $event = $ep->publish("handle", $params);
 
         $request = $event->get("request");
         $response = $event->get("response");
@@ -367,7 +390,7 @@ class Kernel extends \Panadas\Event\EventPublisher
             "response" => $response
         ];
 
-        $event = $this->publish("send", $params);
+        $event = $ep->publish("send", $params);
 
         return $event->get("response")->send();
     }
@@ -378,14 +401,17 @@ class Kernel extends \Panadas\Event\EventPublisher
      */
     public static function create($name)
     {
-        $loader = new \Panadas\Loader(__DIR__ . "/../../../../../../");
-
-        $eventPublisher = new \Panadas\Event\EventPublisher();
-
-        $serviceContainerCallback = function (\Panadas\Kernel\Kernel $kernel) {
-            return new \Panadas\Service\ServiceContainer($kernel);
-        };
-
-        return new static($name, $loader, $eventPublisher, $serviceContainerCallback, $_SERVER, $_ENV);
+        return new static(
+            $name,
+            \Panadas\Loader::create(),
+            function (\Panadas\Kernel\Kernel $kernel) {
+                return \Panadas\Event\EventPublisher::create($kernel);
+            },
+            function (\Panadas\Kernel\Kernel $kernel) {
+                return \Panadas\Service\ServiceContainer::create($kernel);
+            },
+            $_SERVER,
+            $_ENV
+        );
     }
 }
