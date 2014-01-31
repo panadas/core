@@ -626,11 +626,10 @@ class Request extends \Panadas\Kernel\AbstractKernelAware
             return true;
         }
 
-        if (
-            $this->getKernel()->isDebugMode()
-            && ($this->hasQueryParam(static::PARAM_AJAX) || $this->hasDataParam(static::PARAM_AJAX))
-        ) {
-            return true;
+        if ($this->getKernel()->isDebugMode()) {
+            if ($this->hasQueryParam(static::PARAM_AJAX) || $this->hasDataParam(static::PARAM_AJAX)) {
+                return true;
+            }
         }
 
         return false;
