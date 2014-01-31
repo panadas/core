@@ -622,17 +622,15 @@ class Request extends \Panadas\Kernel\AbstractKernelAware
      */
     public function isAjax()
     {
-        if ($this->getHeader("X-Requested-With") === "XMLHttpRequest") {
-            return true;
-        }
-
-        if ($this->getKernel()->isDebugMode()) {
-            if ($this->hasQueryParam(static::PARAM_AJAX) || $this->hasDataParam(static::PARAM_AJAX)) {
-                return true;
-            }
-        }
-
-        return false;
+        return (($this->getHeader("X-Requested-With") === "XMLHttpRequest")
+            || (
+                $this->getKernel()->isDebugMode()
+                && (
+                    $this->hasQueryParam(static::PARAM_AJAX)
+                    || $this->hasDataParam(static::PARAM_AJAX)
+                )
+            )
+        );
     }
 
     /**
