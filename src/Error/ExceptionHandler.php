@@ -47,11 +47,78 @@ CONTENT;
 
         } else {
 
+            $loader = $kernel->getLoader();
             $path = $exception->getFile();
 
             try {
-                $path = $kernel->getLoader()->getRelativePath($path);
+                $path = $loader->getRelativePath($path);
             } catch (\Exception $ignore) {
+            }
+
+            $trace = null;
+
+            foreach ($exception->getTrace() as $line) {
+
+                if (!array_key_exists("class", $line)) {
+                    $line["class"] = null;
+                }
+
+                if (!array_key_exists("type", $line)) {
+                    $line["type"] = null;
+                }
+
+                if (!array_key_exists("function", $line)) {
+                    $line["function"] = null;
+                }
+
+                if (array_key_exists("args", $line)) {
+
+                    array_walk($line["args"], function(&$arg) {
+                    	$arg = \Panadas\Util\Php::toString($arg);
+                    });
+
+                    $line["args"] = implode(", ", $line["args"]);
+
+                } else {
+                    $line["args"] = null;
+                }
+
+                if (array_key_exists("file", $line)) {
+
+                    try {
+                        $line["file"] = $loader->getRelativePath($line["file"]);
+                    } catch (\Exception $ignore) {
+                    }
+
+                } else {
+                    $line["file"] = null;
+                }
+
+                if (!array_key_exists("line", $line)) {
+                    $line["line"] = null;
+                }
+
+
+                $trace .= sprintf(
+                    "
+                        <tr>
+                            <td>
+                                <small>
+                                    <kbd>%s%s%s(<span class=\"text-muted\">%s</span>)</kbd>
+                                    <br>
+                                    <code>%s:%d</code>
+                                </small>
+                            </td>
+                        </tr>
+                    ",
+                    $line["class"],
+                    $line["type"],
+                    $line["function"],
+                    $line["args"],
+                    $line["file"],
+                    $line["line"]
+                );
+
             }
 
             $content = <<<CONTENT
@@ -69,8 +136,10 @@ CONTENT;
                     <dt>Code</dt>
                     <dd><kbd>{$response->esc($exception->getCode())}</kbd></dd>
                 </dl>
-                <h5>Trace</h5>
-                <pre>{$response->esc($exception->getTraceAsString())}</pre>
+                <h3>Trace</h3>
+                <table class="table table-striped">
+                    {$trace}
+                </table>
 CONTENT;
 
         }
