@@ -1,7 +1,7 @@
 <?php
 namespace Panadas\Http;
 
-class DecoratedHtmlResponse extends \Panadas\Http\HtmlResponse
+class DecoratedHtmlResponse extends \Panadas\Http\HtmlResponse implements \Panadas\Http\DecoratedResponseInterface
 {
 
     /**
