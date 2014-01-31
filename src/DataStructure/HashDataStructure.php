@@ -9,17 +9,27 @@ class HashDataStructure extends \Panadas\DataStructure\AbstractDataStructure
      * @param  mixed  $default
      * @return mixed
      */
+    protected function handleDefault($name, $default = null)
+    {
+        if (is_callable($default)) {
+            return $default($name);
+        }
+
+        return $default;
+    }
+
+    /**
+     * @param  string $name
+     * @param  mixed  $default
+     * @return mixed
+     */
     public function get($name, $default = null)
     {
         if ($this->has($name)) {
             return $this->params[$name];
         }
 
-        if (is_callable($default)) {
-            return $default($name);
-        }
-
-        return $default;
+        return $this->handleDefault($name, $default);
     }
 
     /**
@@ -71,9 +81,17 @@ class HashDataStructure extends \Panadas\DataStructure\AbstractDataStructure
      */
     public function set($name, $value, $replace = true)
     {
-        if ($replace || !$this->has($name)) {
-            $this->params[$name] = $value;
+        if ($this->has($name)) {
+
+            if (!$replace) {
+                return $this;
+            }
+
+            $this->remove($name);
+
         }
+
+        $this->params[$name] = $value;
 
         return $this;
     }

@@ -83,7 +83,7 @@ class Response extends \Panadas\Kernel\AbstractKernelAware
         $this
             ->setCharset($charset)
             ->setContentType("text/plain")
-            ->setHeaders(new \Panadas\DataStructure\HashDataStructure($headers))
+            ->setHeaders(new \Panadas\DataStructure\NoCaseHashDataStructure($headers))
             ->setContent($content)
             ->setStatusCode(200);
     }
