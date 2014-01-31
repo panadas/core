@@ -31,7 +31,7 @@ CONTENT;
 
         return $response
             ->setStatusCode($statusCode)
-            ->setContent($content);
+            ->decorate($content);
     }
 
     /**

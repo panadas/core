@@ -350,8 +350,6 @@ class Kernel extends \Panadas\AbstractBase
      */
     public function handle(\Panadas\Http\Request $request)
     {
-        $ep = $this->getEventPublisher();
-
         $params = [
             "request" => $request,
             "response" => null,
@@ -359,7 +357,7 @@ class Kernel extends \Panadas\AbstractBase
             "actionArgs" => []
         ];
 
-        $event = $ep->publish("handle", $params);
+        $event = $this->getEventPublisher()->publish("handle", $params);
 
         $request = $event->get("request");
         $response = $event->get("response");
@@ -385,12 +383,28 @@ class Kernel extends \Panadas\AbstractBase
 
         }
 
+        return $this->send($request, $response);
+    }
+
+    /**
+     * @param  \Panadas\Http\Request  $request
+     * @param  \Panadas\Http\Response $response
+     * @return \Panadas\Http\Response
+     */
+    protected function send(\Panadas\Http\Request $request, \Panadas\Http\Response $response)
+    {
+        if ($request->isHead()) {
+            $response
+                ->setHeader("Content-Length", mb_strlen($response->getContent(), $response->getCharset()))
+                ->removeContent();
+        }
+
         $params = [
             "request" => $request,
             "response" => $response
         ];
 
-        $event = $ep->publish("send", $params);
+        $event = $this->getEventPublisher()->publish("send", $params);
 
         return $event->get("response")->send();
     }

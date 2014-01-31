@@ -8,13 +8,56 @@ class JsonResponse extends \Panadas\Http\Response
      * @param \Panadas\Kernel\Kernel $kernel
      * @param string                 $charset
      * @param array                  $headers
-     * @param mixed                  $content
+     * @param mixed                  $data
      */
-    public function __construct(\Panadas\Kernel\Kernel $kernel, $charset = null, array $headers = [], $content = null)
+    public function __construct(\Panadas\Kernel\Kernel $kernel, $charset = null, array $headers = [], $data = null)
     {
-        parent::__construct($kernel, $charset, $headers, $content);
+        parent::__construct($kernel, $charset, $headers);
 
-        $this->setContentType("application/json");
+        $this
+            ->setContentType("application/json")
+            ->setData($data);
+    }
+
+    /**
+     * @param  integer $options
+     * @param  integer $depth
+     * @return mixed
+     */
+    public function getData($options = null, $depth = 512)
+    {
+        return $this->decode($this->getContent(), $options, $depth);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasData()
+    {
+        return $this->hasContent();
+    }
+
+    /**
+     * @param  mixed $data
+     * @param  integer $options
+     * @param  integer $depth
+     * @return \Panadas\Http\JsonResponse
+     */
+    public function setData($data, $options = null, $depth = 512)
+    {
+        if (null === $data) {
+            return $this->removeContent();
+        }
+
+        return $this->setContent($this->encode($data, $options, $depth));
+    }
+
+    /**
+     * @return \Panadas\Http\JsonResponse
+     */
+    public function removeData()
+    {
+        return $this->setData(null);
     }
 
     /**
@@ -36,31 +79,24 @@ class JsonResponse extends \Panadas\Http\Response
     }
 
     /**
-     * @param  boolean $raw
-     * @return mixed
+     * @param  mixed   $content
+     * @param  integer $options
+     * @param  integer $depth
+     * @return string
      */
-    public function getContent($raw = true)
+    public function encode($content, $options = null, $depth = 512)
     {
-        $content = parent::getContent();
-
-        if ((null !== $content) && !$raw) {
-            $content = json_decode($content);
-        }
-
-        return $content;
+        return json_encode($content, $options, $depth);
     }
 
     /**
      * @param  string  $content
-     * @param  boolean $raw
-     * @return \Panadas\Http\JsonResponse
+     * @param  integer $options
+     * @param  integer $depth
+     * @return mixed
      */
-    public function setContent($content, $raw = true)
+    public function decode($content, $options = null, $depth = 512)
     {
-        if ((null !== $content) && $raw) {
-            $content = json_encode($content);
-        }
-
-        return parent::setContent($content);
+        return json_decode($content, true, $depth, $options);
     }
 }

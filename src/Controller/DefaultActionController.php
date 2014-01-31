@@ -19,6 +19,6 @@ class DefaultActionController extends \Panadas\Controller\AbstractActionControll
 CONTENT;
 
         return \Panadas\Http\DecoratedHtmlResponse::create($request->getKernel())
-            ->setContent($content);
+            ->decorate($content);
     }
 }

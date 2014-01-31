@@ -72,11 +72,7 @@ abstract class AbstractActionController extends \Panadas\Controller\AbstractCont
      */
     protected function head(\Panadas\Http\Request $request)
     {
-        $response = $this->get($request);
-
-        return $response
-            ->setHeader("Content-Length", mb_strlen($response->getContent(), $response->getCharset()))
-            ->removeContent();
+        return $this->get($request);
     }
 
     /**

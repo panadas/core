@@ -186,7 +186,7 @@ class Response extends \Panadas\Kernel\AbstractKernelAware
     }
 
     /**
-     * @param  string $content
+     * @param  string  $content
      * @return \Panadas\Http\Response
      */
     public function setContent($content)
@@ -292,24 +292,6 @@ class Response extends \Panadas\Kernel\AbstractKernelAware
     }
 
     /**
-     * @param  string $content
-     * @return \Panadas\Http\Response
-     */
-    public function prependContent($content)
-    {
-        return $this->setContent($content . $this->getContent());
-    }
-
-    /**
-     * @param  string $content
-     * @return \Panadas\Http\Response
-     */
-    public function appendContent($content)
-    {
-        return $this->setContent($this->getContent() . $content);
-    }
-
-    /**
      * @return boolean
      */
     public function isSuccess()
@@ -358,11 +340,21 @@ class Response extends \Panadas\Kernel\AbstractKernelAware
     }
 
     /**
-     * @return string
+     * @param  string $content
+     * @return \Panadas\Http\Response
      */
-    public function render()
+    public function prependContent($content)
     {
-        return $this->getContent();
+        return $this->setContent($content . $this->getContent());
+    }
+
+    /**
+     * @param  string $content
+     * @return \Panadas\Http\Response
+     */
+    public function appendContent($content)
+    {
+        return $this->setContent($this->getContent() . $content);
     }
 
     /**

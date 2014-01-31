@@ -77,7 +77,7 @@ CONTENT;
 
         return $response
             ->setStatusCode(500)
-            ->setContent($content)
+            ->decorate($content)
             ->send();
     }
 }

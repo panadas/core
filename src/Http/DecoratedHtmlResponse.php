@@ -8,20 +8,7 @@ class DecoratedHtmlResponse extends \Panadas\Http\HtmlResponse
      * @param  string $content
      * @return \Panadas\Http\DecoratedHtmlResponse
      */
-    public function setContent($content)
-    {
-        if (null !== $content) {
-            $this->decorate($content);
-        }
-
-        return parent::setContent($content);
-    }
-
-    /**
-     * @param  string $content
-     * @return \Panadas\Http\DecoratedHtmlResponse
-     */
-    public function decorate(&$content)
+    public function decorate($content)
     {
         $name = $this->esc($this->getKernel()->getName());
 
@@ -48,5 +35,7 @@ class DecoratedHtmlResponse extends \Panadas\Http\HtmlResponse
                 </body>
             </html>
 CONTENT;
+
+        return $this->setContent($content);
     }
 }

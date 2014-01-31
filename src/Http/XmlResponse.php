@@ -1,7 +1,7 @@
 <?php
 namespace Panadas\Http;
 
-class HtmlResponse extends \Panadas\Http\XmlResponse
+class XmlResponse extends \Panadas\Http\Response
 {
 
     /**
@@ -14,7 +14,7 @@ class HtmlResponse extends \Panadas\Http\XmlResponse
     {
         parent::__construct($kernel, $charset, $headers, $content);
 
-        $this->setContentType("text/html");
+        $this->setContentType("application/xml");
     }
 
     /**
@@ -30,10 +30,10 @@ class HtmlResponse extends \Panadas\Http\XmlResponse
         }
 
         $domDocument = new \DOMDocument(null, $this->getCharset());
-        $domDocument->loadHTML($content, $options);
+        $domDocument->loadXML($content, $options);
 
         if (false === $domDocument) {
-            throw new \Exception("Failed to load HTML");
+            throw new \Exception("Failed to load XML");
         }
 
         return $domDocument;
@@ -49,32 +49,20 @@ class HtmlResponse extends \Panadas\Http\XmlResponse
     }
 
     /**
-     * @param  string $content
-     * @return \Panadas\Http\HtmlResponse
+     * @param  string $string
+     * @return string
      */
-    public function prependContent($content)
+    public function esc($string)
     {
-        $existingContent = $this->getContent();
-
-        if (false === mb_strpos($existingContent, "<body>", null, $this->getCharset())) {
-            return parent::prependContent($content);
-        }
-
-        return $this->setContent(str_replace("<body>", "<body>{$content}", $existingContent));
+        return htmlspecialchars($string, ENT_COMPAT, $this->getCharset());
     }
 
     /**
-     * @param  string $content
-     * @return \Panadas\Http\HtmlResponse
+     * @param  string $string
+     * @return string
      */
-    public function appendContent($content)
+    public function escAttr($string)
     {
-        $existingContent = $this->getContent();
-
-        if (false === mb_strpos($existingContent, "</body>", null, $this->getCharset())) {
-            return parent::prependContent($content);
-        }
-
-        return $this->setContent(str_replace("</body>", "{$content}</body>", $existingContent));
+        return htmlspecialchars($string, ENT_QUOTES, $this->getCharset());
     }
 }
