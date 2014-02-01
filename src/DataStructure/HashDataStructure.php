@@ -4,18 +4,36 @@ namespace Panadas\DataStructure;
 class HashDataStructure extends \Panadas\DataStructure\AbstractDataStructure
 {
 
-    /**
-     * @param  string $name
-     * @param  mixed  $default
-     * @return mixed
-     */
-    protected function handleDefault($name, $default = null)
-    {
-        if (is_callable($default)) {
-            return $default($name);
-        }
+    private $caseSensitive;
 
-        return $default;
+    /**
+     * @param array   $params
+     * @param boolean $caseSensitive
+     */
+    public function __construct(array $params = [], $caseSensitive = true)
+    {
+        parent::__construct($params);
+
+        $this->setCaseSensitive($caseSensitive);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isCaseSensitive()
+    {
+        return $this->caseSensitive;
+    }
+
+    /**
+     * @param  boolean $caseSensitive
+     * @return \Panadas\DataStructure\HashDataStructure
+     */
+    protected function setCaseSensitive($caseSensitive)
+    {
+        $this->caseSensitive = (bool) $caseSensitive;
+
+        return $this;
     }
 
     /**
@@ -25,11 +43,16 @@ class HashDataStructure extends \Panadas\DataStructure\AbstractDataStructure
      */
     public function get($name, $default = null)
     {
-        if ($this->has($name)) {
-            return $this->params[$name];
+        $storedName = $this->getStoredName($name);
+        if (null !== $storedName) {
+            return $this->params[$storedName];
         }
 
-        return $this->handleDefault($name, $default);
+        if (is_callable($default)) {
+            return $default($name);
+        }
+
+        return $default;
     }
 
     /**
@@ -46,7 +69,7 @@ class HashDataStructure extends \Panadas\DataStructure\AbstractDataStructure
      */
     public function has($name)
     {
-        return array_key_exists($name, $this->getAll());
+        return (null !== $this->getStoredName($name));
     }
 
     /**
@@ -55,8 +78,9 @@ class HashDataStructure extends \Panadas\DataStructure\AbstractDataStructure
      */
     public function remove($name)
     {
-        if ($this->has($name)) {
-            unset($this->params[$name]);
+        $storedName = $this->getStoredName($name);
+        if (null !== $storedName) {
+            unset($this->params[$storedName]);
         }
 
         return $this;
@@ -104,12 +128,34 @@ class HashDataStructure extends \Panadas\DataStructure\AbstractDataStructure
     {
         $this->removeAll();
 
-        $callback = function ($value, $name) {
-            $this->set($name, $value);
-        };
-
-        array_walk($params, $callback);
+        array_walk(
+            $params,
+            function ($value, $name) {
+                $this->set($name, $value);
+            }
+        );
 
         return $this;
+    }
+
+    /**
+     * @param  string $name
+     * @return string
+     */
+    public function getStoredName($name)
+    {
+        $params = $this->getAll();
+
+        if ($this->isCaseSensitive()) {
+            return array_key_exists($name, $params) ? $name : null;
+        }
+
+        foreach ($params as $key => $value) {
+            if (0 === strcasecmp($key, $name)) {
+                return $key;
+            }
+        }
+
+        return null;
     }
 }

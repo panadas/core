@@ -36,7 +36,7 @@ class Request extends \Panadas\Kernel\AbstractKernelAware
 
         $this
             ->setUri($this->detectUri())
-            ->setHeaders(new \Panadas\DataStructure\NoCaseHashDataStructure($headers))
+            ->setHeaders(new \Panadas\DataStructure\HashDataStructure($headers, false))
             ->setQueryParams(new \Panadas\DataStructure\HashDataStructure($queryParams))
             ->setDataParams(new \Panadas\DataStructure\HashDataStructure($dataParams))
             ->setCookies(new \Panadas\DataStructure\HashDataStructure($cookies));

@@ -111,12 +111,12 @@ CONTENT;
                             </td>
                         </tr>
                     ",
-                    $line["class"],
-                    $line["type"],
-                    $line["function"],
-                    $line["args"],
-                    $line["file"],
-                    $line["line"]
+                    $response->esc($line["class"]),
+                    $response->esc($line["type"]),
+                    $response->esc($line["function"]),
+                    $response->esc($line["args"]),
+                    $response->esc($line["file"]),
+                    $response->esc($line["line"])
                 );
 
             }
