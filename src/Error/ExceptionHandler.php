@@ -73,8 +73,8 @@ CONTENT;
 
                 if (array_key_exists("args", $line)) {
 
-                    array_walk($line["args"], function(&$arg) {
-                    	$arg = \Panadas\Util\Php::toString($arg);
+                    array_walk($line["args"], function (&$arg) {
+                        $arg = \Panadas\Util\Php::toString($arg);
                     });
 
                     $line["args"] = implode(", ", $line["args"]);
