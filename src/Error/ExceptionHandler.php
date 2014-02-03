@@ -55,9 +55,12 @@ CONTENT;
             } catch (\Exception $ignore) {
             }
 
-            $trace = null;
+            $trace = $exception->getTrace();
+            $index = count($trace);
 
-            foreach ($exception->getTrace() as $line) {
+            $traceContent = null;
+
+            foreach ($trace as $line) {
 
                 if (!array_key_exists("class", $line)) {
                     $line["class"] = null;
@@ -99,9 +102,10 @@ CONTENT;
                 }
 
 
-                $trace .= sprintf(
+                $traceContent .= sprintf(
                     "
                         <tr>
+                            <td><span class=\"badge\"><small>%d</small></span></td>
                             <td>
                                 <small>
                                     <kbd>%s%s%s(<span class=\"text-muted\">%s</span>)</kbd>
@@ -111,6 +115,7 @@ CONTENT;
                             </td>
                         </tr>
                     ",
+                    $response->esc($index),
                     $response->esc($line["class"]),
                     $response->esc($line["type"]),
                     $response->esc($line["function"]),
@@ -119,6 +124,7 @@ CONTENT;
                     $response->esc($line["line"])
                 );
 
+                $index--;
             }
 
             $content = <<<CONTENT
@@ -138,7 +144,7 @@ CONTENT;
                 </dl>
                 <h3>Trace</h3>
                 <table class="table table-striped">
-                    {$trace}
+                    {$traceContent}
                 </table>
 CONTENT;
 
