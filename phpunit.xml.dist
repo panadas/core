@@ -3,7 +3,7 @@
 <phpunit bootstrap="tests/bootstrap.php" colors="true">
 
     <testsuites>
-        <testsuite name="Panadas Core Test Suite">
+        <testsuite name="panadas/framework">
             <directory>tests/</directory>
         </testsuite>
     </testsuites>
@@ -13,5 +13,9 @@
             <directory suffix=".php">src/</directory>
         </whitelist>
     </filter>
+
+    <logging>
+        <log type="coverage-text" target="php://output" showUncoveredFiles="false"/>
+    </logging>
 
 </phpunit>

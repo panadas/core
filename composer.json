@@ -10,7 +10,10 @@
         }
     ],
     "require": {
-        "php": ">=5.5.0"
+        "php": ">=5.5.0",
+        "panadas/data-structure": "~1.0",
+        "panadas/event-manager": "~1.0",
+        "panadas/http-message": "~1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "~3.7.0",
@@ -18,7 +21,7 @@
     },
     "autoload": {
         "psr-4" : {
-            "Panadas\\": "src/"
+            "Panadas\\Framework\\": "src/"
         }
     },
     "minimum-stability": "dev",
