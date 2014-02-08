@@ -10,12 +10,16 @@ class Application extends Publisher
 {
 
     private $name;
+
     private $services;
+
     private $debugMode = false;
 
     const ENVIRONMENT_PROD = "prod";
+
     const ENVIRONMENT_TEST = "test";
-    const ENVIRONMENT_DEV  = "dev";
+
+    const ENVIRONMENT_DEV = "dev";
 
     public function __construct($name, array $services = [], $environment = self::ENVIRONMENT_PROD, $debugMode = false)
     {
@@ -84,7 +88,9 @@ class Application extends Publisher
             $actionArgs = $eventParams->get("actionArgs")->all();
         } else {
             $actionClass = "HttpErrorAction";
-            $actionArgs = ["statusCode" => 404];
+            $actionArgs = [
+                "statusCode" => 404
+            ];
         }
 
         return $this->subrequest($request, $actionClass, $actionArgs);
@@ -92,13 +98,13 @@ class Application extends Publisher
 
     public function subrequest(Request $request, $actionClass, array $actionArgs = [])
     {
-        if (!class_exists($actionClass)) {
+        if (! class_exists($actionClass)) {
             throw new \RuntimeException("Class {$actionClass} not found");
         }
 
         $abstractClass = __NAMESPACE__ . "\AbstractAction";
 
-        if (!is_subclass_of($actionClass, $abstractClass)) {
+        if (! is_subclass_of($actionClass, $abstractClass)) {
             throw new \RuntimeException("Class {$actionClass} must extend {$abstractClass}");
         }
 
@@ -120,7 +126,7 @@ class Application extends Publisher
 
         $response = $action->handle($request);
 
-        if (!$response instanceof Response) {
+        if (! $response instanceof Response) {
             throw new \RuntimeException("A response was not provided by {$actionClass}");
         }
 

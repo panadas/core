@@ -36,7 +36,7 @@ class ServicesHash extends Hash implements ApplicationAwareInterface
             $value = $value($application);
         }
 
-        if (!$value instanceof ServiceInterface) {
+        if (! $value instanceof ServiceInterface) {
             throw new \RuntimeException("Cannot create service instance: {$key}");
         }
 
