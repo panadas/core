@@ -3,6 +3,8 @@ namespace Panadas\Framework;
 
 use Panadas\EventManager\Publisher;
 use Panadas\DataStructure\Hash;
+use Panadas\HttpMessage\Request;
+use Panadas\HttpMessage\Response;
 
 class Application extends Publisher
 {
@@ -96,8 +98,10 @@ class Application extends Publisher
             throw new \RuntimeException("Class {$actionClass} not found");
         }
 
-        if (!is_subclass_of($actionClass, "AbstractAction")) {
-            throw new \RuntimeException("Class {$actionClass} must extend AbstractAction");
+        $abstractClass = __NAMESPACE__ . "\AbstractAction";
+
+        if (!is_subclass_of($actionClass, $abstractClass)) {
+            throw new \RuntimeException("Class {$actionClass} must extend {$abstractClass}");
         }
 
         $action = new $actionClass($this, $actionArgs);
@@ -107,7 +111,7 @@ class Application extends Publisher
             "request" => $request,
             "response" => null,
             "action" => $action
-            ]);
+        ]);
 
         $eventParams = $event->getParams();
 
