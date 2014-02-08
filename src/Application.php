@@ -22,9 +22,9 @@ class Application extends Publisher
         parent::__construct();
 
         $this
-        ->setName($name)
-        ->setServices(new ServicesHash($this, $services))
-        ->setDebugMode($debugMode);
+            ->setName($name)
+            ->setServices(new ServicesHash($this, $services))
+            ->setDebugMode($debugMode);
     }
 
     public function getName()
@@ -84,9 +84,7 @@ class Application extends Publisher
             $actionArgs = $eventParams->get("actionArgs")->all();
         } else {
             $actionClass = "HttpErrorAction";
-            $actionArgs = [
-            "statusCode" => 404
-            ];
+            $actionArgs = ["statusCode" => 404];
         }
 
         return $this->subrequest($request, $actionClass, $actionArgs);
