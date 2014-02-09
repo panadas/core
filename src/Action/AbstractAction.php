@@ -67,21 +67,21 @@ abstract class AbstractAction extends AbstractApplicationAware
 
     protected function get(Request $request)
     {
-        return $this->getApplication()->subrequest($request, "HttpError", ["statusCode" => 400]);
+        return $this->getApplication()->subrequest("HttpError", ["statusCode" => 400]);
     }
 
     protected function post(Request $request)
     {
-        return $this->getApplication()->subrequest($request, "HttpError", ["statusCode" => 400]);
+        return $this->getApplication()->subrequest("HttpError", ["statusCode" => 400]);
     }
 
     protected function put(Request $request)
     {
-        return $this->getApplication()->subrequest($request, "HttpError", ["statusCode" => 400]);
+        return $this->getApplication()->subrequest("HttpError", ["statusCode" => 400]);
     }
 
     protected function delete(Request $request)
     {
-        return $this->getApplication()->subrequest($request, "HttpError", ["statusCode" => 400]);
+        return $this->getApplication()->subrequest("HttpError", ["statusCode" => 400]);
     }
 }
