@@ -28,23 +28,35 @@ class ServicesHash extends Hash implements ApplicationAwareInterface
         return $this;
     }
 
-    public function set($key, $value)
+    protected function filter(&$key, &$value = null)
     {
-        $application = $this->getApplication();
+        if (null === $value) {
+            return;
+        }
 
         if (is_callable($value)) {
-            $value = $value($application);
+            $value = $value($this->getApplication());
+        }
+    }
+
+    protected function validate($key, $value)
+    {
+        if (!$value instanceof ServiceInterface) {
+            throw new \InvalidArgumentException("Invalid service: {$key}");
         }
 
-        if (!$value instanceof ServiceInterface) {
-            throw new \RuntimeException("Cannot create service instance: {$key}");
-        }
+        return true;
+    }
+
+    public function set($key, $value)
+    {
+        parent::set($key, $value);
 
         if ($value instanceof SubscriberInterface) {
-            $application->subscribe($value);
+            $this->getApplication()->attach($value);
         }
 
-        return parent::set($key, $value);
+        return $this;
     }
 
     public function remove($key)
@@ -52,7 +64,7 @@ class ServicesHash extends Hash implements ApplicationAwareInterface
         $service = $this->get($key);
 
         if ($service instanceof SubscriberInterface) {
-            $this->getApplication()->unsubscribe($service);
+            $this->getApplication()->detach($service);
         }
 
         return parent::remove($key);
