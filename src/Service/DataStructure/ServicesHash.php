@@ -1,10 +1,11 @@
 <?php
-namespace Panadas\Framework\Service;
+namespace Panadas\Framework\Service\DataStructure;
 
 use Panadas\DataStructure\Hash;
 use Panadas\EventManager\SubscriberInterface;
 use Panadas\Framework\Application;
 use Panadas\Framework\ApplicationAwareInterface;
+use Panadas\Framework\Service\ServiceInterface;
 
 class ServicesHash extends Hash implements ApplicationAwareInterface
 {

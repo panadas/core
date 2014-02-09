@@ -3,7 +3,7 @@ namespace Panadas\Framework;
 
 use Panadas\DataStructure\Hash;
 use Panadas\EventManager\Publisher;
-use Panadas\Framework\Service\ServicesHash;
+use Panadas\Framework\Service\DataStructure\ServicesHash;
 use Panadas\HttpMessage\Request;
 use Panadas\HttpMessage\Response;
 
@@ -197,6 +197,17 @@ class Application extends Publisher
             "application" => $this,
             "response" => $response
         ]);
+
+        if ($this->getOriginalRequest()->isHead() && $response->hasContent()) {
+
+            $response->getHeaders()->set(
+                "Content-Length",
+                mb_strlen($response->getContent(), $response->getCharset())
+            );
+
+            $response->removeContent();
+
+        }
 
         $response->send();
 
