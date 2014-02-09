@@ -1,5 +1,5 @@
 <?php
-namespace Panadas\Framework;
+namespace Panadas\Framework\Service;
 
 interface ServiceInterface
 {

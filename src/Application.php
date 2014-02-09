@@ -1,8 +1,9 @@
 <?php
 namespace Panadas\Framework;
 
-use Panadas\EventManager\Publisher;
 use Panadas\DataStructure\Hash;
+use Panadas\EventManager\Publisher;
+use Panadas\Framework\Service\ServicesHash;
 use Panadas\HttpMessage\Request;
 use Panadas\HttpMessage\Response;
 
@@ -96,7 +97,7 @@ class Application extends Publisher
             throw new \RuntimeException("Class {$actionClass} not found");
         }
 
-        $abstractClass = __NAMESPACE__ . "\AbstractAction";
+        $abstractClass = __NAMESPACE__ . "\Action\AbstractAction";
 
         if (!is_subclass_of($actionClass, $abstractClass)) {
             throw new \RuntimeException("Class {$actionClass} must extend {$abstractClass}");
