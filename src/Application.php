@@ -124,7 +124,6 @@ class Application extends Publisher
         $this->setOriginalRequest($request);
 
         $event = $this->publish("handle", [
-            "application" => $this,
             "request" => $request,
             "response" => null,
             "actionClass" => $actionClass,
@@ -169,7 +168,6 @@ class Application extends Publisher
         $request = clone $this->getOriginalRequest();
 
         $event = $this->publish("subrequest", [
-            "application" => $this,
             "request" => $request,
             "response" => null,
             "action" => $action
@@ -194,7 +192,6 @@ class Application extends Publisher
     public function send(Response $response)
     {
         $event = $this->publish("send", [
-            "application" => $this,
             "response" => $response
         ]);
 
