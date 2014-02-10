@@ -1,11 +1,10 @@
 <?php
-namespace Panadas\Framework\Service\DataStructure;
+namespace Panadas\Framework\DataStructure;
 
 use Panadas\DataStructure\Hash;
 use Panadas\EventManager\SubscriberInterface;
 use Panadas\Framework\Application;
 use Panadas\Framework\ApplicationAwareInterface;
-use Panadas\Framework\Service\ServiceInterface;
 
 class ServicesHash extends Hash implements ApplicationAwareInterface
 {
@@ -33,22 +32,9 @@ class ServicesHash extends Hash implements ApplicationAwareInterface
 
     protected function filter(&$key, &$value = null)
     {
-        if (null === $value) {
-            return;
-        }
-
-        if (is_callable($value)) {
+        if ((null !== $value) && is_callable($value)) {
             $value = $value($this->getApplication());
         }
-    }
-
-    protected function validate($key, $value)
-    {
-        if (!$value instanceof ServiceInterface) {
-            throw new \InvalidArgumentException("Invalid service: {$key}");
-        }
-
-        return true;
     }
 
     public function set($key, $value)

@@ -3,7 +3,7 @@ namespace Panadas\Framework;
 
 use Panadas\DataStructure\Hash;
 use Panadas\EventManager\Publisher;
-use Panadas\Framework\Service\DataStructure\ServicesHash;
+use Panadas\Framework\DataStructure\ServicesHash;
 use Panadas\HttpMessage\Request;
 use Panadas\HttpMessage\Response;
 
