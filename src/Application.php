@@ -10,6 +10,7 @@ use Panadas\HttpMessage\Response;
 class Application extends Publisher
 {
 
+    private $rootDir;
     private $name;
     private $services;
     private $environment;
@@ -20,15 +21,42 @@ class Application extends Publisher
     const ENVIRONMENT_TEST = "test";
     const ENVIRONMENT_DEV  = "dev";
 
-    public function __construct($name, array $services = [], $environment = self::ENVIRONMENT_PROD, $debugMode = false)
-    {
+    public function __construct(
+        $name,
+        array $services = [],
+        $environment = self::ENVIRONMENT_PROD,
+        $debugMode = false,
+        $rootDir = null
+    ) {
         parent::__construct();
 
+        if (null === $rootDir) {
+            $rootDir = __DIR__ . "/../../../../";
+        }
+
         $this
+            ->setRootDir($rootDir)
             ->setName($name)
             ->setEnvironment($environment)
             ->setDebugMode($debugMode)
             ->setServices(new ServicesHash($this, $services));
+    }
+
+    public function getRootDir()
+    {
+        return $this->rootDir;
+    }
+
+    protected function setRootDir($rootDir)
+    {
+        $realpath = realpath($rootDir);
+        if (false === $realpath) {
+            throw new \InvalidArgumentException("Invalid root directory: {$rootDir}");
+        }
+
+        $this->rootDir = $realpath;
+
+        return $this;
     }
 
     public function getName()
@@ -98,6 +126,31 @@ class Application extends Publisher
     protected function removeOriginalRequest()
     {
         return $this->setOriginalRequest(null);
+    }
+
+    public function getAbsolutePath($relativePath, $rootDir = null)
+    {
+        if (null === $rootDir) {
+            $rootDir = $this->getRootDir();
+        }
+
+        return $rootDir . DIRECTORY_SEPARATOR . trim($relativePath, DIRECTORY_SEPARATOR);
+    }
+
+    public function getRelativePath($absolutePath, $rootDir = null)
+    {
+        if (null === $rootDir) {
+            $rootDir = $this->getRootDir();
+        }
+
+        $rootDir = rtrim($rootDir, DIRECTORY_SEPARATOR);
+        $rootDirLength = mb_strlen($rootDir);
+
+        if (mb_substr($absolutePath, 0, $rootDirLength) !== $rootDir) {
+            throw new \InvalidArgumentException("Absolute path is not within root directory");
+        }
+
+        return "." . mb_substr($absolutePath, $rootDirLength);
     }
 
     public function isHandling()
