@@ -34,6 +34,8 @@ class Application extends Publisher
             $rootDir = __DIR__ . "/../../../../";
         }
 
+        register_shutdown_function([$this, "shutdown"]);
+
         $this
             ->setRootDir($rootDir)
             ->setName($name)
@@ -262,5 +264,10 @@ class Application extends Publisher
         $response->send();
 
         return $this;
+    }
+
+    public function shutdown()
+    {
+        $this->publish("shutdown");
     }
 }
