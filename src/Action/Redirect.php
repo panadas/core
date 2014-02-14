@@ -27,8 +27,11 @@ class Redirect extends AbstractAction
             ->render(
                 '
                     <div class="jumbotron">
-                        <h1>Redirecting...</h1>
-                        <p>You are being redirected to <a href="' . $response->escAttr($uri) . '">' . $response->esc($uri) . '</a>
+                        <h1>Redirecting&hellip;</h1>
+                        <p>
+                            You are being redirected to
+                            <a href="' . $response->escAttr($uri) . '">' . $response->esc($uri) . '</a>
+                        </p>
                     </div>
                 '
             );
