@@ -162,9 +162,9 @@ class Application extends Publisher
 
     public function publish($name, array $params = [])
     {
-        $services = $this->getServices();
-        if ($services->has("logger")) {
-            $services->get("logger")->info("Publishing event: {$name}");
+        $logger = $this->getServices()->get("logger");
+        if ($logger) {
+            $logger->info("Publishing event: {$name}");
         }
 
         return parent::publish($name, $params);
