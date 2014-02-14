@@ -56,7 +56,24 @@ abstract class AbstractAction extends AbstractApplicationAware
 
         $handler = mb_strtolower($method);
 
-        return $this->$handler($request);
+        $response = $this->before($request);
+        if ($response instanceof Response) {
+            return $response;
+        }
+
+        $response = $this->$handler($request);
+
+        $this->after($request, $response);
+
+        return $response;
+    }
+
+    protected function before(Request $request)
+    {
+    }
+
+    protected function after(Request $request, Response $response)
+    {
     }
 
     protected function head(Request $request)
@@ -66,21 +83,21 @@ abstract class AbstractAction extends AbstractApplicationAware
 
     protected function get(Request $request)
     {
-        return $this->getApplication()->subrequest("HttpError", ["statusCode" => 400]);
+        return $this->getApplication()->httpError400();
     }
 
     protected function post(Request $request)
     {
-        return $this->getApplication()->subrequest("HttpError", ["statusCode" => 400]);
+        return $this->getApplication()->httpError400();
     }
 
     protected function put(Request $request)
     {
-        return $this->getApplication()->subrequest("HttpError", ["statusCode" => 400]);
+        return $this->getApplication()->httpError400();
     }
 
     protected function delete(Request $request)
     {
-        return $this->getApplication()->subrequest("HttpError", ["statusCode" => 400]);
+        return $this->getApplication()->httpError400();
     }
 }

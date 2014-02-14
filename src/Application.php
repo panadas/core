@@ -193,12 +193,11 @@ class Application extends Publisher
         }
 
         $actionClass = $eventParams->get("actionClass");
-        if ($actionClass) {
-            $actionArgs = $eventParams->get("actionArgs")->all();
-        } else {
-            $actionClass = "HttpErrorAction";
-            $actionArgs = ["statusCode" => 404];
+        if (null === $actionClass) {
+            return $this->httpError404();
         }
+
+        $actionArgs = $eventParams->get("actionArgs")->all();
 
         return $this->subrequest($actionClass, $actionArgs);
     }
@@ -242,6 +241,42 @@ class Application extends Publisher
         }
 
         return $response;
+    }
+
+    public function redirect($uri, $statusCode = 302)
+    {
+        return $this->subrequest("Panadas\Framework\Action\Redirect", [
+            "uri" => $uri,
+            "statusCode" => $statusCode
+        ]);
+    }
+
+    public function httpError($statusCode, $message = null)
+    {
+        return $this->subrequest("Panadas\Framework\Action\HttpError", [
+            "statusCode" => $statusCode,
+            "message" => $message
+        ]);
+    }
+
+    public function httpError400($message = null)
+    {
+        return $this->httpError(400, $message);
+    }
+
+    public function httpError401($message = null)
+    {
+        return $this->httpError(401, $message);
+    }
+
+    public function httpError403($message = null)
+    {
+        return $this->httpError(403, $message);
+    }
+
+    public function httpError404($message = null)
+    {
+        return $this->httpError(404, $message);
     }
 
     public function send(Response $response)
