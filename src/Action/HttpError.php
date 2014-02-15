@@ -9,7 +9,7 @@ class HttpError extends AbstractAction
 
     protected function get(Request $request)
     {
-        $response = new HtmlResponse($this->getApplication(), apache_response_headers());
+        $response = new HtmlResponse($this->getApplication());
 
         $args = $this->getArgs();
         $statusCode = $args->get("statusCode");
