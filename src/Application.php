@@ -281,11 +281,14 @@ class Application extends Publisher
 
     public function send(Response $response)
     {
+        $request = clone $this->getOriginalRequest();
+
         $event = $this->publish("send", [
+            "request" => $request,
             "response" => $response
         ]);
 
-        if ($this->getOriginalRequest()->isHead() && $response->hasContent()) {
+        if ($request->isHead() && $response->hasContent()) {
 
             $response->getHeaders()->set(
                 "Content-Length",
