@@ -30,13 +30,6 @@ class ServicesHash extends Hash implements ApplicationAwareInterface
         return $this;
     }
 
-    protected function filter(&$key, &$value = null)
-    {
-        if ((null !== $value) && is_callable($value)) {
-            $value = $value($this->getApplication());
-        }
-    }
-
     public function set($key, $value)
     {
         parent::set($key, $value);

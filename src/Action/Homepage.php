@@ -9,7 +9,7 @@ class Homepage extends AbstractAction
 
     protected function get(Request $request)
     {
-        return (new HtmlResponse($this->getApplication(), apache_response_headers()))->render(
+        return (new HtmlResponse($this->getApplication()))->render(
             '
                 <div class="jumbotron">
                     <h1>It works!</h1>

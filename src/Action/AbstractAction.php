@@ -12,11 +12,15 @@ abstract class AbstractAction extends AbstractApplicationAware
 
     private $args;
 
-    public function __construct(Application $application, array $args = [])
+    public function __construct(Application $application, Hash $args = null)
     {
         parent::__construct($application);
 
-        $this->setArgs(new Hash($args));
+        if (null === $args) {
+            $args = new Hash();
+        }
+
+        $this->setArgs($args);
     }
 
     public function getArgs()

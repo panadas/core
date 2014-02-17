@@ -11,9 +11,13 @@ class HtmlResponse extends ParentHttpResponse implements ApplicationAwareInterfa
     private $application;
     private $title;
 
-    public function __construct(Application $application, array $headers = [], $content = null, $charset = null)
-    {
-        parent::__construct($headers, $content, $charset);
+    public function __construct(
+        Application $application,
+        $charset = null,
+        HeadersHash $headers = null,
+        CookiesHash $cookies = null
+    ) {
+        parent::__construct($charset, $headers, $cookies);
 
         $this
             ->setApplication($application)

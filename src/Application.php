@@ -2,6 +2,8 @@
 namespace Panadas\Framework;
 
 use Panadas\DataStructure\Hash;
+use Panadas\EventManager\DataStructure\SubscribersArrayList;
+use Panadas\EventManager\Event;
 use Panadas\EventManager\Publisher;
 use Panadas\Framework\DataStructure\ServicesHash;
 use Panadas\HttpMessage\Request;
@@ -23,7 +25,7 @@ class Application extends Publisher
 
     public function __construct(
         $name,
-        array $services = [],
+        callable $servicesCallback,
         $environment = self::ENVIRONMENT_PROD,
         $debugMode = false,
         $rootDir = null
@@ -34,14 +36,12 @@ class Application extends Publisher
             $rootDir = __DIR__ . "/../../../../";
         }
 
-        register_shutdown_function([$this, "shutdown"]);
-
         $this
             ->setRootDir($rootDir)
             ->setName($name)
             ->setEnvironment($environment)
             ->setDebugMode($debugMode)
-            ->setServices(new ServicesHash($this, $services));
+            ->setServices($servicesCallback($this));
     }
 
     public function getRootDir()
@@ -130,6 +130,26 @@ class Application extends Publisher
         return $this->setOriginalRequest(null);
     }
 
+    protected function callListeners(Event $event, SubscribersArrayList $subscribers, $when)
+    {
+        $logger = $this->getServices()->get("logger");
+        if ($logger) {
+            $logger->debug("Running listeners {$when} \"{$event->getName()}\" event");
+        }
+
+        return parent::callListeners($event, $subscribers, $when);
+    }
+
+    public function publish($name, callable $callback, Hash $params = null)
+    {
+        $logger = $this->getServices()->get("logger");
+        if ($logger) {
+            $logger->debug("Publishing \"{$name}\" event");
+        }
+
+        return parent::publish($name, $callback, $params);
+    }
+
     public function getAbsolutePath($relativePath, $rootDir = null)
     {
         if (null === $rootDir) {
@@ -160,50 +180,62 @@ class Application extends Publisher
         return $this->hasOriginalRequest();
     }
 
-    public function publish($name, array $params = [])
+    public function handle(Request $request, $actionClass = null, Hash $actionArgs = null)
     {
-        $logger = $this->getServices()->get("logger");
-        if ($logger) {
-            $logger->info("Publishing event: {$name}");
+        if (null === $actionArgs) {
+            $actionArgs = new Hash();
         }
 
-        return parent::publish($name, $params);
-    }
-
-    public function handle(Request $request, $actionClass = null, array $actionArgs = [])
-    {
         if ($this->isHandling()) {
             throw new \RuntimeException("Application is already handling a request");
         }
 
         $this->setOriginalRequest($request);
 
-        $event = $this->publish("handle", [
-            "request" => $request,
-            "response" => null,
-            "actionClass" => $actionClass,
-            "actionArgs" => new Hash($actionArgs)
-        ]);
+        $event = $this->publish(
+            "handle",
+            function (Event $event) {
 
-        $eventParams = $event->getParams();
+                $eventParams = $event->getParams();
 
-        $response = $eventParams->get("response");
-        if ($response instanceof Response) {
-            return $response;
+                $response = $eventParams->get("response");
+
+                if (!$response instanceof Response) {
+
+                    $actionClass = $eventParams->get("actionClass");
+
+                    if (null === $actionClass) {
+                        $response = $this->httpError404();
+                    } else {
+                        $actionArgs = $eventParams->get("actionArgs");
+                        $response = $this->subrequest($actionClass, $actionArgs);
+                    }
+
+                }
+
+                $eventParams->set("response", $response);
+
+            },
+            (new Hash())
+                ->set("request", $request)
+                ->set("actionClass", $actionClass)
+                ->set("actionArgs", $actionArgs)
+        );
+
+        $response = $event->getParams()->get("response");
+        if (!$response instanceof Response) {
+            throw new \RuntimeException("A response was not provided");
         }
 
-        $actionClass = $eventParams->get("actionClass");
-        if (null === $actionClass) {
-            return $this->httpError404();
-        }
-
-        $actionArgs = $eventParams->get("actionArgs")->all();
-
-        return $this->subrequest($actionClass, $actionArgs);
+        return $response;
     }
 
-    public function subrequest($actionClass, array $actionArgs = [])
+    public function subrequest($actionClass, Hash $actionArgs = null)
     {
+        if (null === $actionArgs) {
+            $actionArgs = new Hash();
+        }
+
         if (!$this->isHandling()) {
             throw new \RuntimeException("Application has not handled the original request");
         }
@@ -213,34 +245,33 @@ class Application extends Publisher
         }
 
         $abstractClass = __NAMESPACE__ . "\Action\AbstractAction";
-
         if (!is_subclass_of($actionClass, $abstractClass)) {
             throw new \RuntimeException("Class {$actionClass} must extend {$abstractClass}");
         }
 
-        $action = new $actionClass($this, $actionArgs);
-        $request = clone $this->getOriginalRequest();
+        $event = $this->publish(
+            "subrequest",
+            function (Event $event) {
 
-        $event = $this->publish("subrequest", [
-            "request" => $request,
-            "response" => null,
-            "action" => $action
-        ]);
+                $eventParams = $event->getParams();
 
-        $eventParams = $event->getParams();
+                $response = $eventParams->get("response");
 
-        $response = $eventParams->get("response");
-        if ($response instanceof Response) {
-            return $response;
-        }
+                if (!$response instanceof Response) {
+                    $action = $eventParams->get("action");
+                    $request = $eventParams->get("request");
+                    $response = $action->handle($request);
+                }
 
-        $response = $action->handle($request);
+                $eventParams->set("response", $response);
 
-        if (!$response instanceof Response) {
-            throw new \RuntimeException("A response was not provided by {$actionClass}");
-        }
+            },
+            (new Hash())
+                ->set("request", clone $this->getOriginalRequest())
+                ->set("action", new $actionClass($this, $actionArgs))
+        );
 
-        return $response;
+        return $event->getParams()->get("response");
     }
 
     public function redirect($uri, $statusCode = 302)
@@ -281,31 +312,34 @@ class Application extends Publisher
 
     public function send(Response $response)
     {
-        $request = clone $this->getOriginalRequest();
+        $this->publish(
+            "send",
+            function (Event $event) {
 
-        $event = $this->publish("send", [
-            "request" => $request,
-            "response" => $response
-        ]);
+                $eventParams = $event->getParams();
 
-        if ($request->isHead() && $response->hasContent()) {
+                $request = $eventParams->get("request");
+                $response = $eventParams->get("response");
 
-            $response->getHeaders()->set(
-                "Content-Length",
-                mb_strlen($response->getContent(), $response->getCharset())
-            );
+                if ($request->isHead() && $response->hasContent()) {
 
-            $response->removeContent();
+                    $response->getHeaders()->set(
+                        "Content-Length",
+                        mb_strlen($response->getContent(), $response->getCharset())
+                    );
 
-        }
+                    $response->removeContent();
 
-        $response->send();
+                }
+
+                $response->send();
+
+            },
+            (new Hash())
+                ->set("request", clone $this->getOriginalRequest())
+                ->set("response", $response)
+        );
 
         return $this;
-    }
-
-    public function shutdown()
-    {
-        $this->publish("shutdown");
     }
 }
