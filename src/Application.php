@@ -1,11 +1,11 @@
 <?php
 namespace Panadas\Framework;
 
-use Panadas\DataStructure\Hash;
-use Panadas\EventManager\DataStructure\SubscribersArrayList;
+use Panadas\EventManager\DataStructure\EventParams;
 use Panadas\EventManager\Event;
 use Panadas\EventManager\Publisher;
-use Panadas\Framework\DataStructure\ServicesHash;
+use Panadas\Framework\DataStructure\ActionArgs;
+use Panadas\Framework\DataStructure\Services;
 use Panadas\HttpMessage\Request;
 use Panadas\HttpMessage\Response;
 
@@ -25,7 +25,7 @@ class Application extends Publisher
 
     public function __construct(
         $name,
-        callable $servicesCallback,
+        Services $services = null,
         $environment = self::ENVIRONMENT_PROD,
         $debugMode = false,
         $rootDir = null
@@ -36,12 +36,19 @@ class Application extends Publisher
             $rootDir = __DIR__ . "/../../../../";
         }
 
+        if (null === $services) {
+            $services = new Services();
+        }
+
         $this
             ->setRootDir($rootDir)
             ->setName($name)
+            ->setServices($services)
             ->setEnvironment($environment)
-            ->setDebugMode($debugMode)
-            ->setServices($servicesCallback($this));
+            ->setDebugMode($debugMode);
+
+        (new ExceptionHandler($this))->register();
+        (new ErrorHandler($this))->register();
     }
 
     public function getRootDir()
@@ -78,7 +85,7 @@ class Application extends Publisher
         return $this->services;
     }
 
-    protected function setServices(ServicesHash $services)
+    protected function setServices(Services $services)
     {
         $this->services = $services;
         return $this;
@@ -130,17 +137,7 @@ class Application extends Publisher
         return $this->setOriginalRequest(null);
     }
 
-    protected function callListeners(Event $event, SubscribersArrayList $subscribers, $when)
-    {
-        $logger = $this->getServices()->get("logger");
-        if ($logger) {
-            $logger->debug("Running listeners {$when} \"{$event->getName()}\" event");
-        }
-
-        return parent::callListeners($event, $subscribers, $when);
-    }
-
-    public function publish($name, callable $callback, Hash $params = null)
+    public function publish($name, callable $callback, EventParams $params = null)
     {
         $logger = $this->getServices()->get("logger");
         if ($logger) {
@@ -180,10 +177,10 @@ class Application extends Publisher
         return $this->hasOriginalRequest();
     }
 
-    public function handle(Request $request, $actionClass = null, Hash $actionArgs = null)
+    public function handle(Request $request, $actionClass = null, ActionArgs $actionArgs = null)
     {
         if (null === $actionArgs) {
-            $actionArgs = new Hash();
+            $actionArgs = new ActionArgs();
         }
 
         if ($this->isHandling()) {
@@ -216,7 +213,7 @@ class Application extends Publisher
                 $eventParams->set("response", $response);
 
             },
-            (new Hash())
+            (new EventParams())
                 ->set("request", $request)
                 ->set("actionClass", $actionClass)
                 ->set("actionArgs", $actionArgs)
@@ -230,10 +227,10 @@ class Application extends Publisher
         return $response;
     }
 
-    public function subrequest($actionClass, Hash $actionArgs = null)
+    public function subrequest($actionClass, ActionArgs $actionArgs = null)
     {
         if (null === $actionArgs) {
-            $actionArgs = new Hash();
+            $actionArgs = new ActionArgs();
         }
 
         if (!$this->isHandling()) {
@@ -266,7 +263,7 @@ class Application extends Publisher
                 $eventParams->set("response", $response);
 
             },
-            (new Hash())
+            (new EventParams())
                 ->set("request", clone $this->getOriginalRequest())
                 ->set("action", new $actionClass($this, $actionArgs))
         );
@@ -335,7 +332,7 @@ class Application extends Publisher
                 $response->send();
 
             },
-            (new Hash())
+            (new EventParams())
                 ->set("request", clone $this->getOriginalRequest())
                 ->set("response", $response)
         );

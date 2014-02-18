@@ -1,9 +1,9 @@
 <?php
 namespace Panadas\Framework\Action;
 
-use Panadas\DataStructure\Hash;
 use Panadas\Framework\AbstractApplicationAware;
 use Panadas\Framework\Application;
+use Panadas\Framework\DataStructure\ActionArgs;
 use Panadas\HttpMessage\Request;
 use Panadas\HttpMessage\Response;
 
@@ -12,12 +12,12 @@ abstract class AbstractAction extends AbstractApplicationAware
 
     private $args;
 
-    public function __construct(Application $application, Hash $args = null)
+    public function __construct(Application $application, ActionArgs $args = null)
     {
         parent::__construct($application);
 
         if (null === $args) {
-            $args = new Hash();
+            $args = new ActionArgs();
         }
 
         $this->setArgs($args);
@@ -28,7 +28,7 @@ abstract class AbstractAction extends AbstractApplicationAware
         return $this->args;
     }
 
-    protected function setArgs(Hash $args)
+    protected function setArgs(ActionArgs $args)
     {
         $this->args = $args;
 

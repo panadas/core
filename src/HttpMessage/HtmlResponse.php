@@ -1,39 +1,31 @@
 <?php
 namespace Panadas\Framework\HttpMessage;
 
-use Panadas\HttpMessage\HtmlResponse as ParentHttpResponse;
 use Panadas\Framework\Application;
 use Panadas\Framework\ApplicationAwareInterface;
+use Panadas\Framework\ApplicationAwareTrait;
+use Panadas\HttpMessage\DataStructure\Headers;
+use Panadas\HttpMessage\DataStructure\ResponseCookies;
+use Panadas\HttpMessage\HtmlResponse as BaseHttpResponse;
 
-class HtmlResponse extends ParentHttpResponse implements ApplicationAwareInterface
+class HtmlResponse extends BaseHttpResponse implements ApplicationAwareInterface
 {
 
-    private $application;
+    use ApplicationAwareTrait;
+
     private $title;
 
     public function __construct(
         Application $application,
         $charset = null,
-        HeadersHash $headers = null,
-        CookiesHash $cookies = null
+        Headers $headers = null,
+        ResponseCookies $cookies = null
     ) {
         parent::__construct($charset, $headers, $cookies);
 
         $this
             ->setApplication($application)
             ->setTitle($application->getName());
-    }
-
-    public function getApplication()
-    {
-        return $this->application;
-    }
-
-    protected function setApplication(Application $application)
-    {
-        $this->application = $application;
-
-        return $this;
     }
 
     public function getTitle()
