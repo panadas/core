@@ -40,7 +40,10 @@ class ErrorHandler extends AbstractApplicationAware
             return;
         }
 
-        $handler = set_exception_handler(function () {});
+        $handler = set_exception_handler(
+            function () {
+            }
+        );
         restore_exception_handler();
 
         $handler(new \ErrorException($errstr, 0, $errno, $errfile, $errline));
