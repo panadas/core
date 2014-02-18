@@ -23,6 +23,9 @@ class Application extends Publisher
     const ENVIRONMENT_TEST = "test";
     const ENVIRONMENT_DEV  = "dev";
 
+    const ACTION_REDIRECT   = "Panadas\Framework\Action\Redirect";
+    const ACTION_HTTP_ERROR = "Panadas\Framework\Action\HttpError";
+
     public function __construct(
         $name,
         Services $services = null,
@@ -274,7 +277,7 @@ class Application extends Publisher
 
     public function redirect($uri, $statusCode = 302)
     {
-        return $this->subrequest("Panadas\Framework\Action\Redirect", [
+        return $this->subrequest(static::ACTION_REDIRECT, [
             "uri" => $uri,
             "statusCode" => $statusCode
         ]);
@@ -282,7 +285,7 @@ class Application extends Publisher
 
     public function httpError($statusCode, $message = null)
     {
-        return $this->subrequest("Panadas\Framework\Action\HttpError", [
+        return $this->subrequest(static::ACTION_HTTP_ERROR, [
             "statusCode" => $statusCode,
             "message" => $message
         ]);
