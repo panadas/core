@@ -4,9 +4,9 @@ namespace Panadas\Framework\HttpMessage;
 use Panadas\Framework\Application;
 use Panadas\Framework\ApplicationAwareInterface;
 use Panadas\Framework\ApplicationAwareTrait;
-use Panadas\HttpMessage\DataStructure\Headers;
-use Panadas\HttpMessage\DataStructure\ResponseCookies;
-use Panadas\HttpMessage\HtmlResponse as BaseHttpResponse;
+use Panadas\HttpMessageModule\DataStructure\Headers;
+use Panadas\HttpMessageModule\DataStructure\ResponseCookies;
+use Panadas\HttpMessageModule\HtmlResponse as BaseHttpResponse;
 
 class HtmlResponse extends BaseHttpResponse implements ApplicationAwareInterface
 {

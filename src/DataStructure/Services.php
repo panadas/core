@@ -1,7 +1,7 @@
 <?php
 namespace Panadas\Framework\DataStructure;
 
-use Panadas\DataStructure\Hash;
+use Panadas\DataStructureModule\Hash;
 
 class Services extends Hash
 {

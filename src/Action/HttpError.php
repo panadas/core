@@ -1,7 +1,7 @@
 <?php
 namespace Panadas\Framework\Action;
 
-use Panadas\HttpMessage\Request;
+use Panadas\HttpMessageModule\Request;
 use Panadas\Framework\HttpMessage\HtmlResponse;
 
 class HttpError extends AbstractAction
