@@ -1,13 +1,13 @@
 <?php
 namespace Panadas\Framework;
 
-use Panadas\EventModule\DataStructure\EventParams;
-use Panadas\EventModule\Event;
-use Panadas\EventModule\Publisher;
+use Panadas\Event\DataStructure\EventParams;
+use Panadas\Event\Event;
+use Panadas\Event\Publisher;
 use Panadas\Framework\DataStructure\ActionArgs;
 use Panadas\Framework\DataStructure\Services;
-use Panadas\HttpMessageModule\Request;
-use Panadas\HttpMessageModule\Response;
+use Panadas\HttpMessage\Request;
+use Panadas\HttpMessage\Response;
 
 class Application extends Publisher
 {

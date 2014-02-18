@@ -1,7 +1,7 @@
 <?php
 namespace Panadas\Framework\Action;
 
-use Panadas\HttpMessageModule\Request;
+use Panadas\HttpMessage\Request;
 use Panadas\Framework\HttpMessage\HtmlResponse;
 
 class Redirect extends AbstractAction

@@ -1,7 +1,7 @@
 <?php
 namespace Panadas\Framework\DataStructure;
 
-use Panadas\DataStructureModule\Hash;
+use Panadas\DataStructure\Hash;
 
 class ActionArgs extends Hash
 {

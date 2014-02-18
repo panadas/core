@@ -4,8 +4,8 @@ namespace Panadas\Framework\Action;
 use Panadas\Framework\AbstractApplicationAware;
 use Panadas\Framework\Application;
 use Panadas\Framework\DataStructure\ActionArgs;
-use Panadas\HttpMessageModule\Request;
-use Panadas\HttpMessageModule\Response;
+use Panadas\HttpMessage\Request;
+use Panadas\HttpMessage\Response;
 
 abstract class AbstractAction extends AbstractApplicationAware
 {
