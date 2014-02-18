@@ -11,9 +11,9 @@
     ],
     "require": {
         "php": ">=5.5.0",
-        "panadas/data-structure": "~1.0",
-        "panadas/event-manager": "~1.0",
-        "panadas/http-message": "~1.0"
+        "panadas/module-data-structure": "~1.0",
+        "panadas/module-event": "~1.0",
+        "panadas/module-http-message": "~1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "~3.7.0",
