@@ -17,7 +17,7 @@ class ExceptionHandler extends AbstractApplicationAware
     public function handle(\Exception $exception)
     {
         $logger = $this->getApplication()->getServices()->get("logger");
-        if ($logger) {
+        if (null !== $logger) {
             $logger->critical($exception->getMessage(), ["exception" => $exception]);
         }
 

@@ -140,7 +140,7 @@ class Application extends Publisher
     public function publish($name, callable $callback, EventParams $params = null)
     {
         $logger = $this->getServices()->get("logger");
-        if ($logger) {
+        if (null !== $logger) {
             $logger->debug("Publishing \"{$name}\" event");
         }
 

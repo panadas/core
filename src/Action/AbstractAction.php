@@ -50,7 +50,7 @@ abstract class AbstractAction extends AbstractApplicationAware
         if (!in_array($method, $supportedMethods)) {
 
             $logger = $this->getApplication()->getServices()->get("logger");
-            if ($logger) {
+            if (null !== $logger) {
                 $logger->warn("Invalid request method: {$method}");
             }
 
