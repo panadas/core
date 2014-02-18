@@ -88,6 +88,7 @@ class Application extends Publisher
     protected function setServices(Services $services)
     {
         $this->services = $services;
+
         return $this;
     }
 

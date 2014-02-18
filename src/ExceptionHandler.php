@@ -93,7 +93,6 @@ class ExceptionHandler extends AbstractApplicationAware
                     $line["line"] = null;
                 }
 
-
                 $traceContent .= sprintf(
                     '
                         <tr>
