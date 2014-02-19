@@ -141,16 +141,6 @@ class Application extends Publisher
         return $this->setOriginalRequest(null);
     }
 
-    public function publish($name, callable $callback, EventParams $params = null)
-    {
-        $logger = $this->getServices()->get("logger");
-        if (null !== $logger) {
-            $logger->debug("Publishing \"{$name}\" event");
-        }
-
-        return parent::publish($name, $callback, $params);
-    }
-
     public function getAbsolutePath($relativePath, $rootDir = null)
     {
         if (null === $rootDir) {
@@ -195,28 +185,7 @@ class Application extends Publisher
 
         $event = $this->publish(
             "handle",
-            function (Event $event) {
-
-                $eventParams = $event->getParams();
-
-                $response = $eventParams->get("response");
-
-                if (!$response instanceof Response) {
-
-                    $actionClass = $eventParams->get("actionClass");
-
-                    if (null === $actionClass) {
-                        $response = $this->httpError404();
-                    } else {
-                        $actionArgs = $eventParams->get("actionArgs");
-                        $response = $this->subrequest($actionClass, $actionArgs);
-                    }
-
-                }
-
-                $eventParams->set("response", $response);
-
-            },
+            [$this, "onHandleEvent"],
             (new EventParams())
                 ->set("request", $request)
                 ->set("actionClass", $actionClass)
@@ -229,6 +198,28 @@ class Application extends Publisher
         }
 
         return $response;
+    }
+
+    protected function onHandleEvent(Event $event)
+    {
+        $eventParams = $event->getParams();
+
+        $response = $eventParams->get("response");
+
+        if (!$response instanceof Response) {
+
+            $actionClass = $eventParams->get("actionClass");
+
+            if (null === $actionClass) {
+                $response = $this->httpError404();
+            } else {
+                $actionArgs = $eventParams->get("actionArgs");
+                $response = $this->subrequest($actionClass, $actionArgs);
+            }
+
+        }
+
+        $eventParams->set("response", $response);
     }
 
     public function subrequest($actionClass, ActionArgs $actionArgs = null)
@@ -252,27 +243,28 @@ class Application extends Publisher
 
         $event = $this->publish(
             "subrequest",
-            function (Event $event) {
-
-                $eventParams = $event->getParams();
-
-                $response = $eventParams->get("response");
-
-                if (!$response instanceof Response) {
-                    $action = $eventParams->get("action");
-                    $request = $eventParams->get("request");
-                    $response = $action->handle($request);
-                }
-
-                $eventParams->set("response", $response);
-
-            },
+            [$this, "onSubrequestEvent"],
             (new EventParams())
                 ->set("request", clone $this->getOriginalRequest())
                 ->set("action", new $actionClass($this, $actionArgs))
         );
 
         return $event->getParams()->get("response");
+    }
+
+    protected function onSubrequestEvent(Event $event)
+    {
+        $eventParams = $event->getParams();
+
+        $response = $eventParams->get("response");
+
+        if (!$response instanceof Response) {
+            $action = $eventParams->get("action");
+            $request = $eventParams->get("request");
+            $response = $action->handle($request);
+        }
+
+        $eventParams->set("response", $response);
     }
 
     public function redirect($uri, $statusCode = 302)
@@ -315,32 +307,33 @@ class Application extends Publisher
     {
         $this->publish(
             "send",
-            function (Event $event) {
-
-                $eventParams = $event->getParams();
-
-                $request = $eventParams->get("request");
-                $response = $eventParams->get("response");
-
-                if ($request->isHead() && $response->hasContent()) {
-
-                    $response->getHeaders()->set(
-                        "Content-Length",
-                        mb_strlen($response->getContent(), $response->getCharset())
-                    );
-
-                    $response->removeContent();
-
-                }
-
-                $response->send();
-
-            },
+            [$this, "onSendEvent"],
             (new EventParams())
                 ->set("request", clone $this->getOriginalRequest())
                 ->set("response", $response)
         );
 
         return $this;
+    }
+
+    protected function onSendEvent(Event $event)
+    {
+        $eventParams = $event->getParams();
+
+        $request = $eventParams->get("request");
+        $response = $eventParams->get("response");
+
+        if ($request->isHead() && $response->hasContent()) {
+
+            $response->getHeaders()->set(
+                "Content-Length",
+                mb_strlen($response->getContent(), $response->getCharset())
+            );
+
+            $response->removeContent();
+
+        }
+
+        $response->send();
     }
 }
